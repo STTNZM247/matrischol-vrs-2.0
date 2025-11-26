@@ -1,0 +1,25 @@
+{% extends 'base_users.html' %}
+{% block title %}Solicitudes de cursos{% endblock %}
+{% block content %}
+  <h1>Solicitudes de cursos</h1>
+  <div class="card">
+    <table class="table">
+      <thead><tr><th>Fecha</th><th>Institución</th><th>Modo</th><th>Secciones</th><th>Cupos</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>
+        {% for r in requests %}
+        <tr>
+          <td>{{ r.created_at }}</td>
+          <td>{% if r.id_inst %}{{ r.id_inst.nom_inst }}{% else %}-{% endif %}</td>
+          <td>{{ r.mode }}</td>
+          <td>{{ r.sections }}</td>
+          <td>{{ r.cupos }}</td>
+          <td>{{ r.get_status_display }}</td>
+          <td><a class="btn btn-outline" href="{% url 'adminpanel:administracion_curso_request_detail' r.id_req %}">Ver</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">No hay solicitudes de cursos.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

@@ -1,0 +1,47 @@
+category,sheet,row_idx,text,pct
+FUNCIONALIDAD,FUNCIONALIDAD,0,La capacidad del software para proveer las funciones que satisfacen las necesidades explícitas e implícitas cuando el so,
+FUNCIONALIDAD,FUNCIONALIDAD,2,ÍTEM,
+FUNCIONALIDAD,FUNCIONALIDAD,3,Adecuación,
+FUNCIONALIDAD,FUNCIONALIDAD,7,Exactitud,
+FUNCIONALIDAD,FUNCIONALIDAD,11,Interoperabilidad,
+FUNCIONALIDAD,FUNCIONALIDAD,15,Seguridad,0.0
+FUNCIONALIDAD,FUNCIONALIDAD,19,Conformidad de la funcionalidad,
+FIABILIDAD,FIABILIDAD,0,La  capacidad  del software  para  mantener  un  nivel  específico   de funcionamiento cuando se está utilizando bajo co,
+FIABILIDAD,FIABILIDAD,2,ÍTEM,
+FIABILIDAD,FIABILIDAD,3,Madurez,
+FIABILIDAD,FIABILIDAD,7,Tolerancia a errores,
+FIABILIDAD,FIABILIDAD,11,Recuperabilidad,0.0
+FIABILIDAD,FIABILIDAD,15,Conformidad de la fiabilidad,
+USABILIDAD,USABILIDAD,0,"La capacidad del software de ser entendido, aprendido, usado y atractivo al usuario, cuando es utilizado bajo las condic",
+USABILIDAD,USABILIDAD,3,ÍTEM,
+USABILIDAD,USABILIDAD,4,Entendimiento,100.0
+USABILIDAD,USABILIDAD,8,Aprendizaje,
+USABILIDAD,USABILIDAD,12,Operabilidad,
+USABILIDAD,USABILIDAD,16,Atracción,
+USABILIDAD,USABILIDAD,20,Conformidad de uso,
+EFICIENCIA,EFICIENCIA,3,ÍTEM,
+EFICIENCIA,EFICIENCIA,4,Comportamiento de tiempos,
+EFICIENCIA,EFICIENCIA,8,Utilización de recursos,
+EFICIENCIA,EFICIENCIA,12,Conformidad de eficiencia,
+CAPACIDAD DE MANTENIMIENTO,CAPACIDAD DE MANTENIMIENTO,0,"Capacidad del software para ser modificado. Las modificaciones pueden incluir correcciones, mejoras o adaptación del  so",
+CAPACIDAD DE MANTENIMIENTO,CAPACIDAD DE MANTENIMIENTO,3,ÍTEM,
+CAPACIDAD DE MANTENIMIENTO,CAPACIDAD DE MANTENIMIENTO,4,Capacidad de ser analizado,
+CAPACIDAD DE MANTENIMIENTO,CAPACIDAD DE MANTENIMIENTO,8,Cambiabilidad,100.0
+CAPACIDAD DE MANTENIMIENTO,CAPACIDAD DE MANTENIMIENTO,12,Estabilidad,
+CAPACIDAD DE MANTENIMIENTO,CAPACIDAD DE MANTENIMIENTO,16,Facilidad de prueba,
+CAPACIDAD DE MANTENIMIENTO,CAPACIDAD DE MANTENIMIENTO,20,Conformidad de facilidad de mantenimiento,
+PORTABILIDAD, PORTABILIDAD,0,"La capacidad del software para ser trasladado de un entorno a otro. El entorno puede incluir entornos organizacionales, ",
+PORTABILIDAD, PORTABILIDAD,3,ÍTEM,
+PORTABILIDAD, PORTABILIDAD,4,Adaptabilidad,100.0
+PORTABILIDAD, PORTABILIDAD,8,Facilidad de instalación,100.0
+PORTABILIDAD, PORTABILIDAD,12,Coexistencia,
+PORTABILIDAD, PORTABILIDAD,16,Reemplazabilidad,
+PORTABILIDAD, PORTABILIDAD,20,Conformidad de portabilidad,
+CALIDAD EN USO,CALIDAD EN USO,0,"La capacidad del software para permitirles a usuarios específicos lograr las  metas  propuestas  con  eficacia,  product",
+CALIDAD EN USO,CALIDAD EN USO,3,ÍTEM,
+CALIDAD EN USO,CALIDAD EN USO,4,Eficacia,
+CALIDAD EN USO,CALIDAD EN USO,8,Productividad,
+CALIDAD EN USO,CALIDAD EN USO,12,Seguridad,
+CALIDAD EN USO,CALIDAD EN USO,16,Satisfacción,
+CALIDAD EN USO,CALIDAD EN USO,20,Mercadeo,
+CALIDAD EN USO,CALIDAD EN USO,24,Estandarizacion,100.0

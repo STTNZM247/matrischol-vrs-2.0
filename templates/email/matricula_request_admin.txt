@@ -1,0 +1,15 @@
+Nueva solicitud de matrícula
+
+Hola {{ admin_name }},
+
+Se ha recibido una nueva solicitud de matrícula para {{ estudiante_nombre }} en la institución {{ institucion }}.
+
+{% if grado_solicitado %}Grado solicitado: {{ grado_solicitado }}
+{% endif %}
+{% if request_id %}ID solicitud: {{ request_id }}
+{% endif %}
+
+Revisa la solicitud desde el panel administrativo para revisar documentos y procesarla.
+
+Saludos,
+Equipo MatriSchol

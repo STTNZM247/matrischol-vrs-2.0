@@ -1,0 +1,133 @@
+{% extends 'base_users.html' %}
+{% load static %}
+{% block title %}Panel Estudiante{% endblock %}
+{% block content %}
+  <center><h2 style="margin:0 0 14px 0;">Bienvenido {{ user.nom_usu }} {{ user.ape_usu }}</h2></center>
+
+  <style>
+    /* Ajustes generales para institución y horario: siempre disponibles */
+    .inst-wrapper { width:100%; box-sizing:border-box; padding:0; margin:6px 0 12px 0; }
+    .inst-card { max-width:100%; border-radius:8px; overflow:hidden; background:#fff; border:1px solid #e6e6e6; }
+    .inst-card table { width:100%; border-collapse:collapse; }
+    .inst-card th, .inst-card td { padding:10px; text-align:left; border-top:1px solid #eee; word-break:break-word; white-space:normal; }
+    /* Reduce la fuente en pantallas pequeñas para evitar cortes */
+    .inst-card td, .inst-card th { font-size: clamp(0.72rem, 1.2vw, 0.95rem); }
+
+    /* Horario: wrapper centrado, tarjeta visual y tabla escalable */
+    .horario-wrapper { max-width:920px; margin:8px auto; padding:6px; width:100%; box-sizing:border-box; overflow-x:auto; }
+    .horario-card { border-radius:10px; overflow:hidden; box-shadow:0 6px 18px rgba(17,24,39,0.06); background:white; border:3px solid #111; }
+    .horario-grid { width:100%; border-collapse:collapse; text-align:center; font-size: clamp(0.75rem, 1vw + 0.6rem, 0.95rem); table-layout:fixed; }
+    .horario-grid th, .horario-grid td { padding:8px; border:1px solid #eee; min-height:44px; overflow-wrap:break-word; }
+    .horario-grid th { background:#f7f7f7; }
+    /* Primera columna (hora) más flexible: fuente escalable y wrap para móviles */
+    .horario-grid th:first-child, .horario-grid td:first-child { width:120px; min-width:64px; max-width:160px; }
+    .horario-time {
+      font-weight:600;
+      text-align:left;
+      padding-left:10px;
+      width:120px;
+      min-width:64px;
+      max-width:160px;
+      font-size: clamp(0.66rem, 1.1vw, 0.95rem);
+      white-space:normal;
+      word-break:break-word;
+      line-height:1.05;
+    }
+
+    /* Medium screens: slightly smaller */
+    @media (max-width:1024px){
+      .horario-grid th, .horario-grid td { padding:7px; min-height:40px; font-size:0.88rem; }
+      .horario-grid th:first-child, .horario-grid td:first-child { width:96px; }
+      .horario-time { width:96px; padding-left:8px; font-size:clamp(0.64rem,1vw,0.86rem); }
+    }
+
+    /* Small tablets / large phones */
+    @media (max-width:768px){
+      .horario-grid th, .horario-grid td { padding:6px; min-height:34px; font-size:0.82rem; }
+      .horario-grid th:first-child, .horario-grid td:first-child { width:84px; }
+      .horario-time { width:84px; padding-left:6px; font-size:clamp(0.62rem,0.95vw,0.82rem); }
+    }
+
+    /* Phones: compact, allow horizontal scroll; reduce font and paddings */
+    @media (max-width:480px){
+      .horario-wrapper { padding:4px; }
+      .horario-grid th, .horario-grid td { padding:6px 4px; min-height:30px; font-size:clamp(0.6rem,2.4vw,0.8rem); }
+      .horario-grid th:first-child, .horario-grid td:first-child { width:72px; }
+      .horario-time { width:72px; font-size:clamp(0.58rem,2.2vw,0.78rem); padding-left:4px; }
+    }
+  </style>
+
+  {# Mostrar primero el horario, luego la información de la institución centrada debajo #}
+  <section style="margin-top:18px;">
+    <h3 style="text-align:center;margin-bottom:10px;">Horario (vista)</h3>
+    <div>
+      {% if slots %}
+        <div class="horario-wrapper">
+          <div class="horario-card">
+            <table class="horario-grid">
+              <thead>
+                <tr>
+                  <th style="padding:8px;border:1px solid #eee;background:#f7f7f7;">Hora</th>
+                  <th style="padding:8px;border:1px solid #eee;background:#f7f7f7;">Lunes</th>
+                  <th style="padding:8px;border:1px solid #eee;background:#f7f7f7;">Martes</th>
+                  <th style="padding:8px;border:1px solid #eee;background:#f7f7f7;">Miércoles</th>
+                  <th style="padding:8px;border:1px solid #eee;background:#f7f7f7;">Jueves</th>
+                  <th style="padding:8px;border:1px solid #eee;background:#f7f7f7;">Viernes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for slot in slots %}
+                  <tr>
+                    <td class="horario-time">{% if slot.start %}{{ slot.start|time:"H:i" }}{% endif %}{% if slot.end %} - {{ slot.end|time:"H:i" }}{% endif %}</td>
+                    {% for cell in slot.cells_list %}
+                      <td style="background: {{ slot.bg_color }}; color: {{ slot.text_color }}; vertical-align:middle;">
+                        {% if cell %}
+                          <div style="font-weight:600;">{{ cell.id_asig.nombre }}</div>
+                          {% if cell.id_mae %}
+                            <div style="font-size:0.8rem;opacity:0.9;margin-top:6px;">{{ cell.id_mae.id_usu.nom_usu }} {{ cell.id_mae.id_usu.ape_usu }} — {{ cell.id_mae.especialidad|default:'-' }}</div>
+                          {% endif %}
+                        {% else %}
+                          &nbsp;
+                        {% endif %}
+                      </td>
+                    {% endfor %}
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      {% else %}
+        <div style="text-align:center;color:var(--muted);">El horario se mostrará aquí una vez el administrativo agregue las materias y horarios.</div>
+      {% endif %}
+    </div>
+
+    <h3 style="text-align:center;margin-top:18px;">Institución de matrícula</h3>
+    <div class="inst-wrapper">
+      {% if institucion %}
+        <div class="inst-card" style="border-radius:8px;overflow:hidden;background:#fff;border:1px solid #e6e6e6;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr>
+                <th style="text-align:left;padding:8px;background:#fafafa;border-bottom:1px solid var(--muted);">Institución</th>
+                <th style="text-align:left;padding:8px;background:#fafafa;border-bottom:1px solid var(--muted);">Departamento / Municipio</th>
+                <th style="text-align:left;padding:8px;background:#fafafa;border-bottom:1px solid var(--muted);">Dirección</th>
+                <th style="text-align:left;padding:8px;background:#fafafa;border-bottom:1px solid var(--muted);">Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:10px;border-top:1px solid #eee;font-weight:600;">{{ institucion.nom_inst }}</td>
+                <td style="padding:10px;border-top:1px solid #eee;">{{ institucion.dep_inst }} / {{ institucion.mun_inst }}</td>
+                <td style="padding:10px;border-top:1px solid #eee;">{% if institucion.dire_inst %}{{ institucion.dire_inst }}{% else %}-{% endif %}</td>
+                <td style="padding:10px;border-top:1px solid #eee;">{% if institucion.ema_inst %}<a href="mailto:{{ institucion.ema_inst }}">{{ institucion.ema_inst }}</a>{% else %}-{% endif %}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div style="text-align:center;color:var(--muted);">No hay institución registrada para este estudiante.</div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

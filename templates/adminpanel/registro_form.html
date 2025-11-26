@@ -1,0 +1,116 @@
+{% extends 'base_users.html' %}
+{% load static %}
+{% block title %}{% if create %}Crear Registro{% else %}Editar Registro{% endif %}{% endblock %}
+{% block content %}
+  <style>
+    /* Estilos modernos para formulario de registro */
+    .form-container { max-width: 720px; margin: 0 auto; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .form-container h1 { text-align: center; margin-bottom: 24px; font-size: 1.8rem; color: #111; }
+    .form-container h3 { margin: 24px 0 16px 0; font-size: 1.2rem; color: #333; border-bottom: 2px solid #e6e6e6; padding-bottom: 8px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 500; color: #333; font-size: 0.95rem; }
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="password"],
+    .form-group select,
+    .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #d0d7de; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+    .form-group input[type="file"] { padding: 8px; border: 1px solid #d0d7de; border-radius: 8px; width: 100%; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: 2px solid #0d6efd; border-color: #0d6efd; }
+    .password-wrapper { position: relative; display: block; }
+    .password-wrapper input { padding-right: 40px !important; width: 100%; box-sizing: border-box; }
+    .password-wrapper .eye-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666; font-size: 1.1rem; z-index: 10; user-select: none; }
+    .password-wrapper .eye-icon:hover { color: #0d6efd; }
+    .form-actions { display: flex; gap: 12px; justify-content: center; margin-top: 24px; }
+    .form-actions .btn { padding: 10px 24px; border-radius: 8px; font-size: 0.95rem; }
+    .extra-actions { text-align: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e6e6e6; }
+    .extra-actions a { color: #0d6efd; text-decoration: none; }
+    .extra-actions a:hover { text-decoration: underline; }
+    @media (max-width: 768px) {
+      .form-container { padding: 16px; }
+      .form-container h1 { font-size: 1.5rem; }
+    }
+  </style>
+
+  <div class="form-container">
+    <h1>{% if create %}Crear Registro{% else %}Editar Registro{% endif %}</h1>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% with admin_fields="num_doc_adm tel_adm dir_adm tip_carg_adm cedula_img foto_perfil" %}
+        {% for field in form.visible_fields %}
+          {% if field.name not in admin_fields %}
+            <div class="form-group">
+              {{ field.label_tag }}
+              {% if field.name == 'con_usu' %}
+                <div class="password-wrapper">
+                  {{ field }}
+                  <i class="fa-solid fa-eye eye-icon" id="eye-icon-registro" onclick="togglePasswordRegistro()"></i>
+                </div>
+              {% else %}
+                {{ field }}
+              {% endif %}
+              {% if field.errors %}
+                <div style="color:#dc3545;font-size:0.85rem;margin-top:4px;">{{ field.errors|striptags }}</div>
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endwith %}
+
+      {% if form.num_doc_adm %}
+        <h3>Documentos administrativos (opcional)</h3>
+        <div class="form-group">
+          {{ form.num_doc_adm.label_tag }}
+          {{ form.num_doc_adm }}
+        </div>
+        <div class="form-group">
+          {{ form.tel_adm.label_tag }}
+          {{ form.tel_adm }}
+        </div>
+        <div class="form-group">
+          {{ form.dir_adm.label_tag }}
+          {{ form.dir_adm }}
+        </div>
+        <div class="form-group">
+          {{ form.tip_carg_adm.label_tag }}
+          {{ form.tip_carg_adm }}
+        </div>
+        <div class="form-group">
+          {{ form.cedula_img.label_tag }}
+          {{ form.cedula_img }}
+        </div>
+        <div class="form-group">
+          {{ form.foto_perfil.label_tag }}
+          {{ form.foto_perfil }}
+        </div>
+      {% endif %}
+
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Guardar</button>
+        <a href="{% url 'adminpanel:registro_list' %}" class="btn btn-primary">Cancelar</a>
+      </div>
+    </form>
+
+    {% if not create %}
+      <div class="extra-actions">
+        <a href="{% url 'adminpanel:registro_change_password' reg.id_usu %}">Cambiar contraseña</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <script>
+    function togglePasswordRegistro() {
+      const passwordInput = document.getElementById('id_con_usu');
+      const eyeIcon = document.getElementById('eye-icon-registro');
+      if (!passwordInput || !eyeIcon) return;
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+      }
+    }
+  </script>
+{% endblock %}

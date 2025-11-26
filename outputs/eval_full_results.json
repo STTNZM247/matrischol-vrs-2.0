@@ -1,0 +1,325 @@
+{
+  "weights_raw": {
+    "FUNCIONALIDAD": 5.0,
+    "FIABILIDAD": 4.0,
+    "USABILIDAD": 5.0,
+    "EFICIENCIA": 3.0,
+    "CAPACIDAD DE MANTENIMIENTO": 5.0,
+    "PORTABILIDAD": 5.0,
+    "CALIDAD EN USO": 6.0
+  },
+  "weights_normalized": {
+    "FUNCIONALIDAD": 15.151515151515152,
+    "FIABILIDAD": 12.121212121212121,
+    "USABILIDAD": 15.151515151515152,
+    "EFICIENCIA": 9.090909090909092,
+    "CAPACIDAD DE MANTENIMIENTO": 15.151515151515152,
+    "PORTABILIDAD": 15.151515151515152,
+    "CALIDAD EN USO": 18.181818181818183
+  },
+  "cat_results": {
+    "FUNCIONALIDAD": {
+      "sheet": "FUNCIONALIDAD",
+      "items": 7,
+      "evaluated": 1,
+      "sum_pct": 0.0,
+      "mean_evaluated_pct": 0.0,
+      "mean_conservative_pct": 0.0,
+      "per_item": [
+        {
+          "row_idx": 0,
+          "text": "La capacidad del software para proveer las funciones que satisfacen las necesidades explícitas e implícitas cuando el so",
+          "pct": null
+        },
+        {
+          "row_idx": 2,
+          "text": "ÍTEM",
+          "pct": null
+        },
+        {
+          "row_idx": 3,
+          "text": "Adecuación",
+          "pct": null
+        },
+        {
+          "row_idx": 7,
+          "text": "Exactitud",
+          "pct": null
+        },
+        {
+          "row_idx": 11,
+          "text": "Interoperabilidad",
+          "pct": null
+        },
+        {
+          "row_idx": 15,
+          "text": "Seguridad",
+          "pct": 0.0
+        },
+        {
+          "row_idx": 19,
+          "text": "Conformidad de la funcionalidad",
+          "pct": null
+        }
+      ]
+    },
+    "FIABILIDAD": {
+      "sheet": "FIABILIDAD",
+      "items": 6,
+      "evaluated": 1,
+      "sum_pct": 0.0,
+      "mean_evaluated_pct": 0.0,
+      "mean_conservative_pct": 0.0,
+      "per_item": [
+        {
+          "row_idx": 0,
+          "text": "La  capacidad  del software  para  mantener  un  nivel  específico   de funcionamiento cuando se está utilizando bajo co",
+          "pct": null
+        },
+        {
+          "row_idx": 2,
+          "text": "ÍTEM",
+          "pct": null
+        },
+        {
+          "row_idx": 3,
+          "text": "Madurez",
+          "pct": null
+        },
+        {
+          "row_idx": 7,
+          "text": "Tolerancia a errores",
+          "pct": null
+        },
+        {
+          "row_idx": 11,
+          "text": "Recuperabilidad",
+          "pct": 0.0
+        },
+        {
+          "row_idx": 15,
+          "text": "Conformidad de la fiabilidad",
+          "pct": null
+        }
+      ]
+    },
+    "USABILIDAD": {
+      "sheet": "USABILIDAD",
+      "items": 7,
+      "evaluated": 1,
+      "sum_pct": 100.0,
+      "mean_evaluated_pct": 100.0,
+      "mean_conservative_pct": 14.285714285714286,
+      "per_item": [
+        {
+          "row_idx": 0,
+          "text": "La capacidad del software de ser entendido, aprendido, usado y atractivo al usuario, cuando es utilizado bajo las condic",
+          "pct": null
+        },
+        {
+          "row_idx": 3,
+          "text": "ÍTEM",
+          "pct": null
+        },
+        {
+          "row_idx": 4,
+          "text": "Entendimiento",
+          "pct": 100.0
+        },
+        {
+          "row_idx": 8,
+          "text": "Aprendizaje",
+          "pct": null
+        },
+        {
+          "row_idx": 12,
+          "text": "Operabilidad",
+          "pct": null
+        },
+        {
+          "row_idx": 16,
+          "text": "Atracción",
+          "pct": null
+        },
+        {
+          "row_idx": 20,
+          "text": "Conformidad de uso",
+          "pct": null
+        }
+      ]
+    },
+    "EFICIENCIA": {
+      "sheet": "EFICIENCIA",
+      "items": 4,
+      "evaluated": 0,
+      "sum_pct": 0.0,
+      "mean_evaluated_pct": null,
+      "mean_conservative_pct": 0.0,
+      "per_item": [
+        {
+          "row_idx": 3,
+          "text": "ÍTEM",
+          "pct": null
+        },
+        {
+          "row_idx": 4,
+          "text": "Comportamiento de tiempos",
+          "pct": null
+        },
+        {
+          "row_idx": 8,
+          "text": "Utilización de recursos",
+          "pct": null
+        },
+        {
+          "row_idx": 12,
+          "text": "Conformidad de eficiencia",
+          "pct": null
+        }
+      ]
+    },
+    "CAPACIDAD DE MANTENIMIENTO": {
+      "sheet": "CAPACIDAD DE MANTENIMIENTO",
+      "items": 7,
+      "evaluated": 1,
+      "sum_pct": 100.0,
+      "mean_evaluated_pct": 100.0,
+      "mean_conservative_pct": 14.285714285714286,
+      "per_item": [
+        {
+          "row_idx": 0,
+          "text": "Capacidad del software para ser modificado. Las modificaciones pueden incluir correcciones, mejoras o adaptación del  so",
+          "pct": null
+        },
+        {
+          "row_idx": 3,
+          "text": "ÍTEM",
+          "pct": null
+        },
+        {
+          "row_idx": 4,
+          "text": "Capacidad de ser analizado",
+          "pct": null
+        },
+        {
+          "row_idx": 8,
+          "text": "Cambiabilidad",
+          "pct": 100.0
+        },
+        {
+          "row_idx": 12,
+          "text": "Estabilidad",
+          "pct": null
+        },
+        {
+          "row_idx": 16,
+          "text": "Facilidad de prueba",
+          "pct": null
+        },
+        {
+          "row_idx": 20,
+          "text": "Conformidad de facilidad de mantenimiento",
+          "pct": null
+        }
+      ]
+    },
+    "PORTABILIDAD": {
+      "sheet": " PORTABILIDAD",
+      "items": 7,
+      "evaluated": 2,
+      "sum_pct": 200.0,
+      "mean_evaluated_pct": 100.0,
+      "mean_conservative_pct": 28.571428571428573,
+      "per_item": [
+        {
+          "row_idx": 0,
+          "text": "La capacidad del software para ser trasladado de un entorno a otro. El entorno puede incluir entornos organizacionales, ",
+          "pct": null
+        },
+        {
+          "row_idx": 3,
+          "text": "ÍTEM",
+          "pct": null
+        },
+        {
+          "row_idx": 4,
+          "text": "Adaptabilidad",
+          "pct": 100.0
+        },
+        {
+          "row_idx": 8,
+          "text": "Facilidad de instalación",
+          "pct": 100.0
+        },
+        {
+          "row_idx": 12,
+          "text": "Coexistencia",
+          "pct": null
+        },
+        {
+          "row_idx": 16,
+          "text": "Reemplazabilidad",
+          "pct": null
+        },
+        {
+          "row_idx": 20,
+          "text": "Conformidad de portabilidad",
+          "pct": null
+        }
+      ]
+    },
+    "CALIDAD EN USO": {
+      "sheet": "CALIDAD EN USO",
+      "items": 8,
+      "evaluated": 1,
+      "sum_pct": 100.0,
+      "mean_evaluated_pct": 100.0,
+      "mean_conservative_pct": 12.5,
+      "per_item": [
+        {
+          "row_idx": 0,
+          "text": "La capacidad del software para permitirles a usuarios específicos lograr las  metas  propuestas  con  eficacia,  product",
+          "pct": null
+        },
+        {
+          "row_idx": 3,
+          "text": "ÍTEM",
+          "pct": null
+        },
+        {
+          "row_idx": 4,
+          "text": "Eficacia",
+          "pct": null
+        },
+        {
+          "row_idx": 8,
+          "text": "Productividad",
+          "pct": null
+        },
+        {
+          "row_idx": 12,
+          "text": "Seguridad",
+          "pct": null
+        },
+        {
+          "row_idx": 16,
+          "text": "Satisfacción",
+          "pct": null
+        },
+        {
+          "row_idx": 20,
+          "text": "Mercadeo",
+          "pct": null
+        },
+        {
+          "row_idx": 24,
+          "text": "Estandarizacion",
+          "pct": 100.0
+        }
+      ]
+    }
+  },
+  "weighted_conservative_percent": 10.930735930735931,
+  "weighted_provisional_rescaled_percent": 70.0,
+  "threshold_for_pass": 70.0
+}

@@ -1,0 +1,13 @@
+{% extends 'base_users.html' %}
+{% load static %}
+{% block title %}Eliminar cursos de institución{% endblock %}
+{% block content %}
+  <h1>Eliminar todos los cursos de: {{ inst.nom_inst }}</h1>
+  <p>Esta acción eliminará <strong>{{ curso_count }}</strong> cursos asociados a esta institución.</p>
+  <p>Si estás seguro, haz clic en Eliminar. Esta operación no se puede deshacer.</p>
+  <form method="post">
+    {% csrf_token %}
+    <button class="btn btn-primary" type="submit">Eliminar todos los cursos</button>
+    <a href="{% url 'adminpanel:institucion_list' %}" class="btn btn-primary">Cancelar</a>
+  </form>
+{% endblock %}

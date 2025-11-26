@@ -1,0 +1,11 @@
+{% extends 'base_users.html' %}
+{% block title %}Solicitar institución{% endblock %}
+{% block content %}
+  <h1>Solicitar nueva institución</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary">Enviar solicitud</button>
+    <a href="{% url 'accounts:panel_administrativo' %}" class="btn btn-outline">Cancelar</a>
+  </form>
+{% endblock %}

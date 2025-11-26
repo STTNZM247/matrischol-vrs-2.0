@@ -1,0 +1,15 @@
+Hola {{ admin_name }},
+
+Se ha enviado una nueva solicitud de cursos para la institución "{{ institucion }}".
+
+Detalles:
+- Modalidad: {{ mode }}
+- Grado inicio: {{ start_grade }}
+- Grado fin: {{ end_grade }}
+- Secciones: {{ sections }}
+- Cupos por sección: {{ cupos }}
+- Solicitante: {{ estudiante_nombre }}
+
+Ver la solicitud en el panel: {{ panel_url }}
+
+Soporte: {{ soporte_email }}

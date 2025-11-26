@@ -1,0 +1,48 @@
+{% extends 'base_users.html' %}
+{% block title %}Solicitud {{ req.id_req }}{% endblock %}
+{% block content %}
+  <div class="request-detail">
+    <div class="request-main">
+      <h1>Solicitud {{ req.id_req }} — {{ req.nom_inst }}</h1>
+      <dl>
+        <dt>Tipo</dt><dd>{{ req.tip_inst }}</dd>
+        <dt>Código DANE</dt><dd>{{ req.cod_dane_inst }}</dd>
+        <dt>Departamento / Municipio</dt><dd>{{ req.dep_inst }} / {{ req.mun_inst }}</dd>
+        <dt>Dirección</dt><dd>{{ req.dire_inst }}</dd>
+        <dt>Contacto</dt><dd>{{ req.ema_inst }} / {{ req.tel_inst }}</dd>
+        <dt>Solicitante</dt><dd>{% if req.submitted_by %}{{ req.submitted_by.nom_usu }} {{ req.submitted_by.ape_usu }}{% else %}-{% endif %}</dd>
+        <dt>Estado</dt><dd>{{ req.get_status_display }}</dd>
+        <dt>Comentarios del revisor</dt><dd>{{ req.reviewer_comments }}</dd>
+      </dl>
+    </div>
+
+    <aside class="request-actions">
+      <form method="post">
+        {% csrf_token %}
+        <label for="reviewer_comments">Comentarios para el solicitante (si corresponde)</label>
+        <textarea id="reviewer_comments" name="reviewer_comments" rows="6">{{ req.reviewer_comments }}</textarea>
+        <div class="actions" style="margin-top:12px">
+          <button name="action" value="approve" class="btn btn-primary">Aprobar y crear institución</button>
+          <button name="action" value="request_info" class="btn btn-primary">Solicitar información</button>
+          <button name="action" value="reject" class="btn btn-primary">Rechazar</button>
+        </div>
+      </form>
+      <div style="margin-top:12px">
+        <a href="{% url 'adminpanel:administracion_institucion_requests' %}" class="btn btn-outline">Volver al listado</a>
+      </div>
+    </aside>
+  </div>
+  <div class="card" style="margin:18px auto; max-width:1100px; background:#f8f9fb; padding:12px; border-radius:8px;">
+    <h3>Depuración: valores guardados (solo para diagnóstico)</h3>
+    <dl>
+      <dt>nom_inst</dt><dd>{{ req.nom_inst }}</dd>
+      <dt>tip_inst</dt><dd>{{ req.tip_inst }}</dd>
+      <dt>cod_dane_inst</dt><dd>{{ req.cod_dane_inst }}</dd>
+      <dt>dep_inst</dt><dd>{{ req.dep_inst }}</dd>
+      <dt>mun_inst</dt><dd>{{ req.mun_inst }}</dd>
+      <dt>dire_inst</dt><dd>{{ req.dire_inst }}</dd>
+      <dt>tel_inst</dt><dd>{{ req.tel_inst }}</dd>
+      <dt>ema_inst</dt><dd>{{ req.ema_inst }}</dd>
+    </dl>
+  </div>
+{% endblock %}

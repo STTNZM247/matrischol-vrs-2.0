@@ -1,0 +1,381 @@
+{% extends 'base_users.html' %}
+{% load static %}
+{% block title %}Documentos del Estudiante{% endblock %}
+{% block content %}
+  <h2>Documentos: {{ est.id_usu.nom_usu }} {{ est.id_usu.ape_usu }}</h2>
+
+  <div class="card">
+    <div class="card-body">
+      <p><strong>Documento:</strong> {{ est.num_doc_est }}</p>
+      <p><strong>Matrícula:</strong> {% if mat %}{{ mat.id_mat }} - {{ mat.fch_reg_mat }}{% else %}<span class="text-danger">No existe matrícula</span>{% endif %}</p>
+
+      {% load doc_labels %}
+      {% if documents_complete %}
+        <p class="doc-ok">Documentos completos</p>
+      {% else %}
+        <p class="doc-pending">Faltan documentos:</p>
+        <ul style="color:#b33;margin-top:6px;">
+          {% for m in missing %}
+            <li>{{ m|doc_label }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <hr>
+        <div class="docs-grid">
+          <div class="existing-column docs-panel">
+            <h5>Documentos existentes</h5>
+            <ul>
+              {% if documento %}
+                <li>
+                  {% if 'reg_civil_doc' in missing %}
+                    <span class="missing-badge">F</span>
+                  {% else %}
+                    <span class="ok-badge">OK</span>
+                  {% endif %}
+                  <strong style="margin-left:8px">Registro civil</strong>
+                  {% if documento.reg_civil_doc %}<span class="muted" style="margin-left:auto"><a href="{{ media_url }}{{ documento.reg_civil_doc }}" target="_blank">Ver</a></span>{% endif %}
+                </li>
+                <li>
+                  {% if 'doc_idn_acu' in missing %}
+                    <span class="missing-badge">F</span>
+                  {% else %}
+                    <span class="ok-badge">OK</span>
+                  {% endif %}
+                  <strong style="margin-left:8px">Documento acudiente</strong>
+                  {% if documento.doc_idn_acu %}<span class="muted" style="margin-left:auto"><a href="{{ media_url }}{{ documento.doc_idn_acu }}" target="_blank">Ver</a></span>{% endif %}
+                </li>
+                <li>
+                  {% if 'doc_idn_alum' in missing %}
+                    <span class="missing-badge">F</span>
+                  {% else %}
+                    <span class="ok-badge">OK</span>
+                  {% endif %}
+                  <strong style="margin-left:8px">Documento estudiante</strong>
+                  {% if documento.doc_idn_alum %}<span class="muted" style="margin-left:auto"><a href="{{ media_url }}{{ documento.doc_idn_alum }}" target="_blank">Ver</a></span>{% endif %}
+                </li>
+                <li>
+                  {% if 'cnt_vac_doc' in missing %}
+                    <span class="missing-badge">F</span>
+                  {% else %}
+                    <span class="ok-badge">OK</span>
+                  {% endif %}
+                  <strong style="margin-left:8px">Constancia de vacunas</strong>
+                  {% if documento.cnt_vac_doc %}<span class="muted" style="margin-left:auto"><a href="{{ media_url }}{{ documento.cnt_vac_doc }}" target="_blank">Ver</a></span>{% endif %}
+                </li>
+                <li>
+                  {% if 'adres_doc' in missing %}
+                    <span class="missing-badge">F</span>
+                  {% else %}
+                    <span class="ok-badge">OK</span>
+                  {% endif %}
+                  <strong style="margin-left:8px">Dirección</strong>
+                  {% if documento.adres_doc %}
+                    <span class="muted" style="margin-left:auto">{% if documento.adres_doc|slice:":1" == '/' or 'documentos/' in documento.adres_doc or '.pdf' in documento.adres_doc or '.jpg' in documento.adres_doc or '.png' in documento.adres_doc %}<a href="{{ media_url }}{{ documento.adres_doc }}" target="_blank">Ver</a>{% else %}{{ documento.adres_doc }}{% endif %}</span>
+                  {% endif %}
+                </li>
+                <li>
+                  {% if 'fot_alum_doc' in missing %}
+                    <span class="missing-badge">F</span>
+                  {% else %}
+                    <span class="ok-badge">OK</span>
+                  {% endif %}
+                  <strong style="margin-left:8px">Foto alumno</strong>
+                  {% if documento.fot_alum_doc or est.foto_perfil %}
+                    <span class="muted" style="margin-left:auto"><a href="{% if documento.fot_alum_doc %}{{ media_url }}{{ documento.fot_alum_doc }}{% else %}{{ est.foto_perfil.url }}{% endif %}" target="_blank">Ver</a></span>
+                  {% endif %}
+                </li>
+                <li>
+                  {# visa is optional: show OK if present, muted if not #}
+                  {% if documento.visa_extr_doc %}
+                    <span class="ok-badge">OK</span>
+                  {% else %}
+                    <span class="muted">-</span>
+                  {% endif %}
+                  <strong style="margin-left:8px">Visa (opcional)</strong>
+                  {% if documento.visa_extr_doc %}<span class="muted" style="margin-left:auto"><a href="{{ media_url }}{{ documento.visa_extr_doc }}" target="_blank">Ver</a></span>{% else %}<span class="muted" style="margin-left:auto">No cargada</span>{% endif %}
+                </li>
+                <li>
+                  {% if 'cer_med_disca_doc' in missing %}
+                    <span class="missing-badge">F</span>
+                  {% else %}
+                    <span class="ok-badge">OK</span>
+                  {% endif %}
+                  <strong style="margin-left:8px">Certificado médico / discap.</strong>
+                  {% if documento.cer_med_disca_doc %}<span class="muted" style="margin-left:auto"><a href="{{ media_url }}{{ documento.cer_med_disca_doc }}" target="_blank">Ver</a></span>{% endif %}
+                </li>
+                <li>
+                  {% if 'cer_esc_doc' in missing %}
+                    <span class="missing-badge">F</span>
+                  {% else %}
+                    <span class="ok-badge">OK</span>
+                  {% endif %}
+                  <strong style="margin-left:8px">Certificado escolar</strong>
+                  {% if documento.cer_esc_doc %}<span class="muted" style="margin-left:auto"><a href="{{ media_url }}{{ documento.cer_esc_doc }}" target="_blank">Ver</a></span>{% endif %}
+                </li>
+              {% else %}
+                <li>No hay documentos subidos aún.</li>
+              {% endif %}
+            </ul>
+          </div>
+
+          <div class="missing-column docs-panel">
+            <h5>Documentos faltantes</h5>
+            <ul>
+              {% if missing %}
+                {% for m in missing %}
+                  <li><span class="missing-badge">F</span> <strong style="margin-left:8px">{{ m|doc_label }}</strong></li>
+                {% endfor %}
+              {% else %}
+                <li>Sin documentos faltantes</li>
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+
+      <hr>
+      <h4>Subir documentos</h4>
+      <p class="text-muted">Puedes subir documentos aunque no exista matrícula; los archivos quedarán vinculados al estudiante y cuando se cree la matrícula se podrán relacionar si es necesario.</p>
+      <form method="post" enctype="multipart/form-data" id="doc-upload-form">
+        {% csrf_token %}
+        <div class="upload-cards">
+          <!-- Card: Registro civil -->
+          <div class="upload-card">
+            <div class="card-icon">📄</div>
+            <div class="card-main">
+              <div class="card-title">Registro civil <span class="card-hint">PDF / JPG</span></div>
+              <div class="card-desc">Sube el registro civil del estudiante. Haz clic o arrastra el archivo.</div>
+              <label class="upload-btn">Seleccionar archivo
+                <input type="file" name="reg_civil_doc" accept="image/*,.pdf" data-field="reg_civil_doc">
+              </label>
+              <div class="file-preview" data-field="reg_civil_doc"></div>
+              <div class="file-meta" data-field="reg_civil_doc"></div>
+            </div>
+          </div>
+
+          <!-- Card: Documento acudiente -->
+          <div class="upload-card">
+            <div class="card-icon">🧾</div>
+            <div class="card-main">
+              <div class="card-title">Documento acudiente <span class="card-hint">PDF / JPG</span></div>
+              <div class="card-desc">Documento de identidad del acudiente responsable.</div>
+              <label class="upload-btn">Seleccionar archivo
+                <input type="file" name="doc_idn_acu" accept="image/*,.pdf" data-field="doc_idn_acu">
+              </label>
+              <div class="file-preview" data-field="doc_idn_acu"></div>
+              <div class="file-meta" data-field="doc_idn_acu"></div>
+            </div>
+          </div>
+
+          <!-- Card: Documento alumno -->
+          <div class="upload-card">
+            <div class="card-icon">🆔</div>
+            <div class="card-main">
+              <div class="card-title">Documento alumno <span class="card-hint">PDF / JPG</span></div>
+              <div class="card-desc">Documento de identidad del estudiante.</div>
+              <label class="upload-btn">Seleccionar archivo
+                <input type="file" name="doc_idn_alum" accept="image/*,.pdf" data-field="doc_idn_alum">
+              </label>
+              <div class="file-preview" data-field="doc_idn_alum"></div>
+              <div class="file-meta" data-field="doc_idn_alum"></div>
+            </div>
+          </div>
+
+          <!-- Card: Constancia vacunas -->
+          <div class="upload-card">
+            <div class="card-icon">💉</div>
+            <div class="card-main">
+              <div class="card-title">Constancia de vacunas <span class="card-hint">PDF / JPG</span></div>
+              <div class="card-desc">Sube la constancia de vacunación si aplica.</div>
+              <label class="upload-btn">Seleccionar archivo
+                <input type="file" name="cnt_vac_doc" accept="image/*,.pdf" data-field="cnt_vac_doc">
+              </label>
+              <div class="file-preview" data-field="cnt_vac_doc"></div>
+              <div class="file-meta" data-field="cnt_vac_doc"></div>
+            </div>
+          </div>
+
+          <!-- Dirección como texto: el campo de archivo fue eliminado por diseño -->
+
+          <!-- Card: Dirección (texto) -->
+          <div class="upload-card">
+            <div class="card-icon">✏️</div>
+            <div class="card-main">
+              <div class="card-title">Dirección (texto) <span class="card-hint">Opcional</span></div>
+              <div class="card-desc">Si no tienes comprobante, escribe la dirección aquí.</div>
+              <input type="text" name="adres_text" value="" placeholder="Ej: Calle 123 #45-67, Barrio" class="text-input" />
+              <div class="file-meta" data-field="adres_text"></div>
+            </div>
+          </div>
+
+          <!-- Card: Foto alumno -->
+          <div class="upload-card">
+            <div class="card-icon">🖼️</div>
+            <div class="card-main">
+              <div class="card-title">Foto alumno <span class="card-hint">JPG / PNG</span></div>
+              <div class="card-desc">Foto reciente del estudiante.</div>
+              <label class="upload-btn">Seleccionar archivo
+                <input type="file" name="fot_alum_doc" accept="image/*" data-field="fot_alum_doc">
+              </label>
+              <div class="file-preview" data-field="fot_alum_doc"></div>
+              <div class="file-meta" data-field="fot_alum_doc"></div>
+            </div>
+          </div>
+
+          <!-- Card: Visa -->
+          <div class="upload-card">
+            <div class="card-icon">🛂</div>
+            <div class="card-main">
+              <div class="card-title">Visa / Permiso extranjero <span class="card-hint">Opcional</span></div>
+              <div class="card-desc">Si aplica, sube el permiso o visa.</div>
+              <label class="upload-btn">Seleccionar archivo
+                <input type="file" name="visa_extr_doc" accept="image/*,.pdf" data-field="visa_extr_doc">
+              </label>
+              <div class="file-preview" data-field="visa_extr_doc"></div>
+              <div class="file-meta" data-field="visa_extr_doc"></div>
+            </div>
+          </div>
+
+          <!-- Card: Certificado médico -->
+          <div class="upload-card">
+            <div class="card-icon">🩺</div>
+            <div class="card-main">
+              <div class="card-title">Certificado médico / discapacidad <span class="card-hint">PDF / JPG</span></div>
+              <div class="card-desc">Documentos médicos relevantes.</div>
+              <label class="upload-btn">Seleccionar archivo
+                <input type="file" name="cer_med_disca_doc" accept="image/*,.pdf" data-field="cer_med_disca_doc">
+              </label>
+              <div class="file-preview" data-field="cer_med_disca_doc"></div>
+              <div class="file-meta" data-field="cer_med_disca_doc"></div>
+            </div>
+          </div>
+
+          <!-- Card: Certificado escolar -->
+          <div class="upload-card">
+            <div class="card-icon">🎓</div>
+            <div class="card-main">
+              <div class="card-title">Certificado escolar <span class="card-hint">PDF / JPG</span></div>
+              <div class="card-desc">Último certificado académico disponible.</div>
+              <label class="upload-btn">Seleccionar archivo
+                <input type="file" name="cer_esc_doc" accept="image/*,.pdf" data-field="cer_esc_doc">
+              </label>
+              <div class="file-preview" data-field="cer_esc_doc"></div>
+              <div class="file-meta" data-field="cer_esc_doc"></div>
+            </div>
+          </div>
+
+        </div>
+        <div style="margin-top:14px"><button class="btn btn-primary" type="submit">Subir</button></div>
+      </form>
+
+      <script>
+        (function(){
+          // show preview and filename when user selects files
+          const form = document.getElementById('doc-upload-form');
+          if(!form) return;
+          const inputs = form.querySelectorAll('input[type=file]');
+          function handleFileChange(ev){
+            const input = ev.currentTarget;
+            const field = input.dataset.field;
+            const preview = form.querySelector('.file-preview[data-field="'+field+'"]');
+            const meta = form.querySelector('.file-meta[data-field="'+field+'"]');
+            preview.innerHTML = '';
+            meta.textContent = '';
+            const file = input.files && input.files[0];
+            if(!file) return;
+            // show image preview for images
+            if(file.type && file.type.startsWith('image/')){
+              // revoke previous blob for this preview (avoid leaks)
+              const prev = preview.querySelector('img');
+              if(prev && prev.dataset && prev.dataset.blobUrl){
+                try{ URL.revokeObjectURL(prev.dataset.blobUrl); }catch(e){}
+              }
+              const img = document.createElement('img');
+              const blobUrl = URL.createObjectURL(file);
+              img.src = blobUrl;
+              img.dataset.blobUrl = blobUrl;
+              preview.appendChild(img);
+            } else {
+              preview.textContent = '';
+            }
+            // show filename
+            meta.textContent = file.name;
+            meta.classList.add('file-selected');
+          }
+          inputs.forEach(i => i.addEventListener('change', handleFileChange));
+          // open preview in modal when clicking image
+          const modal = document.createElement('div');
+          modal.id = 'image-modal';
+          modal.innerHTML = `
+            <div class="imodal-backdrop" id="imodal-backdrop"></div>
+            <div class="imodal-content" role="dialog" aria-modal="true">
+              <button class="imodal-close" id="imodal-close" aria-label="Cerrar">×</button>
+              <img id="imodal-img" src="" alt="Vista previa" />
+            </div>
+          `;
+          document.body.appendChild(modal);
+
+          // basic styles for the modal (kept here to avoid editing global css files)
+          const style = document.createElement('style');
+          style.textContent = `
+            #image-modal { display:none; position:fixed; inset:0; z-index:1100; }
+            #image-modal .imodal-backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.6); }
+            /* modal content centered and scroll if needed */
+            #image-modal .imodal-content { position:relative; max-width:calc(100vw - 40px); max-height:calc(100vh - 80px); margin:40px auto; background:transparent; display:flex; align-items:center; justify-content:center; padding:12px; box-sizing:border-box; }
+            /* ensure images scale down to fit viewport without overflowing */
+            #image-modal img { max-width:calc(100vw - 120px); max-height:calc(100vh - 160px); width:auto; height:auto; object-fit:contain; border-radius:6px; box-shadow:0 8px 30px rgba(0,0,0,0.5); }
+            #image-modal .imodal-close { position:absolute; left:-6px; top:-6px; background:#fff; border-radius:50%; border:0; width:34px; height:34px; font-size:20px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.2); }
+            /* smaller thumbnails in form */
+            .file-preview img { cursor:pointer; max-width:140px; max-height:110px; border-radius:4px; }
+            /* make modal content responsive on very small screens */
+            @media (max-width:420px){
+              #image-modal .imodal-content { margin:12px; max-width:calc(100vw - 24px); max-height:calc(100vh - 48px); }
+              #image-modal img { max-width:calc(100vw - 48px); max-height:calc(100vh - 96px); }
+            }
+          `;
+          document.head.appendChild(style);
+
+          const openModal = (src) => {
+            const m = document.getElementById('image-modal');
+            const im = document.getElementById('imodal-img');
+            im.src = src;
+            m.style.display = 'block';
+            // focus close button for accessibility
+            document.getElementById('imodal-close').focus();
+          };
+          const closeModal = () => {
+            const m = document.getElementById('image-modal');
+            const im = document.getElementById('imodal-img');
+            im.src = '';
+            m.style.display = 'none';
+          };
+
+          // delegate clicks on previews
+          form.addEventListener('click', function(e){
+            const img = e.target.closest('.file-preview img');
+            if(img){
+              openModal(img.src);
+            }
+          });
+
+          // also intercept clicks on existing "Ver" links that point to images
+          document.addEventListener('click', function(e){
+            const a = e.target.closest('a');
+            if(!a) return;
+            const href = a.getAttribute('href') || '';
+            // match common image extensions (jpg, jpeg, png, gif, webp)
+            if(/\.(jpe?g|png|gif|webp)(\?|$)/i.test(href)){
+              e.preventDefault();
+              openModal(href);
+            }
+          });
+
+          // close handlers
+          document.getElementById('imodal-close').addEventListener('click', closeModal);
+          document.getElementById('imodal-backdrop').addEventListener('click', closeModal);
+          document.addEventListener('keydown', function(ev){ if(ev.key === 'Escape'){ closeModal(); } });
+        })();
+      </script>
+    </div>
+  </div>
+{% endblock %}

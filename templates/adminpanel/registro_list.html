@@ -1,0 +1,42 @@
+{% extends 'base_users.html' %}
+{% load static %}
+{% block title %}Registros{% endblock %}
+{% block content %}
+  <h1>Usuarios registrados</h1>
+  <p>
+    <a href="{% url 'adminpanel:registro_create' %}" class="btn btn-primary">Crear nuevo</a>
+    <a href="{% url 'adminpanel:registro_export_csv' %}" class="btn btn-outline">Exportar CSV</a>
+  </p>
+  <form method="get" class="search-form" style="margin-bottom:12px;">
+    <input name="q" placeholder="Buscar nombre o email" value="{{ q }}" />
+    <button class="btn btn-primary">Buscar</button>
+  </form>
+  <table class="table">
+    <thead>
+      <tr><th>ID</th><th>Nombre</th><th>Email</th><th>Rol</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for r in registros %}
+        <tr>
+          <td>{{ r.id_usu }}</td>
+          <td>{{ r.nom_usu }} {{ r.ape_usu }}</td>
+          <td>{{ r.ema_usu }}</td>
+          <td>{{ r.id_rol.nom_rol }}</td>
+          <td>
+            <a href="{% url 'adminpanel:registro_edit' r.id_usu %}">Editar</a> |
+            <a href="{% url 'adminpanel:registro_change_password' r.id_usu %}">Cambiar contraseña</a> |
+            <a href="{% url 'adminpanel:registro_delete' r.id_usu %}">Eliminar</a> |
+            <a href="{% url 'adminpanel:admin_logs' %}?model=Registro&q={{ r.nom_usu }} {{ r.ape_usu }}">Historial</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5">No hay registros.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="pagination">
+    {% if registros.has_previous %}<a href="?page={{ registros.previous_page_number }}&q={{ q }}">Anterior</a>{% endif %}
+    <span>Page {{ registros.number }} / {{ registros.paginator.num_pages }}</span>
+    {% if registros.has_next %}<a href="?page={{ registros.next_page_number }}&q={{ q }}">Siguiente</a>{% endif %}
+  </div>
+{% endblock %}

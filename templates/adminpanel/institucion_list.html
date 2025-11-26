@@ -1,0 +1,55 @@
+{% extends 'base_users.html' %}
+{% load static %}
+{% block title %}Instituciones{% endblock %}
+{% block content %}
+  <h1>Instituciones</h1>
+  <p><a href="{% url 'adminpanel:institucion_create' %}" class="btn btn-primary">Crear institución</a></p>
+  <form method="get" class="search-form" style="margin-bottom:12px;">
+    <input name="q" placeholder="Buscar institución" value="{{ q }}" />
+    <button class="btn btn-primary">Buscar</button>
+  </form>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Ciudad/Depto</th>
+        <th>Contacto</th>
+        <th>Administrativo</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in instituciones %}
+        <tr>
+          <td>{{ i.id_inst }}</td>
+          <td>{{ i.nom_inst }}</td>
+          <td>{{ i.mun_inst }} / {{ i.dep_inst }}</td>
+          <td>{{ i.tel_inst }}<br>{{ i.ema_inst }}</td>
+          <td>
+            {% if i.id_adm and i.id_adm.id_usu %}
+              {{ i.id_adm.id_usu.nom_usu }} {{ i.id_adm.id_usu.ape_usu }}<br>
+              <small>{{ i.id_adm.id_usu.ema_usu }}</small>
+            {% else %}
+              <em>No asignado</em>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{% url 'adminpanel:institucion_edit' i.id_inst %}">Editar</a> |
+            <a href="{% url 'adminpanel:institucion_delete' i.id_inst %}">Eliminar</a> |
+            <a href="{% url 'adminpanel:institucion_bulk_cursos' i.id_inst %}">Crear cursos</a> |
+            <a href="{% url 'adminpanel:institucion_clear_cursos' i.id_inst %}">Eliminar todos los cursos</a> |
+            <a href="{% url 'adminpanel:institucion_curso_list' i.id_inst %}">Ver cursos</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6">No hay instituciones.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="pagination">
+    {% if instituciones.has_previous %}<a href="?page={{ instituciones.previous_page_number }}&q={{ q }}">Anterior</a>{% endif %}
+    <span>Page {{ instituciones.number }} / {{ instituciones.paginator.num_pages }}</span>
+    {% if instituciones.has_next %}<a href="?page={{ instituciones.next_page_number }}&q={{ q }}">Siguiente</a>{% endif %}
+  </div>
+{% endblock %}

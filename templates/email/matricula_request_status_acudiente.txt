@@ -1,0 +1,15 @@
+Actualización de solicitud de matrícula
+
+Hola {{ acudiente_nombre }},
+
+La solicitud de matrícula para {{ estudiante_nombre }} ha sido actualizada: {{ status }}.
+
+{% if assigned_course %}Curso asignado: {{ assigned_course }}
+{% endif %}
+{% if comment %}Observaciones: {{ comment }}
+{% endif %}
+
+Revisa el estado en tu panel: {{ panel_url }}
+
+Saludos,
+Equipo MatriSchol

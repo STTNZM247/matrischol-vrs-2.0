@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Estudiante registrado exitosamente</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background:#f4f7fb; margin:0; padding:0; }
+    .wrapper { max-width:560px; margin:0 auto; background:#ffffff; border-radius:12px; padding:32px 30px 38px; box-shadow:0 4px 14px -6px rgba(0,0,0,.1); }
+    h1 { font-size:20px; margin:0 0 18px; color:#0d1e33; }
+    p { line-height:1.6; font-size:15px; color:#2d3e50; margin-bottom:14px; }
+    .highlight { background:#e7f3ff; padding:14px 18px; border-radius:8px; margin:18px 0; border-left:4px solid #0d6efd; }
+    .highlight strong { color:#0d6efd; }
+    a.btn { display:inline-block; padding:12px 20px; background:#0d6efd; color:#fff !important; text-decoration:none; border-radius:8px; font-size:14px; margin-top:18px; }
+    .small { font-size:12px; color:#7a8694; margin-top:28px; }
+    ul { margin:12px 0; padding-left:20px; }
+    ul li { margin-bottom:8px; color:#2d3e50; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <h1>¡Felicidades, {{ acudiente_nombre }}!</h1>
+    <p>Has registrado exitosamente a tu estudiante en <strong>MatriSchol</strong>.</p>
+    
+    <div class="highlight">
+      <p style="margin:0;"><strong>Estudiante:</strong> {{ estudiante_nombre }}</p>
+      <p style="margin:6px 0 0;"><strong>Documento:</strong> {{ estudiante_doc }}</p>
+    </div>
+
+    <p><strong>Próximo paso: Subir documentos</strong></p>
+    <p>Para completar el proceso de matrícula, es necesario que subas los siguientes documentos del estudiante desde tu panel de acudiente:</p>
+    <ul>
+      <li>Documento de identidad</li>
+      <li>Certificado de estudios (si aplica)</li>
+      <li>Foto del estudiante</li>
+      <li>Otros documentos requeridos por la institución</li>
+    </ul>
+
+    <p><a class="btn" href="{{ panel_url }}">Ir a mi panel de acudiente</a></p>
+
+    <p class="small">Si tienes dudas o necesitas ayuda, contáctanos en {{ soporte_email }}. © MatriSchol</p>
+  </div>
+</body>
+</html>

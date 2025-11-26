@@ -1,0 +1,76 @@
+{% extends 'base_users.html' %}
+{% block title %}Maestros — {{ inst.nom_inst }}{% endblock %}
+{% block content %}
+  <h1>Maestros — {{ inst.nom_inst }}</h1>
+  <section style="display:flex;gap:20px;align-items:flex-start;">
+    <div style="flex:1;min-width:360px;">
+      <h3>Registrar maestro</h3>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label>Nombre</label><br>
+        <input type="text" name="nom_usu" style="width:100%;padding:8px;margin-top:6px;" required>
+        <label>Apellido</label><br>
+        <input type="text" name="ape_usu" style="width:100%;padding:8px;margin-top:6px;" required>
+        <label>Correo</label><br>
+        <input type="email" name="ema_usu" style="width:100%;padding:8px;margin-top:6px;" required>
+        <label>Contraseña</label><br>
+        <div style="position:relative;">
+          <input type="password" name="password" id="password-maestro" style="width:100%;padding:8px;margin-top:6px;padding-right:36px;" required>
+          <i class="fas fa-eye" id="eye-icon-maestro" onclick="togglePasswordMaestro()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#666;"></i>
+        </div>
+        <label>Número de documento</label><br>
+        <input type="text" name="num_doc_mae" style="width:100%;padding:8px;margin-top:6px;" required>
+        <label>Especialidad</label><br>
+        <input type="text" name="especialidad" style="width:100%;padding:8px;margin-top:6px;">
+        <label>Foto (opcional)</label><br>
+        <input type="file" name="foto" style="margin-top:6px;">
+        <div style="margin-top:10px;"><button class="btn btn-primary">Registrar maestro</button></div>
+      </form>
+    </div>
+
+    <div style="flex:2;min-width:420px;">
+      <h3>Maestros registrados</h3>
+      <table style="width:100%;border-collapse:collapse;margin-top:8px;">
+        <thead>
+          <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">Nombre</th><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">Documento</th><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">Especialidad</th><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">Correo</th></tr>
+        </thead>
+        <tbody>
+          {% for m in maestros %}
+            <tr>
+              <td style="padding:8px;border-top:1px solid #f3f3f3;">{{ m.id_usu.nom_usu }} {{ m.id_usu.ape_usu }}</td>
+              <td style="padding:8px;border-top:1px solid #f3f3f3;">{{ m.num_doc_mae }}</td>
+              <td style="padding:8px;border-top:1px solid #f3f3f3;">{{ m.especialidad|default:'-' }}</td>
+              <td style="padding:8px;border-top:1px solid #f3f3f3;">{{ m.id_usu.ema_usu }}</td>
+              <td style="padding:8px;border-top:1px solid #f3f3f3;">
+                <a class="btn btn-outline" href="{% url 'adminpanel:maestro_edit' m.id_mae %}">Editar</a>
+                <form method="post" action="{% url 'adminpanel:maestro_delete' m.id_mae %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button class="btn btn-outline" style="margin-left:6px;">Eliminar</button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="4" style="padding:8px;color:var(--muted);">No hay maestros registrados para esta institución.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <script>
+    function togglePasswordMaestro() {
+      const passwordInput = document.getElementById('password-maestro');
+      const eyeIcon = document.getElementById('eye-icon-maestro');
+      if (!passwordInput || !eyeIcon) return;
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+      }
+    }
+  </script>
+{% endblock %}

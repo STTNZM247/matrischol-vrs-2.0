@@ -1,0 +1,9 @@
+Hola {{ admin_name }},
+
+{{ title }}
+
+{{ message }}
+
+Ver en el panel: {{ notif_link }}
+
+Soporte: {{ soporte_email }}

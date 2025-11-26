@@ -1,0 +1,10 @@
+Hola {{ admin_name }},
+
+La solicitud de institución "{{ institucion_nombre }}" (ID: {{ request_id }}) ha sido {{ status_label }}.
+
+Comentarios del revisor:
+{{ comments }}
+
+Puedes ver la solicitud en el panel de administración: {{ panel_url }}
+
+Soporte: {{ soporte_email }}

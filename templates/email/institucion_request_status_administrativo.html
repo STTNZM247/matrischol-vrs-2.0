@@ -1,0 +1,7 @@
+<p>Hola {{ admin_name }},</p>
+<p>La solicitud de institución "<strong>{{ institucion_nombre }}</strong>" (ID: {{ request_id }}) ha sido <strong>{{ status_label }}</strong>.</p>
+{% if comments %}
+<p><strong>Comentarios del revisor:</strong><br>{{ comments|linebreaksbr }}</p>
+{% endif %}
+<p>Puedes ver la solicitud en el panel de administración: <a href="{{ panel_url }}">Ir al panel de solicitudes</a></p>
+<p>Soporte: {{ soporte_email }}</p>

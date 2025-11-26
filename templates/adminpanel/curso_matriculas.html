@@ -1,0 +1,29 @@
+{% extends 'base_users.html' %}
+{% block title %}Matriculas - Curso{% endblock %}
+{% block content %}
+  <h1>Matriculas — {{ curso.grd_cur }} (ID {{ curso.id_cur }})</h1>
+  <p>Institución: {{ curso.id_inst.nom_inst }}</p>
+  <p>Total matriculados: <strong>{{ total }}</strong></p>
+
+  {% if matriculas and matriculas.count %}
+    <table class="table">
+      <thead>
+        <tr><th>Estudiante</th><th>Email</th><th>Documento</th><th>Fecha matriculado</th></tr>
+      </thead>
+      <tbody>
+        {% for m in matriculas %}
+          <tr>
+            <td>{{ m.id_est.id_usu.nom_usu }} {{ m.id_est.id_usu.ape_usu }}</td>
+            <td>{{ m.id_est.id_usu.ema_usu }}</td>
+            <td>{{ m.id_est.num_doc_est|default:'-' }}</td>
+            <td>{{ m.fch_reg_mat }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="alert alert-info">No hay estudiantes matriculados en este curso.</div>
+  {% endif %}
+
+  <p><a class="btn btn-outline" href="{% url 'adminpanel:curso_list' %}">Volver a cursos</a></p>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base_users.html' %}
+{% block title %}Editar Maestro — {{ inst.nom_inst }}{% endblock %}
+{% block content %}
+  <h1>Editar Maestro — {{ inst.nom_inst }}</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label>Nombre</label><br>
+    <input type="text" name="nom_usu" value="{{ mae.id_usu.nom_usu }}" style="width:100%;padding:8px;margin-top:6px;" required>
+    <label>Apellido</label><br>
+    <input type="text" name="ape_usu" value="{{ mae.id_usu.ape_usu }}" style="width:100%;padding:8px;margin-top:6px;" required>
+    <label>Correo</label><br>
+    <input type="email" name="ema_usu" value="{{ mae.id_usu.ema_usu }}" style="width:100%;padding:8px;margin-top:6px;" required>
+    <label>Contraseña (dejar en blanco para no cambiar)</label><br>
+    <div style="position:relative;">
+      <input type="password" name="password" id="password-edit" style="width:100%;padding:8px;margin-top:6px;padding-right:36px;">
+      <i class="fas fa-eye" id="eye-icon-edit" onclick="togglePasswordEdit()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#666;"></i>
+    </div>
+    <label>Número de documento</label><br>
+    <input type="text" name="num_doc_mae" value="{{ mae.num_doc_mae }}" style="width:100%;padding:8px;margin-top:6px;" required>
+    <label>Especialidad</label><br>
+    <input type="text" name="especialidad" value="{{ mae.especialidad }}" style="width:100%;padding:8px;margin-top:6px;">
+    <label>Foto (opcional)</label><br>
+    <input type="file" name="foto" style="margin-top:6px;">
+    <div style="margin-top:10px;"><button class="btn btn-primary">Guardar cambios</button></div>
+  </form>
+
+  <script>
+    function togglePasswordEdit() {
+      const passwordInput = document.getElementById('password-edit');
+      const eyeIcon = document.getElementById('eye-icon-edit');
+      if (!passwordInput || !eyeIcon) return;
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+      }
+    }
+  </script>
+{% endblock %}

@@ -1,0 +1,15 @@
+<html>
+  <body style="font-family: Arial, Helvetica, sans-serif; color:#222">
+    <h2>Nueva solicitud de matrícula</h2>
+    <p>Hola {{ admin_name }},</p>
+    <p>Se ha recibido una nueva solicitud de matrícula para <strong>{{ estudiante_nombre }}</strong> en la institución <strong>{{ institucion }}</strong>.</p>
+    {% if grado_solicitado %}
+      <p>Grado solicitado: {{ grado_solicitado }}</p>
+    {% endif %}
+    {% if request_id %}
+      <p>ID solicitud: {{ request_id }}</p>
+    {% endif %}
+    <p>Revisa la solicitud desde el panel administrativo para revisar documentos y procesarla.</p>
+    <p>Saludos,<br/>Equipo MatriSchol</p>
+  </body>
+</html>

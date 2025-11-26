@@ -1,0 +1,13 @@
+{% extends 'base_users.html' %}
+{% load static %}
+{% block title %}{% if create %}Crear Curso{% else %}Editar Curso{% endif %}{% endblock %}
+{% block content %}
+  <h1>{% if create %}Crear Curso{% else %}Editar Curso{% endif %}</h1>
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <p>
+      <button class="btn btn-primary">{% if create %}Crear{% else %}Guardar{% endif %}</button>
+      <a href="{% url 'adminpanel:curso_list' %}" class="btn btn-primary">Cancelar</a>
+    </p>
+  </form>
+{% endblock %}

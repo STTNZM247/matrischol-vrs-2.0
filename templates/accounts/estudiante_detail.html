@@ -1,0 +1,41 @@
+{% extends 'base_users.html' %}
+{% load static %}
+{% block title %}Estudiante{% endblock %}
+{% block content %}
+  <div class="student-detail student-profile">
+    <div class="detail-card">
+      <div class="detail-avatar">
+        {% if est.foto_perfil %}
+          <img src="{{ est.foto_perfil.url }}" alt="Foto {{ est.id_usu.nom_usu }}" class="avatar-large">
+        {% else %}
+          <div class="avatar-large avatar-fallback">{{ est.id_usu.nom_usu|first }}{{ est.id_usu.ape_usu|first }}</div>
+        {% endif %}
+      </div>
+      <div class="detail-info">
+        <h2 class="student-name">{{ est.id_usu.nom_usu }} {{ est.id_usu.ape_usu }}</h2>
+        <p class="student-doc">Documento: <strong>{{ est.num_doc_est }}</strong></p>
+        <p class="muted">Fecha de nacimiento: {{ est.fch_nac_estu|default:'No informado' }}</p>
+        <p class="muted">Teléfono: {{ est.tel_estu|default:'No informado' }}</p>
+        <p class="muted">Correo: {{ est.id_usu.ema_usu|default:'No informado' }}</p>
+      </div>
+      <div class="documents-section">
+        {% load doc_labels %}
+        {% if major_complete %}
+          <p class="doc-ok">Al día</p>
+          <p style="margin-top:8px"><a class="btn btn-sm btn-success" href="{% url 'accounts:documentos_panel' est.id_est %}">Subir / Ver documentos</a></p>
+        {% else %}
+          <p class="doc-missing">Faltan documentos</p>
+          {% if missing_docs %}
+            <ul class="missing-expanded" style="color:#b33;margin-top:6px;">
+              {% for m in missing_docs %}
+                <li>{{ m|doc_label }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          <p style="margin-top:8px"><a class="btn btn-sm btn-danger" href="{% url 'accounts:documentos_panel' est.id_est %}">Subir documentos</a></p>
+        {% endif %}
+        <p class="help-text">Al subir, debes subir al menos 5 documentos importantes.</p>
+      </div>
+    </div>
+  </div>
+{% endblock %}

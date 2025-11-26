@@ -1,0 +1,15 @@
+Solicitud recibida
+
+Hola {{ acudiente_nombre }},
+
+Hemos recibido tu solicitud de matrícula para {{ estudiante_nombre }} en la institución {{ institucion }}.
+
+{% if request_id %}ID solicitud: {{ request_id }}
+{% endif %}
+
+Te estaremos enviando actualizaciones por correo cuando el administrativo revise la solicitud. Puedes revisar el estado en tu panel: {{ panel_url }}
+
+Si necesitas ayuda, escribe a {{ soporte_email }}.
+
+Saludos,
+Equipo MatriSchol

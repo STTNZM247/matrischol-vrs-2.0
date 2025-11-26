@@ -1,0 +1,130 @@
+{% extends 'base_users.html' %}
+{% load doc_labels %}
+{% block title %}Solicitud de Matrícula{% endblock %}
+{% block content %}
+  <h1>Solicitud de Matrícula - ID {{ req.id_req }}</h1>
+  <p><a class="btn btn-primary" href="{% url 'adminpanel:notifications' %}">Volver a notificaciones</a></p>
+
+  <div class="card" style="padding:12px;">
+    <h3>Información de la institución</h3>
+    <p><strong>{{ req.id_inst.nom_inst }}</strong> - {{ req.id_inst.dire_inst }}</p>
+
+    <h3>Estudiante</h3>
+    <p><strong>{{ req.id_est.id_usu.nom_usu }} {{ req.id_est.id_usu.ape_usu }}</strong></p>
+    <p>Documento: {{ req.id_est.num_doc_est }}</p>
+    <p>Fecha nacimiento: {{ req.id_est.fch_nac_est }}</p>
+
+    <h3>Acudiente</h3>
+    <p><strong>{{ req.id_acu.id_usu.nom_usu }} {{ req.id_acu.id_usu.ape_usu }}</strong></p>
+    <p>Tel: {{ req.id_acu.tel_acu }}</p>
+    <p>Dirección: {{ req.id_acu.dir_acu }}</p>
+
+    <h3>Detalles de la solicitud</h3>
+    <p>Grado solicitado: {{ req.grado_solicitado }}</p>
+    <p>Estado: {{ req.estado }}</p>
+    <p>Creada: {{ req.created_at }}</p>
+
+    <form method="post" style="margin-top:12px;">
+      {% csrf_token %}
+      <label>Observaciones administrativas (se guardan en la matrícula si acepta):</label>
+      <textarea name="comment" rows="4" style="width:100%;"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px;justify-content:flex-end">
+        <button name="action" value="accept" class="btn btn-primary">Aceptar</button>
+        <button name="action" value="hold" class="btn btn-primary">Poner en espera</button>
+        <button name="action" value="reject" class="btn btn-primary">Rechazar</button>
+      </div>
+    </form>
+  </div>
+  
+  <div id="docs-registered-card" class="card" style="padding:12px;margin-top:12px">
+    <h3>Documentos registrados del estudiante</h3>
+    {% if docs_list %}
+      {% for row in docs_list %}
+        <div style="border:1px solid #eee;padding:10px;margin-bottom:10px;border-radius:6px;">
+          <strong>Registro documento #{{ row.doc.id_doc }}</strong>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px">
+            {% for it in row.items %}
+              <div style="min-width:200px;max-width:320px;">
+                <div style="font-weight:600">{{ it.field|doc_label }}</div>
+                {% if it.is_image %}
+                  <a href="{{ MEDIA_URL }}{{ it.value }}" target="_blank"><img src="{{ MEDIA_URL }}{{ it.value }}" style="max-width:220px;max-height:160px;border:1px solid #ccc;padding:4px;border-radius:4px" alt="{{ it.field }}"></a>
+                {% else %}
+                  <div style="word-break:break-all;"><a href="{{ MEDIA_URL }}{{ it.value }}" target="_blank">{{ it.value }}</a></div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>No hay documentos registrados para este estudiante.</p>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<style>
+  /* simple lightbox modal styles */
+  .doc-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); align-items:center; justify-content:center; z-index:14000; }
+  .doc-modal.open { display:flex; }
+  .doc-modal .inner { max-width:calc(100vw - 40px); max-height:calc(100vh - 80px); position:relative; padding:8px; box-sizing:border-box; }
+  .doc-modal img { max-width:calc(100vw - 120px); max-height:calc(100vh - 160px); width:auto; height:auto; object-fit:contain; border-radius:6px; box-shadow:0 8px 30px rgba(0,0,0,0.6); }
+  .doc-modal .close-btn { position:absolute; left:-10px; top:-10px; background:#fff; border-radius:50%; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .doc-modal .caption { color:#fff; margin-top:8px; text-align:center; font-size:0.95em; }
+</style>
+
+<div id="doc-modal" class="doc-modal" aria-hidden="true">
+  <div class="inner">
+    <button class="close-btn" id="doc-modal-close" aria-label="Cerrar">✕</button>
+    <img id="doc-modal-img" src="" alt="Documento">
+    <div class="caption" id="doc-modal-caption"></div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    const modal = document.getElementById('doc-modal');
+    const modalImg = document.getElementById('doc-modal-img');
+    const modalCaption = document.getElementById('doc-modal-caption');
+    const closeBtn = document.getElementById('doc-modal-close');
+
+    function openModal(href, caption){
+      modalImg.src = href;
+      modalCaption.textContent = caption || '';
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+      // focus close button for accessibility
+      document.getElementById('doc-modal-close').focus();
+    }
+    function closeModal(){
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden','true');
+      modalImg.src = '';
+    }
+
+    // Use event delegation on the documents card to intercept clicks on links to images
+    const docsCard = document.getElementById('docs-registered-card');
+    if(docsCard){
+      // For robustness: convert image links to use data-href and prevent navigation
+      docsCard.querySelectorAll('a').forEach(a => {
+        const href = a.getAttribute('href') || '';
+        if(/\.(jpe?g|png|gif|webp)(\?|$)/i.test(href)){
+          try{ a.removeAttribute('target'); }catch(e){}
+          try{
+            // store original URL and neutralize href to avoid any navigation
+            a.setAttribute('data-href', href);
+            a.setAttribute('href', 'javascript:void(0)');
+            a.style.cursor = 'pointer';
+            // ensure clicking opens modal with stored URL
+            a.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); openModal(this.getAttribute('data-href'), this.getAttribute('title') || this.textContent.trim() || 'Documento'); return false; });
+          }catch(e){}
+        }
+      });
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', function(e){ if(e.target === modal) closeModal(); });
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeModal(); });
+  })();
+</script>
+{% endblock %}

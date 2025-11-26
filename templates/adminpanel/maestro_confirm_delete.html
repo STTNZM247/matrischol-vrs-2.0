@@ -1,0 +1,11 @@
+{% extends 'base_users.html' %}
+{% block title %}Eliminar Maestro{% endblock %}
+{% block content %}
+  <h1>Eliminar Maestro</h1>
+  <p>¿Seguro que deseas eliminar al maestro <strong>{{ mae.id_usu.nom_usu }} {{ mae.id_usu.ape_usu }}</strong> ({{ mae.num_doc_mae }})?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button class="btn btn-danger">Sí, eliminar</button>
+    <a class="btn btn-outline" href="{% url 'adminpanel:institucion_maestros' mae.id_inst.pk %}">Cancelar</a>
+  </form>
+{% endblock %}

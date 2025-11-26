@@ -1,0 +1,116 @@
+{% extends 'base_users.html' %}
+{% load static %}
+
+{% block title %}{% if user %}{{ user.nom_usu }} {{ user.ape_usu }}{% else %}Administrativo{% endif %}{% endblock %}
+
+{% block content %}
+<style>
+  /* Panel administrativo: diseño limpio y moderno */
+  :root {
+    --admin-bg: linear-gradient(135deg,#f5f9ff 0%,#f0f7ff 40%,#eef6ff 70%,#e9f3ff 100%);
+    --admin-card-bg: #ffffff;
+    --admin-border: #e2e8f0;
+    --admin-primary: #0d6efd;
+    --admin-primary-soft: #e1f0ff;
+    --admin-text-dark: #1a1f29;
+    --admin-text-muted: #5b6675;
+  }
+  body { background: var(--admin-bg); }
+  .admin-container { max-width: 1200px; margin: 0 auto; padding: 12px 20px 40px; }
+  .admin-hero { text-align:center; padding: 34px 20px 28px; border-radius: 20px; background: radial-gradient(circle at 30% 30%, #ffffff 0%, #f5fbff 60%, #f1f7ff 100%); position: relative; box-shadow: 0 4px 18px -6px rgba(0,0,0,0.08); }
+  .admin-hero h2 { margin:0; font-size: clamp(1.65rem,4.2vw,2.4rem); font-weight: 700; letter-spacing: .5px; color: var(--admin-text-dark); }
+  .admin-hero .subtxt { margin-top:10px; font-size:.95rem; color: var(--admin-text-muted); }
+  .admin-hero .avatar { width:76px; height:76px; border-radius:50%; object-fit:cover; box-shadow:0 0 0 4px #fff,0 6px 14px -5px rgba(0,0,0,.25); position:absolute; left:50%; top:-38px; transform:translateX(-50%); background:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:1.2rem; color:var(--admin-primary); }
+  .institutions-section { margin-top:40px; }
+  .institutions-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+  .institutions-header h3 { margin:0; font-size:1.25rem; font-weight:600; letter-spacing:.4px; color: var(--admin-text-dark); }
+  .cta-register { padding:10px 18px; background:var(--admin-primary); color:#fff; border-radius:8px; text-decoration:none; font-size:.9rem; font-weight:500; transition:.25s; box-shadow:0 2px 6px -2px rgba(13,110,253,.4); }
+  .cta-register:hover { background:#0b5ed7; }
+  .institutions-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:18px; margin-top:20px; }
+  .inst-card { border-radius:16px; border:1px solid var(--admin-border); background:var(--admin-card-bg); padding:18px 18px 16px; position:relative; overflow:hidden; display:flex; flex-direction:column; min-height:188px; box-shadow:0 3px 10px -4px rgba(0,0,0,.06); transition:.28s; }
+  /* Eliminado overlay blanco; solo elevación y leve borde al hacer hover */
+  .inst-card:hover { transform:translateY(-4px); box-shadow:0 12px 26px -10px rgba(0,0,0,.18); border-color:#cfd6dd; background:var(--admin-card-bg); }
+  .inst-card .inst-name { font-size:1.15rem; font-weight:600; margin:0 0 2px; color: var(--admin-text-dark); }
+  .inst-card .inst-location,.inst-card .inst-email { font-size:.85rem; color:var(--admin-text-muted); margin-top:4px; }
+  .inst-actions { margin-top:auto; display:grid; gap:8px; }
+  .inst-actions a { display:block; text-align:center; padding:9px 12px; border-radius:8px; text-decoration:none; font-size:.8rem; font-weight:500; letter-spacing:.3px; border:1px solid var(--admin-border); background:#fff; color:var(--admin-text-dark); transition:.25s; }
+  .inst-actions a:hover { background:var(--admin-primary-soft); border-color:#c6ddff; color:#0b5ed7; }
+  .inst-actions a.btn-primary { background:var(--admin-primary); color:#fff; border-color:var(--admin-primary); }
+  .inst-actions a.btn-primary:hover { background:#0b5ed7; border-color:#0b5ed7; }
+  @media (max-width:768px){
+    .admin-hero { padding:50px 16px 26px; }
+    .institutions-grid { grid-template-columns:1fr; }
+  }
+</style>
+<div class="admin-container">
+  <div class="admin-hero">
+    {% if user and user.foto_perfil %}
+      <img class="avatar" src="{{ user.foto_perfil.url }}" alt="Avatar {{ user.nom_usu }}" loading="lazy">
+    {% else %}
+      <div class="avatar" aria-hidden="true">{{ user.nom_usu|slice:":1" }}{{ user.ape_usu|slice:":1" }}</div>
+    {% endif %}
+    <h2>Hola {{ user.nom_usu }} {{ user.ape_usu }}</h2>
+    <div class="subtxt">Gestión centralizada de tus instituciones y cursos</div>
+  </div>
+  <section class="institutions-section">
+    <div class="institutions-header">
+      <h3>Mis instituciones</h3>
+      <a class="cta-register" href="{% url 'adminpanel:request_institucion_create' %}">Registrar nueva institución</a>
+    </div>
+    {% if instituciones %}
+      <div class="institutions-grid">
+        {% for inst in instituciones %}
+          <div class="inst-card">
+              <div class="inst-meta">
+                <strong class="inst-name">
+                  {% if inst.nombre_inst %}
+                    {{ inst.nombre_inst }}
+                  {% elif inst.nom_inst %}
+                    {{ inst.nom_inst }}
+                  {% elif inst.nombre %}
+                    {{ inst.nombre }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </strong>
+                <div class="inst-location">
+                  {% if inst.dep_inst %}
+                    {{ inst.dep_inst }}{% if inst.mun_inst %} / {{ inst.mun_inst }}{% endif %}
+                  {% elif inst.localidad %}
+                    {{ inst.localidad }}{% if inst.mun_inst %} / {{ inst.mun_inst }}{% endif %}
+                  {% elif inst.mun_inst %}
+                    {{ inst.mun_inst }}
+                  {% endif %}
+                </div>
+                <div class="inst-email">Email:
+                  {% if inst.email %}
+                    {{ inst.email }}
+                  {% elif inst.ema_inst %}
+                    {{ inst.ema_inst }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </div>
+              </div>
+              <div class="inst-actions">
+                {% if inst.id_inst %}
+                  <a class="btn btn-outline" href="{% url 'adminpanel:institucion_curso_list' inst.id_inst %}">Ver datos / Cursos</a>
+                  <a class="btn btn-outline" href="{% url 'adminpanel:institucion_maestros' inst.id_inst %}">Ver / Registrar maestros</a>
+                  <a class="btn btn-primary" href="{% url 'adminpanel:request_curso_create' inst.id_inst %}">Registrar cursos</a>
+                {% else %}
+                  <a class="btn btn-outline" href="{% url 'adminpanel:institucion_curso_list' inst.pk %}">Ver datos / Cursos</a>
+                  <a class="btn btn-outline" href="{% url 'adminpanel:institucion_maestros' inst.pk %}">Ver / Registrar maestros</a>
+                  <a class="btn btn-primary" href="{% url 'adminpanel:request_curso_create' inst.pk %}">Registrar cursos</a>
+                {% endif %}
+              </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p style="text-align:center;"><strong>Ninguna institución registrada</strong></p>
+    {% endif %}
+
+  </section>
+
+</div>
+{% endblock %}

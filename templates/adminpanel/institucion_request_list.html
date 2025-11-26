@@ -1,0 +1,29 @@
+{% extends 'base_users.html' %}
+{% block title %}Solicitudes de instituciones{% endblock %}
+{% block content %}
+  <h1>Solicitudes de instituciones</h1>
+  <div class="card">
+    <table class="table">
+      <thead><tr><th>ID</th><th>Nombre</th><th>Solicitante</th><th>Estado</th><th>Creado</th><th>Acciones</th></tr></thead>
+      <tbody>
+        {% for r in requests %}
+        <tr>
+          <td>{{ r.id_req }}</td>
+          <td>{{ r.nom_inst }}</td>
+          <td>{% if r.submitted_by %}{{ r.submitted_by.nom_usu }} {{ r.submitted_by.ape_usu }}{% else %}-{% endif %}</td>
+          <td>{{ r.get_status_display }}</td>
+          <td>{{ r.created_at }}</td>
+          <td><a href="{% url 'adminpanel:administracion_institucion_request_detail' r.id_req %}">Ver / Revisar</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">No hay solicitudes.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination">
+    {% if requests.has_previous %}<a href="?page={{ requests.previous_page_number }}">Anterior</a>{% endif %}
+    <span>Page {{ requests.number }} / {{ requests.paginator.num_pages }}</span>
+    {% if requests.has_next %}<a href="?page={{ requests.next_page_number }}">Siguiente</a>{% endif %}
+  </div>
+{% endblock %}

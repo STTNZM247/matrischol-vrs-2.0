@@ -1,0 +1,10 @@
+Hola {{ submitter_name }},
+
+Tu solicitud de cursos para la institución "{{ institucion }}" (ID: {{ request_id }}) ha sido {{ status_label }}.
+
+Comentarios del revisor:
+{{ comments }}
+
+Puedes ver la solicitud en tu panel: {{ panel_url }}
+
+Soporte: {{ soporte_email }}

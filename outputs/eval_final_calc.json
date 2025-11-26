@@ -1,0 +1,16 @@
+{
+  "cat_weights_norm": {
+    "FUNCIONALIDAD": 15.151515151515152,
+    "FIABILIDAD": 12.121212121212121,
+    "USABILIDAD": 15.151515151515152,
+    "EFICIENCIA": 9.09090909090909,
+    "CAPACIDAD DE MANTENIMIENTO": 15.151515151515152,
+    "PORTABILIDAD": 15.151515151515152,
+    "CALIDAD EN USO": 18.18181818181818
+  },
+  "results_per_cat": {},
+  "conservative_total_percent": 0.0,
+  "provisional_total_percent_rescaled": null,
+  "weight_total_conservative": 0.0,
+  "weight_total_provisional": 0.0
+}

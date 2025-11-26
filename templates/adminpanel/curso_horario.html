@@ -1,0 +1,138 @@
+{% extends 'base_users.html' %}
+{% load static %}
+{% block title %}Horario del Curso{% endblock %}
+{% block content %}
+  <h1>Horario — Curso {{ curso.grd_cur }}</h1>
+  <div style="margin-bottom:12px;color:var(--muted);">Institución: {{ curso.id_inst.nom_inst }}
+    <form method="post" style="display:inline;margin-left:12px;">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="toggle_dup_check">
+      <button class="btn btn-outline" style="padding:4px 8px;">
+        {% if curso.id_inst.allow_duplicate_subject_slots %}
+          Permitir materias duplicadas en diferentes cursos: SI
+        {% else %}
+          Permitir materias duplicadas en diferentes cursos: NO
+        {% endif %}
+      </button>
+    </form>
+  </div>
+
+  <section style="display:flex;gap:18px;align-items:flex-start;">
+    <div style="flex:1;min-width:360px;">
+      <h3>Asignaturas</h3>
+      <ul>
+        {% for a in asignaturas %}
+          <li style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span>{{ a.nombre }}</span>
+            <span style="flex:0 0 auto;">
+              <form method="post" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="delete_asignatura">
+                <input type="hidden" name="asig_id" value="{{ a.id_asig }}">
+                <button class="btn btn-outline" style="padding:4px 8px;">Eliminar</button>
+              </form>
+            </span>
+          </li>
+        {% empty %}
+          <li style="color:var(--muted);">No hay asignaturas. Añade una abajo.</li>
+        {% endfor %}
+      </ul>
+
+      <form method="post" style="margin-top:8px;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_asignatura">
+        <label>Nombre asignatura</label><br>
+        <input type="text" name="nombre" style="width:100%;padding:8px;margin-top:6px;">
+        <div style="margin-top:8px;"><button class="btn btn-primary">Agregar asignatura</button></div>
+      </form>
+    </div>
+
+    <div style="flex:2;min-width:420px;">
+      <h3>Horarios</h3>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="border-bottom:1px solid #eee;padding:8px;text-align:left;">Día</th>
+            <th style="border-bottom:1px solid #eee;padding:8px;text-align:left;">Hora inicio</th>
+            <th style="border-bottom:1px solid #eee;padding:8px;text-align:left;">Hora fin</th>
+            <th style="border-bottom:1px solid #eee;padding:8px;text-align:left;">Asignatura</th>
+            <th style="border-bottom:1px solid #eee;padding:8px;text-align:left;">Aula</th>
+            <th style="border-bottom:1px solid #eee;padding:8px;text-align:left;">Maestro</th>
+            <th style="border-bottom:1px solid #eee;padding:8px;text-align:left;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for h in horarios %}
+            <tr>
+              <td style="padding:8px;border-top:1px solid #f3f3f3;">{{ h.dia_display }}</td>
+              <td style="padding:8px;border-top:1px solid #f3f3f3;">{{ h.hora_inicio|default:'-' }}</td>
+              <td style="padding:8px;border-top:1px solid #f3f3f3;">{{ h.hora_fin|default:'-' }}</td>
+              <td style="padding:8px;border-top:1px solid #f3f3f3;">{{ h.id_asig.nombre }}</td>
+              <td style="padding:8px;border-top:1px solid #f3f3f3;">{{ h.aula|default:'-' }}</td>
+              <td style="padding:8px;border-top:1px solid #f3f3f3;">{% if h.id_mae %}{{ h.id_mae.id_usu.nom_usu }} {{ h.id_mae.id_usu.ape_usu }}{% else %}-{% endif %}</td>
+              <td style="padding:8px;border-top:1px solid #f3f3f3;">
+                <form method="post" style="display:inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="delete_slot">
+                  <input type="hidden" name="hor_id" value="{{ h.id_hor }}">
+                  <button class="btn btn-outline" style="padding:4px 8px;">Eliminar</button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="7" style="padding:8px;color:var(--muted);">No hay horarios definidos.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <h4 style="margin-top:12px;">Agregar franja horaria</h4>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_slot">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:140px;">
+            <label>Asignatura</label>
+            <select name="asignatura" style="width:100%;padding:6px;margin-top:6px;">
+              {% for a in asignaturas %}
+                <option value="{{ a.id_asig }}">{{ a.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div style="flex:1;min-width:160px;">
+            <label>Maestro</label>
+            <select name="maestro" style="width:100%;padding:6px;margin-top:6px;">
+              <option value="">-- Ninguno --</option>
+              {% for m in maestros %}
+                <option value="{{ m.id_mae }}">{{ m.id_usu.nom_usu }} {{ m.id_usu.ape_usu }} — {{ m.especialidad|default:'-' }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div style="width:120px;">
+            <label>Día</label>
+            <select name="dia" style="width:100%;padding:6px;margin-top:6px;">
+              <option value="0">Lunes</option>
+              <option value="1">Martes</option>
+              <option value="2">Miércoles</option>
+              <option value="3">Jueves</option>
+              <option value="4">Viernes</option>
+            </select>
+          </div>
+          <div style="width:120px;">
+            <label>Hora inicio</label>
+            <input type="time" name="hora_inicio" style="width:100%;padding:6px;margin-top:6px;">
+          </div>
+          <div style="width:120px;">
+            <label>Hora fin</label>
+            <input type="time" name="hora_fin" style="width:100%;padding:6px;margin-top:6px;">
+          </div>
+          <div style="width:120px;">
+            <label>Aula</label>
+            <input type="text" name="aula" style="width:100%;padding:6px;margin-top:6px;">
+          </div>
+        </div>
+        <div style="margin-top:8px;"><button class="btn btn-primary">Agregar horario</button></div>
+      </form>
+    </div>
+  </section>
+
+{% endblock %}

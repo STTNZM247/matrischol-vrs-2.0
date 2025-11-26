@@ -1,0 +1,99 @@
+{% extends 'base_users.html' %}
+{% load static %}
+
+{% block title %}Panel{% endblock %}
+
+{% block content %}
+  <section class="dashboard">
+    {% if acudiente %}
+      <div class="student-detail student-profile">
+        <div class="detail-card">
+          <div class="detail-avatar">
+            <div class="avatar-wrapper">
+              <form id="foto-form" action="{% url 'accounts:upload_profile_photo' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% if acudiente.foto_perfil %}
+                  <img src="{{ acudiente.foto_perfil.url }}" alt="Foto {{ user.nom_usu }}" class="avatar-large">
+                {% else %}
+                  <div class="avatar-large avatar-fallback">{{ user.nom_usu|first }}{{ user.ape_usu|first }}</div>
+                {% endif %}
+                <input id="foto_perfil_input" class="avatar-edit-input" name="foto_perfil" type="file" accept="image/*">
+                <label for="foto_perfil_input" class="avatar-edit-label" title="Cambiar foto de perfil">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10l3 3 7-7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </label>
+              </form>
+            </div>
+          </div>
+          <div class="detail-info">
+            <h3 class="student-name">{{ user.nom_usu }} {{ user.ape_usu }}</h3>
+            <div class="student-doc">Correo: <span class="muted">{{ user.ema_usu }}</span></div>
+            {% if acudiente.num_doc_acu %}
+              <div class="student-doc">Documento: <span class="muted">{{ acudiente.num_doc_acu }}</span></div>
+            {% endif %}
+            {% if acudiente.tel_acu %}
+              <div class="student-doc">Teléfono: <span class="muted">{{ acudiente.tel_acu }}</span></div>
+            {% endif %}
+            {% if acudiente.dir_acu %}
+              <div class="student-doc">Dirección: <span class="muted">{{ acudiente.dir_acu }}</span></div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    {% elif estudiante %}
+      <div class="student-detail student-profile">
+        <div class="detail-card">
+          <div class="detail-avatar">
+            <div class="avatar-wrapper">
+              {% if estudiante.foto_perfil %}
+                <img src="{{ estudiante.foto_perfil.url }}" alt="Foto {{ estudiante.id_usu.nom_usu }}" class="avatar-large">
+              {% else %}
+                <div class="avatar-large avatar-fallback">{{ estudiante.id_usu.nom_usu|first }}{{ estudiante.id_usu.ape_usu|first }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="detail-info">
+            <h3 class="student-name">{{ estudiante.id_usu.nom_usu }} {{ estudiante.id_usu.ape_usu }}</h3>
+            <div class="student-doc">Correo: <span class="muted">{{ estudiante.id_usu.ema_usu }}</span></div>
+            {% if estudiante.num_doc_est %}
+              <div class="student-doc">Documento: <span class="muted">{{ estudiante.num_doc_est }}</span></div>
+            {% endif %}
+            {% if estudiante.tel_est %}
+              <div class="student-doc">Teléfono: <span class="muted">{{ estudiante.tel_est }}</span></div>
+            {% endif %}
+            {% if estudiante.dir_est %}
+              <div class="student-doc">Dirección: <span class="muted">{{ estudiante.dir_est }}</span></div>
+            {% endif %}
+            <p style="margin-top:8px"><a class="btn btn-sm btn-success" href="{% url 'accounts:documentos_panel' estudiante.id_est %}">Subir / Ver documentos</a></p>
+          </div>
+        </div>
+      </div>
+
+    {% else %}
+      <h2>Bienvenido, {{ user.nom_usu }} {{ user.ape_usu }}</h2>
+    {% endif %}
+  </section>
+  <script>
+    // Auto-submit the foto form when a file is selected
+    (function(){
+      const input = document.getElementById('foto_perfil_input');
+      if (!input) return;
+      input.addEventListener('change', function(){
+        if (input.files && input.files.length) {
+          const f = input.files[0];
+          if (f.size > 5 * 1024 * 1024) {
+            alert('La imagen debe ser menor a 5 MB.');
+            input.value = '';
+            return;
+          }
+          document.getElementById('foto-form').submit();
+        }
+      });
+    })();
+  </script>
+{% endblock %}
+                  }
+                });
+              })();
+            </script>
+      <h2>Bienvenido, {{ user.nom_usu }} {{ user.ape_usu }}</h2>

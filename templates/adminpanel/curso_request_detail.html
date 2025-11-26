@@ -1,0 +1,26 @@
+{% extends 'base_users.html' %}
+{% block title %}Solicitud de cursos {{ req.id_req }}{% endblock %}
+{% block content %}
+  <h1>Solicitud de cursos {{ req.id_req }} — {% if req.id_inst %}{{ req.id_inst.nom_inst }}{% else %}Sin institución{% endif %}</h1>
+  <dl>
+    <dt>Modo</dt><dd>{{ req.mode }}</dd>
+    <dt>Secciones</dt><dd>{{ req.sections }}</dd>
+    <dt>Cupos</dt><dd>{{ req.cupos }}</dd>
+    <dt>Grado inicio / fin</dt><dd>{{ req.start_grade }} / {{ req.end_grade }}</dd>
+    <dt>Solicitante</dt><dd>{% if req.submitted_by %}{{ req.submitted_by.nom_usu }} {{ req.submitted_by.ape_usu }}{% else %}-{% endif %}</dd>
+    <dt>Estado</dt><dd>{{ req.get_status_display }}</dd>
+    <dt>Comentarios del revisor</dt><dd>{{ req.reviewer_comments }}</dd>
+  </dl>
+
+  <form method="post">
+    {% csrf_token %}
+    <label>Comentarios para el solicitante (si corresponde)</label>
+    <textarea name="reviewer_comments" rows="4" style="width:100%">{{ req.reviewer_comments }}</textarea>
+    <div style="margin-top:12px">
+      <button name="action" value="approve" class="btn btn-primary">Aprobar y crear cursos</button>
+      <button name="action" value="request_info" class="btn btn-primary">Solicitar información</button>
+      <button name="action" value="reject" class="btn btn-primary">Rechazar</button>
+      <a href="{% url 'adminpanel:administracion_curso_requests' %}" class="btn btn-outline">Volver</a>
+    </div>
+  </form>
+{% endblock %}

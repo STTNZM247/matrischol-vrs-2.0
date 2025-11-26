@@ -1,0 +1,25 @@
+{% extends 'base_users.html' %}
+{% block title %}Solicitud {{ req.id_req }}{% endblock %}
+{% block content %}
+  <h1>Solicitud {{ req.id_req }} — {{ req.nom_inst }}</h1>
+  <p>Estado: <strong>{{ req.get_status_display }}</strong></p>
+  <dl>
+    <dt>Tipo</dt><dd>{{ req.tip_inst }}</dd>
+    <dt>Código DANE</dt><dd>{{ req.cod_dane_inst }}</dd>
+    <dt>Departamento / Municipio</dt><dd>{{ req.dep_inst }} / {{ req.mun_inst }}</dd>
+    <dt>Dirección</dt><dd>{{ req.dire_inst }}</dd>
+    <dt>Contacto</dt><dd>{{ req.ema_inst }} / {{ req.tel_inst }}</dd>
+    <dt>Comentarios del revisor</dt><dd>{{ req.reviewer_comments }}</dd>
+  </dl>
+  {% if missing %}
+    <div class="card" style="background:#fff3cd; padding:12px; border-radius:8px;">
+      <strong>Faltan los siguientes datos:</strong>
+      <ul>
+        {% for m in missing %}
+          <li>{{ m }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+  <p><a class="btn btn-outline" href="{% url 'adminpanel:notifications' %}">Volver a notificaciones</a></p>
+{% endblock %}

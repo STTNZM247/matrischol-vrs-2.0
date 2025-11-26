@@ -1,0 +1,51 @@
+{% extends 'base_users.html' %}
+{% block title %}Notificaciones{% endblock %}
+{% block content %}
+  <h1>Notificaciones</h1>
+  <p><a class="btn btn-outline" href="{% url 'adminpanel:notification_mark_all_read' %}">Marcar todas como leídas</a></p>
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Título</th>
+          <th>Mensaje</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for n in notifications %}
+        <tr class="{% if not n.is_read %}highlight{% endif %}">
+          <td>{{ n.timestamp|date:'Y-m-d H:i' }}</td>
+          <td>{{ n.title }}</td>
+          <td>{{ n.message }}</td>
+          <td>{% if n.is_read %}Leída{% else %}No leída{% endif %}</td>
+            <td>
+            {% if not n.is_read %}
+              <a href="{% url 'adminpanel:notification_mark_read' n.id %}" class="btn btn-primary">Marcar leída</a>
+            {% endif %}
+            {% comment %} Direct link to the related object when available to avoid indirection {% endcomment %}
+            {% if n.matricula_request_id %}
+              <a href="{% url 'adminpanel:matricula_request_detail' n.matricula_request_id %}" class="btn btn-outline">Ver</a>
+            {% elif n.institucion_request_id %}
+              <a href="{% url 'adminpanel:administracion_institucion_request_detail' n.institucion_request_id %}" class="btn btn-outline">Ver</a>
+            {% elif n.curso_request_id %}
+              <a href="{% url 'adminpanel:administracion_curso_request_detail' n.curso_request_id %}" class="btn btn-outline">Ver</a>
+            {% else %}
+              <a href="{% url 'adminpanel:notification_detail' n.id %}" class="btn btn-outline">Ver</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">No hay notificaciones.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination">
+    {% if notifications.has_previous %}<a href="?page={{ notifications.previous_page_number }}">Anterior</a>{% endif %}
+    <span>Page {{ notifications.number }} / {{ notifications.paginator.num_pages }}</span>
+    {% if notifications.has_next %}<a href="?page={{ notifications.next_page_number }}">Siguiente</a>{% endif %}
+  </div>
+{% endblock %}

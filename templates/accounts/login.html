@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Iniciar sesión{% endblock %}
+
+{% block content %}
+    <section class="hero">
+        <div class="cuadro cuadro-login">
+            <h2>Iniciar Sesión</h2>
+            <!-- evitar autofill agresivo: form con autocomplete off + campos ficticios -->
+            <form action="" method="POST" autocomplete="off" id="login-form">
+                {% csrf_token %}
+                {% if messages %}
+                    <div class="form-messages">
+                        {% for m in messages %}
+                            <div class="field-error">{{ m }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <!-- campos ocultos para confundir al autofill del navegador (no cambiar nombres reales) -->
+                <input type="text" name="fakeusernameremembered" id="fakeuser" style="position:absolute; left:-9999px; top:-9999px;" autocomplete="username">
+                <input type="password" name="fakepasswordremembered" id="fakepass" style="position:absolute; left:-9999px; top:-9999px;" autocomplete="new-password">
+                <div>
+                    <input type="text" placeholder="Correo o número de documento" name="email" required autocomplete="username" value="{{ form.data.email|default:'' }}">
+                    {% if form.email.errors %}
+                        <div class="field-error">{{ form.email.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="password-field">
+                    <!-- mantener name/id igual (no cambiar) pero indicar autocomplete correcto -->
+                    <input type="password" placeholder="Contraseña" name="password" id="password" required autocomplete="current-password">
+                    <i class="fas fa-eye" id="eye-icon" onclick="togglePassword()"></i>
+                    {% if form.password.errors %}
+                        <div class="field-error">{{ form.password.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <button type="submit">Iniciar Sesión</button>
+                <div class="login-links">
+                    <a class="no_cuenta" href="{% url 'accounts:password_reset_request' %}">¿Olvidaste tu contraseña?</a><br>
+                    <a href="{% url 'accounts:register' %}">¿No tienes cuenta? Regístrate</a>
+                </div>
+            </form>
+        </div>
+    </section>
+    
+{% endblock %}

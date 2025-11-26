@@ -1,0 +1,458 @@
+{
+  "REQUISITOS": {
+    "shape": [
+      31,
+      4
+    ],
+    "non_empty_rows": 24,
+    "columns": [
+      "PLANTILLA DE EVALUACION CALIDAD DE SOFTWARE",
+      "Unnamed: 1",
+      "Unnamed: 2",
+      "Unnamed: 3"
+    ],
+    "sample_head": [
+      [
+        "FECHA",
+        1762905600000000000,
+        "CIUDAD",
+        "Soacha-Cundinamarca"
+      ],
+      [
+        "FICHA No.",
+        null,
+        "",
+        ""
+      ],
+      [
+        "NOMBRE DEL PROYECTO",
+        null,
+        "",
+        ""
+      ]
+    ],
+    "keyword_counts": {
+      "si": 8,
+      "no": 4
+    },
+    "numeric_columns": []
+  },
+  "PARAMETROS": {
+    "shape": [
+      37,
+      5
+    ],
+    "non_empty_rows": 14,
+    "columns": [
+      "PARAMETROS",
+      "Unnamed: 1",
+      "Unnamed: 2",
+      "Unnamed: 3",
+      "Unnamed: 4"
+    ],
+    "sample_head": [
+      [
+        "Selecciones los porcentajes según el criterio de evaluación que desea aplicar correspondiente a el software a evaluar Ejemplo\nPara  Software Bancario tendría mayor peso en los indicadores siguientes\n FUNCIONALIDAD Y EFICIENCIA\nPara un Software de Capacitación o académico en los indicadores siguientes\n USABILIDAD, CALIDA EN USO y PORTABILIDAD\nEstos valores se pueden cambiar según el criterio de los evaluadores",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "CÓDIGO",
+        "ÍTEM",
+        "DESCRIPCIÓN \ncondición de Normalidad",
+        "PREGUNTAS",
+        "% TOTAL"
+      ],
+      [
+        1,
+        "FUNCIONALIDAD",
+        "La capacidad del software de cumplir con las funciones para satisfacer las necesidades explícitas e implícitas cuando es utilizado en condiciones específicas.",
+        5,
+        ""
+      ]
+    ],
+    "keyword_counts": {
+      "si": 4,
+      "no": 5
+    },
+    "numeric_columns": []
+  },
+  "FUNCIONALIDAD": {
+    "shape": [
+      31,
+      5
+    ],
+    "non_empty_rows": 13,
+    "columns": [
+      1,
+      "FUNCIONALIDAD",
+      "Unnamed: 2",
+      "Unnamed: 3",
+      "Unnamed: 4"
+    ],
+    "sample_head": [
+      [
+        "",
+        "La capacidad del software para proveer las funciones que satisfacen las necesidades explícitas e implícitas cuando el software se utiliza bajo condiciones específicas.",
+        "",
+        "",
+        ""
+      ],
+      [
+        "CÓDIGO",
+        "ÍTEM",
+        "DESCRIPCIÓN \ncondición de Normalidad",
+        "VALOR",
+        "OBSERVACIONES"
+      ],
+      [
+        "1.1",
+        "Adecuación",
+        "La capacidad del  software para proveer un adecuado conjunto de funciones para las tareas y objetivos especificados por el usuario.\nEjemplos de adecuación son la composición orientada a tareas de funciones a partir de sub funciones que las constituyen, y las capacidades de las tablas.",
+        "",
+        ""
+      ]
+    ],
+    "keyword_counts": {
+      "cumple": 4,
+      "si": 6,
+      "no": 4,
+      "punt": 1,
+      "observ": 1,
+      "resultado": 2
+    },
+    "numeric_columns": []
+  },
+  "FIABILIDAD": {
+    "shape": [
+      27,
+      5
+    ],
+    "non_empty_rows": 12,
+    "columns": [
+      2,
+      "FIABILIDAD",
+      "Unnamed: 2",
+      "Unnamed: 3",
+      "Unnamed: 4"
+    ],
+    "sample_head": [
+      [
+        "",
+        "La  capacidad  del software  para  mantener  un  nivel  específico   de funcionamiento cuando se está utilizando bajo condiciones especificadas",
+        "",
+        "",
+        ""
+      ],
+      [
+        "CÓDIGO",
+        "ÍTEM",
+        "DESCRIPCIÓN \ncondición de Normalidad",
+        "VALOR",
+        "OBSERVACIONES"
+      ],
+      [
+        "2.1",
+        "Madurez",
+        "La capacidad del  software para  evitar fallas como resultado de errores en el software.",
+        "",
+        ""
+      ]
+    ],
+    "keyword_counts": {
+      "cumple": 4,
+      "no": 4,
+      "punt": 1,
+      "observ": 1,
+      "resultado": 2
+    },
+    "numeric_columns": []
+  },
+  "USABILIDAD": {
+    "shape": [
+      32,
+      5
+    ],
+    "non_empty_rows": 13,
+    "columns": [
+      3,
+      "USABILIDAD",
+      "Unnamed: 2",
+      "Unnamed: 3",
+      "Unnamed: 4"
+    ],
+    "sample_head": [
+      [
+        "",
+        "La capacidad del software de ser entendido, aprendido, usado y atractivo al usuario, cuando es utilizado bajo las condiciones especificadas.",
+        "",
+        "",
+        ""
+      ],
+      [
+        "CÓDIGO",
+        "ÍTEM",
+        "DESCRIPCIÓN \ncondición de Normalidad",
+        "VALOR",
+        "OBSERVACIONES"
+      ],
+      [
+        "3.1",
+        "Entendimiento",
+        "La capacidad del software para  permitir al usuario entender si el software  es  adecuado,  y  cómo  puede  ser  utilizado  para  las  tareas  y  las condiciones particulares de la aplicación.\nEsto dependerá de la documentación y de las impresiones iniciales dadas por el software.",
+        "",
+        ""
+      ]
+    ],
+    "keyword_counts": {
+      "cumple": 4,
+      "si": 2,
+      "no": 2,
+      "punt": 1,
+      "observ": 1,
+      "resultado": 1
+    },
+    "numeric_columns": []
+  },
+  "EFICIENCIA": {
+    "shape": [
+      24,
+      5
+    ],
+    "non_empty_rows": 11,
+    "columns": [
+      4,
+      "EFICIENCIA",
+      "Unnamed: 2",
+      "Unnamed: 3",
+      "Unnamed: 4"
+    ],
+    "sample_head": [
+      [
+        "La capacidad del software de  proveer un  desempeño adecuado, de acuerdo a la cantidad de recursos utilizados y bajo las condiciones especificas.",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "CÓDIGO",
+        "ÍTEM",
+        "DESCRIPCIÓN \ncondición de Normalidad",
+        "VALOR",
+        "OBSERVACIONES"
+      ],
+      [
+        "4.1",
+        "Comportamiento de tiempos",
+        "La capacidad del software para proveer tiempos adecuados de respuesta y procesamiento, y ratios de rendimiento cuando realiza su función bajo las condiciones establecidas.",
+        "",
+        ""
+      ]
+    ],
+    "keyword_counts": {
+      "cumple": 4,
+      "no": 3,
+      "punt": 1,
+      "observ": 1,
+      "resultado": 1
+    },
+    "numeric_columns": []
+  },
+  "CAPACIDAD DE MANTENIMIENTO": {
+    "shape": [
+      32,
+      5
+    ],
+    "non_empty_rows": 13,
+    "columns": [
+      5,
+      "CAPACIDAD DE MANTENIMIENTO",
+      "Unnamed: 2",
+      "Unnamed: 3",
+      "Unnamed: 4"
+    ],
+    "sample_head": [
+      [
+        "",
+        "Capacidad del software para ser modificado. Las modificaciones pueden incluir correcciones, mejoras o adaptación del  software a cambios en el entorno, y especificaciones de requerimientos funcionales.",
+        "",
+        "",
+        ""
+      ],
+      [
+        "CÓDIGO",
+        "ÍTEM",
+        "DESCRIPCIÓN \ncondición de Normalidad",
+        "VALOR",
+        "OBSERVACIONES"
+      ],
+      [
+        "5.1",
+        "Capacidad de ser analizado",
+        "La  capacidad  del  software  para  atenerse  a  diagnósticos  de deficiencias o causas de fallas en el software o la identificación de las partes a ser modificadas.",
+        "",
+        ""
+      ]
+    ],
+    "keyword_counts": {
+      "cumple": 4,
+      "si": 1,
+      "no": 3,
+      "punt": 1,
+      "observ": 1,
+      "resultado": 1
+    },
+    "numeric_columns": []
+  },
+  " PORTABILIDAD": {
+    "shape": [
+      32,
+      5
+    ],
+    "non_empty_rows": 13,
+    "columns": [
+      6,
+      "\nPORTABILIDAD",
+      "Unnamed: 2",
+      "Unnamed: 3",
+      "Unnamed: 4"
+    ],
+    "sample_head": [
+      [
+        "",
+        "La capacidad del software para ser trasladado de un entorno a otro. El entorno puede incluir entornos organizacionales, de hardware o de software.",
+        "",
+        "",
+        ""
+      ],
+      [
+        "CÓDIGO",
+        "ÍTEM",
+        "DESCRIPCIÓN \ncondición de Normalidad",
+        "VALOR",
+        "OBSERVACIONES"
+      ],
+      [
+        "6.1",
+        "Adaptabilidad",
+        "La capacidad del software para ser adaptado a diferentes entornos especificados sin aplicar acciones o medios diferentes de los previstos para el propósito del software considerado.\nAdaptabilidad incluye la escalabilidad de capacidad interna (Ejemplo: Campos en pantalla, tablas, volúmenes de transacciones, formatos de reporte, etc.).\nSi  el  software  va  a   ser  adaptado  por  el  usuario  final,  la  adaptabilidad corresponde  a  la  conveniencia  de  la  individualización,  y  podría  afectar  la operabilidad.",
+        "",
+        ""
+      ]
+    ],
+    "keyword_counts": {
+      "cumple": 4,
+      "si": 3,
+      "no": 6,
+      "punt": 1,
+      "observ": 1,
+      "resultado": 1
+    },
+    "numeric_columns": []
+  },
+  "CALIDAD EN USO": {
+    "shape": [
+      35,
+      5
+    ],
+    "non_empty_rows": 14,
+    "columns": [
+      7,
+      "CALIDAD EN USO",
+      "Unnamed: 2",
+      "Unnamed: 3",
+      "Unnamed: 4"
+    ],
+    "sample_head": [
+      [
+        "",
+        "La capacidad del software para permitirles a usuarios específicos lograr las  metas  propuestas  con  eficacia,  productividad,  seguridad  y  satisfacción,  en contextos especificados de uso.",
+        "",
+        "",
+        ""
+      ],
+      [
+        "CÓDIGO",
+        "ÍTEM",
+        "DESCRIPCIÓN \ncondición de Normalidad",
+        "VALOR",
+        "OBSERVACIONES"
+      ],
+      [
+        "7.1",
+        "Eficacia",
+        "La capacidad del  software para permitir a los usuarios lograr las metas especificadas con exactitud e integridad, en un contexto especificado de uso.",
+        "",
+        ""
+      ]
+    ],
+    "keyword_counts": {
+      "cumple": 4,
+      "si": 1,
+      "no": 5,
+      "punt": 1,
+      "observ": 1,
+      "resultado": 2
+    },
+    "numeric_columns": []
+  },
+  "RESULTADOS": {
+    "shape": [
+      38,
+      8
+    ],
+    "non_empty_rows": 15,
+    "columns": [
+      "Unnamed: 0",
+      "RESULTADOS",
+      "Unnamed: 2",
+      "Unnamed: 3",
+      "Unnamed: 4",
+      "Unnamed: 5",
+      "Unnamed: 6",
+      "Unnamed: 7"
+    ],
+    "sample_head": [
+      [
+        "CÓDIGO",
+        "ÍTEM",
+        "DESCRIPCIÓN \ncondición de Normalidad",
+        "VALOR",
+        "MAXIMO",
+        "% RESUL.",
+        "MAXIMO",
+        "% GOBAL"
+      ],
+      [
+        1,
+        "FUNCIONALIDAD",
+        "La capacidad del software para proveer las funciones que satisfacen las necesidades explícitas e implícitas cuando el software se utiliza bajo condiciones específicas.",
+        0,
+        15,
+        0,
+        0,
+        0
+      ],
+      [
+        2,
+        "FIABILIDAD",
+        "La  capacidad  del software  para  mantener  un  nivel  específico   de funcionamiento cuando se está utilizando bajo condiciones especificadas",
+        0,
+        12,
+        0,
+        0,
+        0
+      ]
+    ],
+    "keyword_counts": {
+      "si": 1,
+      "no": 3,
+      "punt": 1,
+      "resultado": 1
+    },
+    "numeric_columns": []
+  }
+}

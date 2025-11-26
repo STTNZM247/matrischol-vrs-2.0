@@ -1,0 +1,42 @@
+{% extends 'base_users.html' %}
+{% block title %}Mis instituciones{% endblock %}
+{% block content %}
+<h1>Mis instituciones</h1>
+{% if not adm %}
+  <p>No estás registrado como administrativo. Contacta a un administrador.</p>
+{% else %}
+  <h2>Instituciones vinculadas</h2>
+  {% if instituciones %}
+    <div class="instituciones-grid" style="display:grid; gap:12px;">
+    {% for i in instituciones %}
+          <div class="card" style="padding:12px; border-radius:8px; background:#fff; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <strong style="font-size:1.05rem">{{ i.nom_inst }}</strong>
+          <div style="color:var(--muted); font-size:0.95rem">{{ i.dep_inst }} - {{ i.mun_inst }}</div>
+          <div style="color:var(--muted); font-size:0.95rem">Email: {{ i.ema_inst|default:'-' }}</div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center">
+          <a class="btn btn-outline" href="{% url 'adminpanel:institucion_curso_list' i.id_inst %}">Ver datos / Cursos</a>
+          <a class="btn btn-outline" href="{% url 'adminpanel:institucion_maestros' i.id_inst %}">Ver / Registrar maestros</a>
+          <a class="btn btn-primary" href="{% url 'adminpanel:request_curso_create' i.id_inst %}">Registrar cursos</a>
+        </div>
+      </div>
+    {% endfor %}
+    </div>
+  {% else %}
+    <p><strong>Ninguna institución registrada</strong></p>
+  {% endif %}
+
+  <h2>Solicitudes</h2>
+  <a class="btn btn-primary" href="{% url 'adminpanel:request_institucion_create' %}">Solicitar nueva institución</a>
+  {% if requests %}
+    <ul>
+    {% for r in requests %}
+      <li>{{ r.nom_inst }} — {{ r.get_status_display }} — {{ r.created_at }}</li>
+    {% endfor %}
+    </ul>
+  {% else %}
+    <p>No tienes solicitudes pendientes.</p>
+  {% endif %}
+{% endif %}
+{% endblock %}

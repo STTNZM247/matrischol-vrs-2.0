@@ -1,0 +1,12 @@
+{% extends 'base_users.html' %}
+{% load static %}
+{% block title %}Eliminar Administrativo{% endblock %}
+{% block content %}
+  <h1>Eliminar Administrativo</h1>
+  <p>¿Seguro que deseas eliminar al administrativo {{ adm.id_adm }} ({{ adm.num_doc_adm }})?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button class="btn btn-danger" type="submit">Eliminar</button>
+    <a href="{% url 'adminpanel:administrativo_list' %}" class="btn">Cancelar</a>
+  </form>
+{% endblock %}

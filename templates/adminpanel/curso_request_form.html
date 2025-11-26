@@ -1,0 +1,32 @@
+{% extends 'base_users.html' %}
+{% block title %}Solicitar cursos - {{ inst.nom_inst }}{% endblock %}
+{% block content %}
+  <h1>Solicitar creación de cursos para {{ inst.nom_inst }}</h1>
+  <form method="post">
+    {% csrf_token %}
+    <div>
+      <label>Modo</label>
+      {{ form.mode }}
+    </div>
+    <div>
+      <label>Secciones por grado</label>
+      {{ form.sections }}
+    </div>
+    <div>
+      <label>Cupos por curso</label>
+      {{ form.cupos }}
+    </div>
+    <div>
+      <label>Grado inicio (solo para personalizado)</label>
+      {{ form.start_grade }}
+    </div>
+    <div>
+      <label>Grado fin (solo para personalizado)</label>
+      {{ form.end_grade }}
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn btn-primary">Enviar solicitud</button>
+      <a href="{% url 'adminpanel:my_instituciones' %}" class="btn btn-outline">Cancelar</a>
+    </div>
+  </form>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'base_users.html' %}
+{% load static %}
+{% block title %}Eliminar Rol{% endblock %}
+{% block content %}
+  <h1>Eliminar rol</h1>
+  <p>¿Seguro que deseas eliminar el rol <strong>{{ rol.nom_rol }}</strong>?</p>
+  <form method="post">{% csrf_token %}
+    <button class="btn btn-primary">Sí, eliminar</button>
+    <a href="{% url 'adminpanel:rol_list' %}" class="btn">Cancelar</a>
+  </form>
+{% endblock %}

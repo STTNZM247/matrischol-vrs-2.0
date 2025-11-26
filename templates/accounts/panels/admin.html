@@ -1,0 +1,107 @@
+{% extends 'base_users.html' %}
+{% load static %}
+{% block title %}{% if user %}{{ user.nom_usu }} {{ user.ape_usu }}{% else %}Administrador{% endif %}{% endblock %}
+{% block content %}
+<style>
+    :root {
+        --sys-bg: linear-gradient(135deg,#f8fbff 0%,#f2f7ff 45%,#ecf3ff 100%);
+        --sys-card: #ffffff;
+        --sys-border: #dde3eb;
+        --sys-primary: #0d6efd;
+        --sys-primary-alt: #0b5ed7;
+        --sys-muted: #5c6673;
+        --sys-dark: #18202a;
+    }
+    body { background: var(--sys-bg); }
+    .sys-wrapper { max-width: 1180px; margin: 0 auto; padding: 12px 22px 42px; }
+    .sys-hero { position:relative; margin-top:18px; background:radial-gradient(circle at 28% 30%, #ffffff 0%, #f6fbff 55%, #f1f6ff 100%); border-radius:22px; padding:52px 30px 36px; text-align:center; box-shadow:0 4px 18px -6px rgba(0,0,0,.1); }
+    .sys-hero .avatar { width:86px; height:86px; border-radius:50%; object-fit:cover; position:absolute; top:-43px; left:50%; transform:translateX(-50%); box-shadow:0 0 0 5px #fff,0 8px 18px -6px rgba(0,0,0,.25); background:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:1.25rem; letter-spacing:.5px; color:var(--sys-primary); }
+    .sys-hero h2 { margin:0; font-size:clamp(1.7rem,4.5vw,2.5rem); font-weight:700; color:var(--sys-dark); }
+    .sys-hero p { margin:12px 0 0; font-size:.95rem; color:var(--sys-muted); }
+    .sys-grid { margin-top:40px; display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:20px; }
+    .sys-card { background:var(--sys-card); border:1px solid var(--sys-border); border-radius:18px; padding:20px 20px 18px; display:flex; flex-direction:column; position:relative; box-shadow:0 3px 10px -4px rgba(0,0,0,.07); transition:.3s; overflow:hidden; }
+    /* Remover aclarado blanco en hover */
+    .sys-card:before { content:''; display:none; }
+    .sys-card:hover { transform:translateY(-5px); box-shadow:0 12px 26px -10px rgba(0,0,0,.20); }
+    /* Sin overlay en hover */
+    .sys-card h3 { margin:0 0 8px; font-size:1.1rem; font-weight:600; color:var(--sys-dark); letter-spacing:.3px; }
+    .sys-card p { margin:0 0 14px; font-size:.82rem; color:var(--sys-muted); line-height:1.35; }
+    .sys-actions { margin-top:auto; display:flex; flex-wrap:wrap; gap:10px; }
+    .sys-btn { flex:1 1 auto; text-align:center; padding:10px 14px; border-radius:10px; font-size:.8rem; font-weight:500; letter-spacing:.4px; text-decoration:none; border:1px solid var(--sys-border); background:#fff; color:var(--sys-dark); transition:.25s; }
+    .sys-btn:hover { background:#e4f1ff; border-color:#c6ddff; color:var(--sys-primary-alt); }
+    .sys-btn.primary { background:var(--sys-primary); color:#fff; border-color:var(--sys-primary); }
+    .sys-btn.primary:hover { background:var(--sys-primary-alt); border-color:var(--sys-primary-alt); }
+        @media(max-width:780px){
+                .sys-hero { padding:60px 20px 34px; }
+                .sys-grid { grid-template-columns:1fr; }
+        }
+ </style>
+ <div class="sys-wrapper">
+     <div class="sys-hero">
+         {% if user and user.foto_perfil %}
+             <img class="avatar" src="{{ user.foto_perfil.url }}" alt="Avatar {{ user.nom_usu }}" loading="lazy">
+         {% else %}
+             <div class="avatar">{{ user.nom_usu|slice:":1" }}{{ user.ape_usu|slice:":1" }}</div>
+         {% endif %}
+         <h2>Hola {{ user.nom_usu }} {{ user.ape_usu }}</h2>
+         <p>Panel maestro del sistema: acceso completo y herramientas centrales.</p>
+     </div>
+     <div class="sys-grid">
+         <div class="sys-card">
+             <h3>Usuarios</h3>
+             <p>Gestiona registros (creación, edición, credenciales) y consulta general.</p>
+             <div class="sys-actions">
+                 <a href="{% url 'adminpanel:registro_list' %}" class="sys-btn">Ver registros</a>
+                 <a href="{% url 'adminpanel:registro_create' %}" class="sys-btn primary">Crear registro</a>
+                 <a href="{% url 'adminpanel:registro_export_csv' %}" class="sys-btn">Exportar CSV</a>
+             </div>
+         </div>
+         <div class="sys-card">
+             <h3>Instituciones</h3>
+             <p>Listado y creación de instituciones, cursos y maestros vinculados.</p>
+             <div class="sys-actions">
+                 <a href="{% url 'adminpanel:institucion_list' %}" class="sys-btn">Listar</a>
+                 <a href="{% url 'adminpanel:institucion_create' %}" class="sys-btn primary">Crear</a>
+                 <a href="{% url 'adminpanel:administracion_institucion_requests' %}" class="sys-btn">Solicitudes</a>
+             </div>
+         </div>
+         <div class="sys-card">
+             <h3>Maestros</h3>
+             <p>Gestiona maestros por institución y su asignación a cursos.</p>
+             <div class="sys-actions">
+                 <a href="{% url 'adminpanel:institucion_list' %}" class="sys-btn">Ir a instituciones</a>
+             </div>
+         </div>
+         <div class="sys-card">
+             <h3>Horarios</h3>
+             <p>Define horarios de cursos y asigna docentes a bloques.</p>
+             <div class="sys-actions">
+                 <a href="{% url 'adminpanel:curso_list' %}" class="sys-btn">Ver cursos</a>
+             </div>
+         </div>
+         <div class="sys-card">
+             <h3>Roles</h3>
+             <p>Administra roles y niveles de acceso del sistema.</p>
+             <div class="sys-actions">
+                 <a href="{% url 'adminpanel:rol_list' %}" class="sys-btn">Ver roles</a>
+                 <a href="{% url 'adminpanel:rol_create' %}" class="sys-btn primary">Crear rol</a>
+             </div>
+         </div>
+         <div class="sys-card">
+             <h3>Administrativos</h3>
+             <p>Registros del personal administrativo y gestión de permisos.</p>
+             <div class="sys-actions">
+                 <a href="{% url 'adminpanel:administrativo_list' %}" class="sys-btn">Listar administrativos</a>
+                 <a href="{% url 'adminpanel:administrativo_create' %}" class="sys-btn primary">Crear administrativo</a>
+             </div>
+         </div>
+         <div class="sys-card">
+             <h3>Logs / Auditoría</h3>
+             <p>Consulta de eventos y acciones relevantes del sistema.</p>
+             <div class="sys-actions">
+                 <a href="{% url 'adminpanel:admin_logs' %}" class="sys-btn">Ver logs</a>
+             </div>
+         </div>
+     </div>
+ </div>
+{% endblock %}

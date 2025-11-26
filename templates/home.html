@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inicio - Matrischol{% endblock %}
+
+{% block content %}
+    <section id="inicio" class="hero">
+            <div class="hero-content">
+                <h2>La educación digital al alcance de todos</h2>
+                <p>MatriSchol facilita el proceso de matrícula para instituciones, estudiantes y acudientes en toda Colombia.</p>
+            </div>
+            <div class="hero-img">
+                <img src="{% static 'img/inicio/banner.png' %}" alt="Banner educativo">
+            </div>
+        </section>
+        <section id="vision" class="section">
+            <div class="section-text">
+                <h2>Visión</h2>
+                <p>Ser la plataforma líder en transformación digital de procesos educativos, optimizando la gestión escolar y fortaleciendo la comunicación entre instituciones y familias.</p>
+            </div>
+            <div class="section-img">
+                <img src="{% static 'img/inicio/vision.jpeg' %}" alt="Visión institucional">
+            </div>
+        </section>
+        <section id="mision" class="section reverse">
+            <div class="section-text">
+                <h2>Misión</h2>
+                <p>Promover la inclusión digital en el sistema educativo mediante herramientas tecnológicas seguras, accesibles y eficientes para el proceso de matrícula.</p>
+            </div>
+            <div class="section-img">
+                <img src="{% static 'img/inicio/mision.jpg' %}" alt="Misión institucional">
+            </div>
+        </section>
+        <section id="quienes" class="about">
+            <h2>Quiénes somos</h2>
+            <p>Somos un equipo comprometido con la innovación educativa. MatriSchol nace para mejorar la experiencia de las instituciones, los estudiantes y los acudientes en la gestión académica.</p>
+            <div class="about-imgs">
+                <img src="{% static 'img/inicio/estudio.jpg' %}" alt="Equipo MatriSchol">
+            </div>
+        </section>
+        <section id="contacto" class="contact">
+            <h2>Contáctanos</h2>
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <p>📍 Bogotá, Colombia</p>
+                    <p>📞 +57 300 123 4567</p>
+                    <p>📧 contacto@matrischol.edu.co</p>
+                </div>
+                <form class="contact-form">
+                    <input type="text" placeholder="Nombre completo" required>
+                    <input type="email" placeholder="Correo electrónico" required>
+                    <textarea rows="4" placeholder="Mensaje..." required></textarea>
+                    <button type="submit" class="btn">Enviar mensaje</button>
+                </form>
+            </div>
+        </section>
+{% endblock %}

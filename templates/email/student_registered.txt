@@ -1,0 +1,20 @@
+¡Felicidades, {{ acudiente_nombre }}!
+
+Has registrado exitosamente a tu estudiante en MatriSchol.
+
+Estudiante: {{ estudiante_nombre }}
+Documento: {{ estudiante_doc }}
+
+PRÓXIMO PASO: Subir documentos
+================================
+Para completar el proceso de matrícula, sube los siguientes documentos desde tu panel de acudiente:
+- Documento de identidad
+- Certificado de estudios (si aplica)
+- Foto del estudiante
+- Otros documentos requeridos
+
+Accede a tu panel aquí: {{ panel_url }}
+
+Si tienes dudas, contáctanos en {{ soporte_email }}.
+
+© MatriSchol

@@ -1,0 +1,7 @@
+<p>Hola {{ submitter_name }},</p>
+<p>Tu solicitud de cursos para la institución "<strong>{{ institucion }}</strong>" (ID: {{ request_id }}) ha sido <strong>{{ status_label }}</strong>.</p>
+{% if comments %}
+<p><strong>Comentarios del revisor:</strong><br>{{ comments|linebreaksbr }}</p>
+{% endif %}
+<p>Puedes ver la solicitud en tu panel: <a href="{{ panel_url }}">Ir al panel</a></p>
+<p>Soporte: {{ soporte_email }}</p>

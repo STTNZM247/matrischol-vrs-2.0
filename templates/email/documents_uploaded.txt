@@ -1,0 +1,19 @@
+Documentos subidos correctamente
+
+Hola {{ acudiente_nombre }},
+
+Hemos recibido los documentos del estudiante {{ estudiante_nombre }}.
+
+{% if uploaded_fields %}
+Archivos subidos:
+{% for f in uploaded_fields %}
+- {{ f }}
+{% endfor %}
+{% endif %}
+
+Revisa el estado y sube más documentos desde tu panel: {{ panel_url }}
+
+Si necesitas ayuda, contacta a {{ soporte_email }}.
+
+Saludos,
+Equipo MatriSchol

@@ -1,0 +1,14 @@
+<html>
+  <body style="font-family: Arial, Helvetica, sans-serif; color:#222">
+    <h2>Solicitud recibida</h2>
+    <p>Hola {{ acudiente_nombre }},</p>
+    <p>Hemos recibido tu solicitud de matrícula para <strong>{{ estudiante_nombre }}</strong> en la institución <strong>{{ institucion }}</strong>.</p>
+    {% if request_id %}
+      <p>Tu ID de solicitud es: <strong>{{ request_id }}</strong>.</p>
+    {% endif %}
+    <p>Te estaremos enviando actualizaciones por correo cuando el administrativo revise la solicitud. Puedes revisar el estado en tu panel:</p>
+    <p><a href="{{ panel_url }}">Ir al panel de acudiente</a></p>
+    <p>Si necesitas ayuda, escribe a {{ soporte_email }}.</p>
+    <p>Saludos,<br/>Equipo MatriSchol</p>
+  </body>
+</html>

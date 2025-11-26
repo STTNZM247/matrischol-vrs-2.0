@@ -1,0 +1,24 @@
+{% extends 'base_users.html' %}
+{% block title %}Solicitud de cursos {{ req.id_req }}{% endblock %}
+{% block content %}
+  <h1>Solicitud de cursos {{ req.id_req }} — {% if req.id_inst %}{{ req.id_inst.nom_inst }}{% else %}Sin institución{% endif %}</h1>
+  <p>Estado: <strong>{{ req.get_status_display }}</strong></p>
+  <dl>
+    <dt>Modo</dt><dd>{{ req.mode }}</dd>
+    <dt>Secciones</dt><dd>{{ req.sections }}</dd>
+    <dt>Cupos</dt><dd>{{ req.cupos }}</dd>
+    <dt>Grado inicio / fin</dt><dd>{{ req.start_grade }} / {{ req.end_grade }}</dd>
+    <dt>Comentarios del revisor</dt><dd>{{ req.reviewer_comments }}</dd>
+  </dl>
+  {% if missing %}
+    <div class="card" style="background:#fff3cd; padding:12px; border-radius:8px;">
+      <strong>Faltan los siguientes datos:</strong>
+      <ul>
+        {% for m in missing %}
+          <li>{{ m }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+  <p><a class="btn btn-outline" href="{% url 'adminpanel:notifications' %}">Volver a notificaciones</a></p>
+{% endblock %}

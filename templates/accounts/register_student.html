@@ -1,0 +1,110 @@
+{% extends 'base_users.html' %}
+{% block title %}Registrar Estudiante{% endblock %}
+{% block content %}
+    <section class="hero">
+        <div class="cuadro cuadro-login">
+            <h2>Registrar Estudiante</h2>
+            <p style="margin-bottom:12px; font-size:0.95rem;">Completa los datos del estudiante. Si no se proporciona correo, se generará uno del sistema.</p>
+            <form method="post" enctype="multipart/form-data" autocomplete="off">
+                {% csrf_token %}
+                {% if messages %}
+                    <div class="form-messages">
+                        {% for m in messages %}
+                            <div class="field-error">{{ m }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% if form.non_field_errors %}
+                    <div class="form-messages">
+                        {% for err in form.non_field_errors %}
+                            <div class="field-error">{{ err }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Campos ocultos anti-autofill -->
+                <input type="text" name="fakeusernameremembered" id="fakeuser" style="position:absolute; left:-9999px; top:-9999px;" autocomplete="username">
+                <input type="password" name="fakepasswordremembered" id="fakepass" style="position:absolute; left:-9999px; top:-9999px;" autocomplete="new-password">
+
+                <div>
+                    {{ form.nom_usu }}
+                    {% if form.nom_usu.errors %}
+                        <div class="field-error">{{ form.nom_usu.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    {{ form.ape_usu }}
+                    {% if form.ape_usu.errors %}
+                        <div class="field-error">{{ form.ape_usu.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    {{ form.num_doc_est }}
+                    {% if form.num_doc_est.errors %}
+                        <div class="field-error">{{ form.num_doc_est.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    {{ form.fch_nac_estu }}
+                    {% if form.fch_nac_estu.errors %}
+                        <div class="field-error">{{ form.fch_nac_estu.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    {{ form.tel_estu }}
+                    {% if form.tel_estu.errors %}
+                        <div class="field-error">{{ form.tel_estu.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    {{ form.ema_usu }}
+                    {% if form.ema_usu.errors %}
+                        <div class="field-error">{{ form.ema_usu.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="password-field">
+                    {{ form.con_usu }}
+                    <i class="fas fa-eye" id="eye-icon" onclick="togglePassword()"></i>
+                    {% if form.con_usu.errors %}
+                        <div class="field-error">{{ form.con_usu.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    {{ form.foto_perfil }}
+                    {% if form.foto_perfil.errors %}
+                        <div class="field-error">{{ form.foto_perfil.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <button type="submit">Registrar estudiante</button>
+                <div class="login-links" style="margin-top:10px;">
+                    <a class="no_cuenta" href="{% url 'accounts:panel_acudiente' %}">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('id_con_usu');
+            const eyeIcon = document.getElementById('eye-icon');
+            if (!passwordInput || !eyeIcon) return;
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+    </script>
+{% endblock %}

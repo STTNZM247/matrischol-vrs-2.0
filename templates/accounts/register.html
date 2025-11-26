@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Registro{% endblock %}
+{% block content %}
+    <section class="hero">
+        <div class="cuadro cuadro-login">
+            <h2>Registrarme</h2>
+            <form action="" method="POST" enctype="multipart/form-data" autocomplete="off" id="register-form">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="form-errors">
+                        {% for err in form.non_field_errors %}
+                            <div class="field-error">{{ err }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% if messages %}
+                    <div class="form-messages">
+                        {% for m in messages %}
+                            <div class="field-error">{{ m }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div>
+                    <label>Nombre</label>
+                    {{ form.nom_usu }}
+                    {% if form.nom_usu.errors %}
+                        <div class="field-error">{{ form.nom_usu.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div>
+                    <label>Apellido</label>
+                    {{ form.ape_usu }}
+                    {% if form.ape_usu.errors %}
+                        <div class="field-error">{{ form.ape_usu.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div>
+                    <label>Correo</label>
+                    {{ form.ema_usu }}
+                    {% if form.ema_usu.errors %}
+                        <div class="field-error">{{ form.ema_usu.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <style>
+                    .password-field{position:relative}
+                    .password-field input{width:100%; box-sizing:border-box; padding-right:44px}
+                    .password-field i{position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:1.25rem; color:#333}
+                    .field-error{color:#b00020; font-size:0.9rem}
+                </style>
+                <div>
+                    <label>Contraseña</label>
+                    <div class="password-field">
+                        {{ form.con_usu }}
+                        <i class="fas fa-eye" id="eye-icon" onclick="togglePassword()" aria-hidden="true"></i>
+                    </div>
+                    {% if form.con_usu.errors %}
+                        <div class="field-error">{{ form.con_usu.errors }}</div>
+                    {% endif %}
+                </div>
+                <div>
+                    <label>Confirmar contraseña</label>
+                    <div class="password-field">
+                        {{ form.con_usu_confirm }}
+                        <i class="fas fa-eye" id="eye-icon2" onclick="togglePasswordConfirm()" aria-hidden="true"></i>
+                    </div>
+                    {% if form.con_usu_confirm.errors %}
+                        <div class="field-error">{{ form.con_usu_confirm.errors }}</div>
+                    {% endif %}
+                </div>
+                <hr>
+                <h3>Datos del acudiente</h3>
+                <div>
+                    <label>Número de documento</label>
+                    {{ form.num_doc_acu }}
+                    {% if form.num_doc_acu.errors %}
+                        <div class="field-error">{{ form.num_doc_acu.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div>
+                    <label>Teléfono</label>
+                    {{ form.tel_acu }}
+                </div>
+                <div>
+                    <label>Dirección</label>
+                    {{ form.dir_acu }}
+                </div>
+                <div>
+                    <label>Foto de la cédula</label>
+                    {{ form.cedula_img }}
+                    {% if form.cedula_img.errors %}
+                        <div class="field-error">{{ form.cedula_img.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div>
+                    <label>Foto de perfil (opcional)</label>
+                    {{ form.foto_perfil }}
+                </div>
+
+                <button type="submit">Registrar</button>
+                <div class="login-links">
+                    <a href="{% url 'accounts:login' %}">¿Ya tienes cuenta? Iniciar sesión</a>
+                </div>
+            </form>
+        </div>
+    </section>
+    <script>
+        function togglePassword(){
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eye-icon');
+            if(!passwordInput || !eyeIcon) return;
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+        function togglePasswordConfirm(){
+            const passwordInput = document.getElementById('password_confirm');
+            const eyeIcon = document.getElementById('eye-icon2');
+            if(!passwordInput || !eyeIcon) return;
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+        // client-side validation: show inline errors instead of alerts
+        document.getElementById('register-form').addEventListener('submit', function(e){
+            const pwd = document.getElementById('password');
+            const pwdc = document.getElementById('password_confirm');
+            const clientErrors = [];
+            const errContainerId = 'client-errors';
+            // remove previous client errors
+            let prev = document.getElementById(errContainerId);
+            if(prev) prev.remove();
+            if(!pwd) return;
+            const val = pwd.value || '';
+            const special = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+/;
+            if(val.length < 8){
+                clientErrors.push('La contraseña debe tener al menos 8 caracteres');
+            }
+            if(!special.test(val)){
+                clientErrors.push('La contraseña debe incluir al menos un carácter especial (ej. !@#$%)');
+            }
+            if(pwdc && val !== pwdc.value){
+                clientErrors.push('Las contraseñas no coinciden');
+            }
+            if(clientErrors.length){
+                e.preventDefault();
+                const container = document.createElement('div');
+                container.id = errContainerId;
+                container.className = 'form-errors';
+                clientErrors.forEach(function(msg){
+                    const d = document.createElement('div');
+                    d.className = 'field-error';
+                    d.textContent = msg;
+                    container.appendChild(d);
+                });
+                const form = document.getElementById('register-form');
+                form.insertBefore(container, form.firstChild);
+                // scroll to top of form so user sees errors
+                form.scrollIntoView({behavior: 'smooth'});
+                return false;
+            }
+            return true;
+        });
+    </script>
+{% endblock %}

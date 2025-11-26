@@ -1,0 +1,24 @@
+{% extends 'base_users.html' %}
+{% load static %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+  <div class="admin-dashboard">
+    <h1>Panel de Administración</h1>
+    <div class="cards">
+      <div class="card">
+        <h3>Total usuarios</h3>
+        <p class="stat">{{ stats.total_usuarios }}</p>
+      </div>
+        <div class="card">
+          <h3>Total roles</h3>
+          <p class="stat">{{ stats.total_roles }}</p>
+        </div>
+    </div>
+      <div style="margin-top:16px; display:flex; gap:12px;">
+        <a class="btn btn-primary" href="{% url 'adminpanel:registro_list' %}">Gestionar usuarios</a>
+        <a class="btn btn-primary" href="{% url 'adminpanel:rol_list' %}">Gestionar roles</a>
+        <a class="btn btn-primary" href="{% url 'adminpanel:institucion_list' %}">Gestionar instituciones</a>
+        <a class="btn btn-primary" href="{% url 'adminpanel:curso_list' %}">Gestionar cursos</a>
+        </div>
+  </div>
+{% endblock %}

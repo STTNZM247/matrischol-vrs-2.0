@@ -1,0 +1,40 @@
+Unnamed: 0,RESULTADOS,Unnamed: 2,Unnamed: 3,Unnamed: 4,Unnamed: 5,Unnamed: 6,Unnamed: 7
+,,,,,,,
+CÓDIGO,ÍTEM,"DESCRIPCIÓN 
+condición de Normalidad",VALOR,MAXIMO,% RESUL.,MAXIMO,% GOBAL
+1,FUNCIONALIDAD,La capacidad del software para proveer las funciones que satisfacen las necesidades explícitas e implícitas cuando el software se utiliza bajo condiciones específicas.,0,15,0,0,0
+,,,,,,,
+,,,,,,,
+,,,,,,,
+2,FIABILIDAD,La  capacidad  del software  para  mantener  un  nivel  específico   de funcionamiento cuando se está utilizando bajo condiciones especificadas,0,12,0,0,0
+,,,,,,,
+,,,,,,,
+,,,,,,,
+3,USABILIDAD,"La capacidad del software de ser entendido, aprendido, usado y atractivo al usuario, cuando es utilizado bajo las condiciones especificadas.",0,15,0,0,0
+,,,,,,,
+,,,,,,,
+,,,,,,,
+4,EFICIENCIA,"La capacidad del software para  proveer un  desempeño adecuado, de acuerdo a la cantidad de recursos utilizados y bajo las condiciones planteadas.",0,9,0,0,0
+,,,,,,,
+,,,,,,,
+,,,,,,,
+5,CAPACIDAD DE MANTENIMIENTO,"Capacidad del software para ser modificado. Las modificaciones pueden incluir correcciones, mejoras o adaptación del  software a cambios en el entorno, y especificaciones de requerimientos funcionales.",0,15,0,0,0
+,,,,,,,
+,,,,,,,
+,,,,,,,
+6,PORTABILIDAD,"La capacidad del software para ser trasladado de un entorno a otro. El entorno puede incluir entornos organizacionales, de hardware o de software.",0,15,0,0,0
+,,,,,,,
+,,,,,,,
+,,,,,,,
+7,CALIDAD EN USO,"La capacidad del software para permitirles a usuarios específicos lograr las  metas  propuestas  con  eficacia,  productividad,  seguridad  y  satisfacción,  en contextos especificados de uso.",0,18,0,0,0
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,TOTAL PUNTAJE,0,DE 99,,0,0
+,,,,,,,
+,,RESULTADO DEL EJERCICIO,,,,,
+,,0 A 30%,DEFICIENTE,,,,
+,,31 A 50%,INSUFICIENTE,,,,
+,,51 A 70%,ACEPTABLE,,,,
+,,71 A 89%,SOBRESALIENTE,,,,
+,, MAS DE 90%,EXCELENTE,,,,

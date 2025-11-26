@@ -1,0 +1,35 @@
+{% extends 'base_users.html' %}
+{% load static %}
+{% block title %}Roles{% endblock %}
+{% block content %}
+  <h1>Gestión de Roles</h1>
+  <p><a href="{% url 'adminpanel:rol_create' %}" class="btn btn-primary">Crear rol</a></p>
+  <form method="get" class="search-form" style="margin-bottom:12px;">
+    <input name="q" placeholder="Buscar rol" value="{{ q }}" />
+    <button class="btn btn-primary">Buscar</button>
+  </form>
+  <table class="table">
+    <thead>
+      <tr><th>ID</th><th>Rol</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for r in roles %}
+        <tr>
+          <td>{{ r.id_rol }}</td>
+          <td>{{ r.nom_rol }}</td>
+          <td>
+            <a href="{% url 'adminpanel:rol_edit' r.id_rol %}">Editar</a> |
+            <a href="{% url 'adminpanel:rol_delete' r.id_rol %}">Eliminar</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="3">No hay roles.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="pagination">
+    {% if roles.has_previous %}<a href="?page={{ roles.previous_page_number }}&q={{ q }}">Anterior</a>{% endif %}
+    <span>Page {{ roles.number }} / {{ roles.paginator.num_pages }}</span>
+    {% if roles.has_next %}<a href="?page={{ roles.next_page_number }}&q={{ q }}">Siguiente</a>{% endif %}
+  </div>
+{% endblock %}

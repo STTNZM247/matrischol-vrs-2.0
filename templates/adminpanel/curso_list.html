@@ -1,0 +1,51 @@
+{% extends 'base_users.html' %}
+{% load static %}
+{% block title %}Cursos{% endblock %}
+{% block content %}
+  <h1>Cursos</h1>
+  {% if institucion %}
+    <div class="card" style="padding:12px; margin-bottom:12px; border-radius:8px;">
+      <h2>{{ institucion.nom_inst }}</h2>
+      <div style="color:var(--muted);">{{ institucion.dep_inst }} / {{ institucion.mun_inst }} — Email: {{ institucion.ema_inst|default:'-' }}</div>
+    </div>
+  {% endif %}
+  <p>
+    {% if not institucion %}
+      <a href="{% url 'adminpanel:institucion_list' %}" class="btn btn-primary">Crear curso</a>
+    {% else %}
+      {% if can_bulk_create %}
+        <a href="{% url 'adminpanel:institucion_bulk_cursos' institucion.id_inst %}" class="btn btn-primary">Crear cursos por lotes</a>
+      {% endif %}
+    {% endif %}
+    <a href="{% url 'adminpanel:curso_export_csv' %}" class="btn btn-outline">Exportar CSV</a>
+  </p>
+  <table class="table">
+    <thead>
+      <tr><th>ID</th><th>Grado</th><th>Cupos</th><th>Inscritos</th><th>Institución</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for c in cursos %}
+        <tr>
+          <td>{{ c.id_cur }}</td>
+          <td>{{ c.grd_cur }}</td>
+          <td>{{ c.cup_disp_cur }}</td>
+          <td>{{ c.student_count|default:0 }}</td>
+          <td>{{ c.id_inst.nom_inst }}</td>
+          <td>
+            <a href="{% url 'adminpanel:curso_edit' c.id_cur %}">Editar</a> |
+            <a href="{% url 'adminpanel:curso_delete' c.id_cur %}">Eliminar</a> |
+             <a href="{% url 'adminpanel:curso_matriculas' c.id_cur %}">Ver</a> |
+             <a href="{% url 'adminpanel:curso_horario' c.id_cur %}">Horario</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5">No hay cursos.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="pagination">
+    {% if cursos.has_previous %}<a href="?page={{ cursos.previous_page_number }}&q={{ q }}">Anterior</a>{% endif %}
+    <span>Page {{ cursos.number }} / {{ cursos.paginator.num_pages }}</span>
+    {% if cursos.has_next %}<a href="?page={{ cursos.next_page_number }}&q={{ q }}">Siguiente</a>{% endif %}
+  </div>
+{% endblock %}

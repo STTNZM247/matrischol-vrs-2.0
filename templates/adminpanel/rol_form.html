@@ -1,0 +1,17 @@
+{% extends 'base_users.html' %}
+{% load static %}
+{% block title %}{% if create %}Crear Rol{% else %}Editar Rol{% endif %}{% endblock %}
+{% block content %}
+  <h1>{% if create %}Crear Rol{% else %}Editar Rol{% endif %}</h1>
+  <form method="post">{% csrf_token %}
+    <div>
+      {{ form.nom_rol.label_tag }}<br />
+      {{ form.nom_rol }}
+      {% if form.nom_rol.errors %}<div class="error">{{ form.nom_rol.errors }}</div>{% endif %}
+    </div>
+    <p>
+      <button class="btn btn-primary">{% if create %}Crear{% else %}Guardar{% endif %}</button>
+      <a href="{% url 'adminpanel:rol_list' %}" class="btn">Cancelar</a>
+    </p>
+  </form>
+{% endblock %}
