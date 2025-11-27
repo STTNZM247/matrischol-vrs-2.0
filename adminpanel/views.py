@@ -286,14 +286,38 @@ def my_instituciones(request):
     return render(request, 'adminpanel/my_instituciones.html', {'instituciones': insts, 'requests': reqs, 'adm': adm})
 
 
-@admin_required
 def institucion_maestros(request, pk):
-    """Listar y registrar maestros para una institución concreta."""
+    """Listar y registrar maestros para una institución concreta.
+
+    Permite el acceso a dos tipos de usuarios:
+    - Administradores globales (roles: admin/administrator/administrador)
+    - El `Administrativo` propietario de la institución (relacionado en `Institucion.id_adm`)
+
+    Esto reemplaza el uso exclusivo de `@admin_required` para que los administrativos
+    de una institución puedan gestionar maestros sin necesitar rol global de admin.
+    """
     try:
         inst = Institucion.objects.get(pk=pk)
     except Institucion.DoesNotExist:
         messages.error(request, 'Institución no encontrada')
         return redirect('adminpanel:institucion_list')
+
+    # Permisos: permitir si el usuario es administrador global o el administrativo de la institución
+    reg_id = request.session.get('registro_id')
+    reg = Registro.objects.filter(pk=reg_id).first() if reg_id else None
+    rol_name = (reg.id_rol.nom_rol or '').lower() if reg and reg.id_rol else ''
+    is_admin_role = rol_name in ('admin', 'administrator', 'administrador')
+    adm_current = _get_current_administrativo(request)
+    is_inst_admin = False
+    try:
+        if adm_current and inst.id_adm and adm_current.pk == inst.id_adm.pk:
+            is_inst_admin = True
+    except Exception:
+        is_inst_admin = False
+
+    if not (is_admin_role or is_inst_admin):
+        messages.error(request, 'No tienes permiso para gestionar maestros en esta institución')
+        return redirect('accounts:dashboard')
 
     if request.method == 'POST':
         # fields: nom_usu, ape_usu, ema_usu, password, num_doc_mae, especialidad, foto
