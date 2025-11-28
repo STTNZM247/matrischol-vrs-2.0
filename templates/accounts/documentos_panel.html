@@ -42,7 +42,7 @@
                   {% else %}
                     <span class="ok-badge">OK</span>
                   {% endif %}
-                  <strong style="margin-left:8px">Documento acudiente</strong>
+                  <strong style="margin-left:8px">Fotocopia / foto cédula acudiente</strong>
                   {% if documento.doc_idn_acu %}<span class="muted" style="margin-left:auto"><a href="{{ media_url }}{{ documento.doc_idn_acu }}" target="_blank">Ver</a></span>{% endif %}
                 </li>
                 <li>
@@ -51,7 +51,7 @@
                   {% else %}
                     <span class="ok-badge">OK</span>
                   {% endif %}
-                  <strong style="margin-left:8px">Documento estudiante</strong>
+                  <strong style="margin-left:8px">Fotocopia / foto documento estudiante</strong>
                   {% if documento.doc_idn_alum %}<span class="muted" style="margin-left:auto"><a href="{{ media_url }}{{ documento.doc_idn_alum }}" target="_blank">Ver</a></span>{% endif %}
                 </li>
                 <li>
@@ -153,12 +153,12 @@
             </div>
           </div>
 
-          <!-- Card: Documento acudiente -->
+          <!-- Card: Documento acudiente (renombrado a Fotocopia / foto cédula acudiente) -->
           <div class="upload-card">
             <div class="card-icon">🧾</div>
             <div class="card-main">
-              <div class="card-title">Documento acudiente <span class="card-hint">PDF / JPG</span></div>
-              <div class="card-desc">Documento de identidad del acudiente responsable.</div>
+              <div class="card-title">Fotocopia o foto cédula acudiente <span class="card-hint">PDF / JPG</span></div>
+              <div class="card-desc">Fotocopia o fotografía de la cédula del acudiente responsable.</div>
               <label class="upload-btn">Seleccionar archivo
                 <input type="file" name="doc_idn_acu" accept="image/*,.pdf" data-field="doc_idn_acu">
               </label>
@@ -167,12 +167,12 @@
             </div>
           </div>
 
-          <!-- Card: Documento alumno -->
+          <!-- Card: Documento alumno (renombrado a Fotocopia / foto documento estudiante) -->
           <div class="upload-card">
             <div class="card-icon">🆔</div>
             <div class="card-main">
-              <div class="card-title">Documento alumno <span class="card-hint">PDF / JPG</span></div>
-              <div class="card-desc">Documento de identidad del estudiante.</div>
+              <div class="card-title">Fotocopia o foto documento estudiante <span class="card-hint">PDF / JPG</span></div>
+              <div class="card-desc">Fotocopia o fotografía del documento de identidad del estudiante.</div>
               <label class="upload-btn">Seleccionar archivo
                 <input type="file" name="doc_idn_alum" accept="image/*,.pdf" data-field="doc_idn_alum">
               </label>
