@@ -31,15 +31,20 @@
           <td>{{ c.cup_disp_cur }}</td>
           <td>{{ c.student_count|default:0 }}</td>
           <td>{{ c.id_inst.nom_inst }}</td>
-          <td>
-            <a href="{% url 'adminpanel:curso_edit' c.id_cur %}">Editar</a> |
-            <a href="{% url 'adminpanel:curso_delete' c.id_cur %}">Eliminar</a> |
-             <a href="{% url 'adminpanel:curso_matriculas' c.id_cur %}">Ver</a> |
-             <a href="{% url 'adminpanel:curso_horario' c.id_cur %}">Horario</a>
-          </td>
+           <td>
+            {% if institucion %}
+              <a href="{% url 'adminpanel:curso_matriculas' c.pk %}">Ver</a> |
+              <a href="{% url 'adminpanel:curso_horario' c.pk %}">Horario</a>
+            {% else %}
+              <a class="btn btn-outline" href="{% url 'adminpanel:curso_edit' c.pk %}">Editar</a> |
+              <a class="btn btn-outline" href="{% url 'adminpanel:curso_delete' c.pk %}">Eliminar</a> |
+              <a class="btn btn-outline" href="{% url 'adminpanel:curso_matriculas' c.pk %}">Ver</a> |
+              <a class="btn btn-outline" href="{% url 'adminpanel:curso_horario' c.pk %}">Horario</a>
+            {% endif %}
+           </td>
         </tr>
       {% empty %}
-        <tr><td colspan="5">No hay cursos.</td></tr>
+        <tr><td colspan="6">No hay cursos.</td></tr>
       {% endfor %}
     </tbody>
   </table>

@@ -39,7 +39,8 @@
             <a href="{% url 'adminpanel:institucion_delete' i.id_inst %}">Eliminar</a> |
             <a href="{% url 'adminpanel:institucion_bulk_cursos' i.id_inst %}">Crear cursos</a> |
             <a href="{% url 'adminpanel:institucion_clear_cursos' i.id_inst %}">Eliminar todos los cursos</a> |
-            <a href="{% url 'adminpanel:institucion_curso_list' i.id_inst %}">Ver cursos</a>
+            <a href="{% url 'adminpanel:institucion_curso_list' i.id_inst %}">Ver cursos</a> |
+            <a href="{% url 'adminpanel:institucion_maestros' i.id_inst %}">Ver / Registrar maestros</a>
           </td>
         </tr>
       {% empty %}

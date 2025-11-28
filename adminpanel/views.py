@@ -320,9 +320,9 @@ def institucion_maestros(request, pk):
         return redirect('accounts:dashboard')
 
     if request.method == 'POST':
-        # fields: nom_usu, ape_usu, ema_usu, password, num_doc_mae, especialidad, foto
-        nom = request.POST.get('nom_usu', '').strip()
-        ape = request.POST.get('ape_usu', '').strip()
+        # fields: nombre/apellido (friendly names). Fall back to legacy keys for compatibility
+        nom = request.POST.get('nombre', request.POST.get('nom_usu', '')).strip()
+        ape = request.POST.get('apellido', request.POST.get('ape_usu', '')).strip()
         email = request.POST.get('ema_usu', '').strip()
         password = request.POST.get('password', '').strip()
         num_doc = request.POST.get('num_doc_mae', '').strip()
@@ -379,7 +379,6 @@ def institucion_maestros(request, pk):
     return render(request, 'adminpanel/institucion_maestros.html', {'inst': inst, 'maestros': maestros})
 
 
-@admin_required
 def maestro_edit(request, pk):
     try:
         mae = Maestro.objects.select_related('id_usu', 'id_inst').get(pk=pk)
@@ -387,9 +386,27 @@ def maestro_edit(request, pk):
         messages.error(request, 'Maestro no encontrado')
         return redirect('adminpanel:institucion_list')
 
+    # permissions: allow global admins or the administrativo owner of the institución
+    reg = _get_current_registro(request)
+    if not reg:
+        return redirect('accounts:login')
+    rol_name = (reg.id_rol.nom_rol or '').lower() if reg and reg.id_rol else ''
+    is_admin_role = rol_name in ('admin', 'administrator', 'administrador')
+    adm_current = _get_current_administrativo(request)
+    is_inst_admin = False
+    try:
+        if adm_current and mae.id_inst and adm_current.pk == mae.id_inst.id_adm.pk:
+            is_inst_admin = True
+    except Exception:
+        is_inst_admin = False
+
+    if not (is_admin_role or is_inst_admin):
+        messages.error(request, 'No tienes permiso para editar este maestro')
+        return redirect('adminpanel:institucion_maestros', pk=mae.id_inst.pk if mae.id_inst else None)
+
     if request.method == 'POST':
-        nom = request.POST.get('nom_usu', '').strip()
-        ape = request.POST.get('ape_usu', '').strip()
+        nom = request.POST.get('nombre', request.POST.get('nom_usu', '')).strip()
+        ape = request.POST.get('apellido', request.POST.get('ape_usu', '')).strip()
         email = request.POST.get('ema_usu', '').strip()
         password = request.POST.get('password', '').strip()
         num_doc = request.POST.get('num_doc_mae', '').strip()
@@ -434,13 +451,30 @@ def maestro_edit(request, pk):
     return render(request, 'adminpanel/maestro_form.html', {'mae': mae, 'inst': mae.id_inst})
 
 
-@admin_required
 def maestro_delete(request, pk):
     try:
         mae = Maestro.objects.select_related('id_usu', 'id_inst').get(pk=pk)
     except Maestro.DoesNotExist:
         messages.error(request, 'Maestro no encontrado')
         return redirect('adminpanel:institucion_list')
+
+    # permissions: allow global admins or the administrativo owner of the institución
+    reg = _get_current_registro(request)
+    if not reg:
+        return redirect('accounts:login')
+    rol_name = (reg.id_rol.nom_rol or '').lower() if reg and reg.id_rol else ''
+    is_admin_role = rol_name in ('admin', 'administrator', 'administrador')
+    adm_current = _get_current_administrativo(request)
+    is_inst_admin = False
+    try:
+        if adm_current and mae.id_inst and adm_current.pk == mae.id_inst.id_adm.pk:
+            is_inst_admin = True
+    except Exception:
+        is_inst_admin = False
+
+    if not (is_admin_role or is_inst_admin):
+        messages.error(request, 'No tienes permiso para eliminar este maestro')
+        return redirect('adminpanel:institucion_maestros', pk=mae.id_inst.pk if mae.id_inst else None)
 
     if request.method == 'POST':
         inst_pk = mae.id_inst.pk if mae.id_inst else None
@@ -528,6 +562,16 @@ def administracion_curso_request_detail(request, pk):
         action = request.POST.get('action')
         comments = request.POST.get('reviewer_comments', '')
         reg = Registro.objects.filter(pk=request.session.get('registro_id')).first()
+        # Evitar re-enviar mismo estado
+        if action == 'approve' and req.status == CursoRequest.STATUS_APPROVED:
+            messages.info(request, 'La solicitud de cursos ya está APROBADA.')
+            return redirect('adminpanel:administracion_curso_request_detail', pk=pk)
+        if action == 'request_info' and req.status == CursoRequest.STATUS_NEEDS_INFO:
+            messages.info(request, 'La solicitud de cursos ya está en estado SOLICITAR INFORMACIÓN.')
+            return redirect('adminpanel:administracion_curso_request_detail', pk=pk)
+        if action == 'reject' and req.status == CursoRequest.STATUS_REJECTED:
+            messages.info(request, 'La solicitud de cursos ya está RECHAZADA.')
+            return redirect('adminpanel:administracion_curso_request_detail', pk=pk)
         if action == 'approve':
             # create cursos according to request
             if req.mode == 'primaria':
@@ -567,6 +611,10 @@ def administracion_curso_request_detail(request, pk):
             except Exception:
                 pass
             log_action(request, 'approve', 'CursoRequest', object_repr=f'{req.id_inst.nom_inst} {created} created')
+            try:
+                log_action(request, 'approve', 'CursoRequest', object_repr=f'{req.id_inst.nom_inst}', details=f'req_id={req.pk} status=approved created={created} skipped={skipped}')
+            except Exception:
+                pass
             messages.success(request, f'Solicitud aprobada: {created} cursos creados, {skipped} omitidos.')
             return redirect('adminpanel:administracion_curso_requests')
         elif action == 'request_info':
@@ -587,6 +635,10 @@ def administracion_curso_request_detail(request, pk):
             except Exception:
                 pass
             log_action(request, 'request_info', 'CursoRequest', object_repr=f'{req.id_inst.nom_inst}', details=comments)
+            try:
+                log_action(request, 'request_info', 'CursoRequest', object_repr=f'{req.id_inst.nom_inst}', details=f'req_id={req.pk} status=needs_info')
+            except Exception:
+                pass
             messages.success(request, 'Se solicitó información adicional al solicitante')
             return redirect('adminpanel:administracion_curso_requests')
         elif action == 'reject':
@@ -606,9 +658,18 @@ def administracion_curso_request_detail(request, pk):
             except Exception:
                 pass
             log_action(request, 'reject', 'CursoRequest', object_repr=f'{req.id_inst.nom_inst}', details=comments)
+            try:
+                log_action(request, 'reject', 'CursoRequest', object_repr=f'{req.id_inst.nom_inst}', details=f'req_id={req.pk} status=rejected')
+            except Exception:
+                pass
             messages.success(request, 'Solicitud rechazada')
             return redirect('adminpanel:administracion_curso_requests')
-    return render(request, 'adminpanel/curso_request_detail.html', {'req': req})
+    # history para plantilla
+    try:
+        history = AdminActionLog.objects.filter(model_name='CursoRequest', details__contains=f'req_id={req.pk}').order_by('-timestamp')
+    except Exception:
+        history = []
+    return render(request, 'adminpanel/curso_request_detail.html', {'req': req, 'history': history})
 
 
 def request_institucion_create(request):
@@ -641,7 +702,6 @@ def request_institucion_create(request):
     return render(request, 'adminpanel/institucion_request_form.html', {'form': form, 'adm': adm})
 
 
-@admin_required
 def curso_horario(request, pk):
     """Permite ver y editar (añadir) asignaturas y horarios para un curso."""
     try:
@@ -649,6 +709,17 @@ def curso_horario(request, pk):
     except Curso.DoesNotExist:
         messages.error(request, 'Curso no encontrado')
         return redirect('adminpanel:curso_list')
+
+    # permisos: permitir a admins globales y al administrativo dueño de la institución del curso
+    reg = _get_current_registro(request)
+    rol_name = (reg.id_rol.nom_rol or '').lower() if reg and reg.id_rol else ''
+    is_global_admin = rol_name in ('admin', 'administrator')
+    if not is_global_admin:
+        adm = _get_current_administrativo(request)
+        inst = getattr(curso, 'id_inst', None)
+        if not adm or not inst or getattr(inst, 'id_adm_id', None) != getattr(adm, 'id_adm', None):
+            messages.error(request, 'No tienes permiso para gestionar el horario de este curso')
+            return redirect('accounts:dashboard')
 
     # simple inline forms without a dedicated Form class
     if request.method == 'POST':
@@ -777,6 +848,16 @@ def administracion_institucion_request_detail(request, pk):
         action = request.POST.get('action')
         comments = request.POST.get('reviewer_comments', '')
         reg = Registro.objects.filter(pk=request.session.get('registro_id')).first()
+        # Evitar re-enviar el mismo estado
+        if action == 'approve' and req.status == InstitucionRequest.STATUS_APPROVED:
+            messages.info(request, 'La solicitud ya está APROBADA.')
+            return redirect('adminpanel:administracion_institucion_request_detail', pk=pk)
+        if action == 'request_info' and req.status == InstitucionRequest.STATUS_NEEDS_INFO:
+            messages.info(request, 'La solicitud ya está en estado de SOLICITAR INFORMACIÓN.')
+            return redirect('adminpanel:administracion_institucion_request_detail', pk=pk)
+        if action == 'reject' and req.status == InstitucionRequest.STATUS_REJECTED:
+            messages.info(request, 'La solicitud ya está RECHAZADA.')
+            return redirect('adminpanel:administracion_institucion_request_detail', pk=pk)
         if action == 'approve':
             # create real Institucion
             inst = Institucion.objects.create(
@@ -808,6 +889,10 @@ def administracion_institucion_request_detail(request, pk):
             except Exception:
                 pass
             log_action(request, 'approve', 'InstitucionRequest', object_repr=req.nom_inst)
+            try:
+                log_action(request, 'approve', 'InstitucionRequest', object_repr=req.nom_inst, details=f'req_id={req.pk} status=approved')
+            except Exception:
+                pass
             messages.success(request, 'Solicitud aprobada y institución creada')
             return redirect('adminpanel:administracion_institucion_requests')
         elif action == 'request_info':
@@ -834,6 +919,10 @@ def administracion_institucion_request_detail(request, pk):
             except Exception:
                 pass
             log_action(request, 'request_info', 'InstitucionRequest', object_repr=req.nom_inst, details=comments)
+            try:
+                log_action(request, 'request_info', 'InstitucionRequest', object_repr=req.nom_inst, details=f'req_id={req.pk} status=needs_info')
+            except Exception:
+                pass
             messages.success(request, 'Se solicitó información adicional al solicitante')
             return redirect('adminpanel:administracion_institucion_requests')
         elif action == 'reject':
@@ -854,9 +943,18 @@ def administracion_institucion_request_detail(request, pk):
             except Exception:
                 pass
             log_action(request, 'reject', 'InstitucionRequest', object_repr=req.nom_inst, details=comments)
+            try:
+                log_action(request, 'reject', 'InstitucionRequest', object_repr=req.nom_inst, details=f'req_id={req.pk} status=rejected')
+            except Exception:
+                pass
             messages.success(request, 'Solicitud rechazada')
             return redirect('adminpanel:administracion_institucion_requests')
-    return render(request, 'adminpanel/institucion_request_detail.html', {'req': req})
+    # history para plantilla
+    try:
+        history = AdminActionLog.objects.filter(model_name='InstitucionRequest', details__contains=f'req_id={req.pk}').order_by('-timestamp')
+    except Exception:
+        history = []
+    return render(request, 'adminpanel/institucion_request_detail.html', {'req': req, 'history': history})
 
 
 def _get_current_registro(request):
@@ -875,11 +973,60 @@ def notifications_list(request):
     if not reg:
         messages.error(request, 'Debes iniciar sesión para ver notificaciones')
         return redirect('accounts:login')
-    qs = AdminNotification.objects.filter(user=reg).order_by('-timestamp')
+    # Filtro por tipo de notificación (all | institucion | curso | matricula)
+    tipo = (request.GET.get('tipo') or 'all').lower()
+    qs = AdminNotification.objects.filter(user=reg)
+    if tipo == 'institucion':
+        qs = qs.filter(institucion_request__isnull=False)
+    elif tipo == 'curso':
+        qs = qs.filter(curso_request__isnull=False)
+    elif tipo in ('matricula', 'usuario', 'user'):
+        qs = qs.filter(matricula_request__isnull=False)
+    elif tipo == 'otros':
+        qs = qs.filter(institucion_request__isnull=True, curso_request__isnull=True, matricula_request__isnull=True)
+    qs = qs.order_by('-timestamp')
     paginator = Paginator(qs, 20)
     page = request.GET.get('page')
     notes = paginator.get_page(page)
-    return render(request, 'adminpanel/notifications_list.html', {'notifications': notes})
+    # Annotate each notification with whether the current registro is allowed
+    # to open the related detail (show the "Ver" link). Institution-level
+    # administrativos should NOT get a "Ver" link; they may only mark as read.
+    try:
+        rol_name = (reg.id_rol.nom_rol or '').lower() if reg and reg.id_rol else ''
+        is_admin_role = rol_name in ('admin', 'administrator', 'administrador')
+        for n in notes.object_list:
+            allow_view = True
+            # non-global admins who are the administrativo linked to the
+            # related institution should not see the detail view
+            if not is_admin_role:
+                try:
+                    if getattr(n, 'matricula_request', None):
+                        inst_admin = getattr(n.matricula_request.id_inst, 'id_adm', None)
+                        if inst_admin and getattr(inst_admin, 'id_usu', None) and reg and getattr(inst_admin.id_usu, 'id', None) == getattr(reg, 'id', None):
+                            allow_view = False
+                    if getattr(n, 'institucion_request', None):
+                        inst_admin = getattr(n.institucion_request, 'id_adm', None)
+                        if inst_admin and getattr(inst_admin, 'id_usu', None) and reg and getattr(inst_admin.id_usu, 'id', None) == getattr(reg, 'id', None):
+                            allow_view = False
+                    if getattr(n, 'curso_request', None):
+                        inst = getattr(n.curso_request, 'id_inst', None)
+                        inst_admin = getattr(inst, 'id_adm', None) if inst else None
+                        if inst_admin and getattr(inst_admin, 'id_usu', None) and reg and getattr(inst_admin.id_usu, 'id', None) == getattr(reg, 'id', None):
+                            allow_view = False
+                except Exception:
+                    pass
+            n.allow_view = allow_view
+    except Exception:
+        pass
+
+    # flag de rol para la plantilla
+    rol_name = (reg.id_rol.nom_rol or '').lower() if reg and reg.id_rol else ''
+    is_acudiente = rol_name in ('acudiente', 'guardian', 'tutor')
+    return render(request, 'adminpanel/notifications_list.html', {
+        'notifications': notes,
+        'is_acudiente': is_acudiente,
+        'tipo': tipo,
+    })
 
 
 def notification_mark_read(request, pk):
@@ -931,22 +1078,12 @@ def notification_detail(request, pk):
             allowed = True
     if is_admin_role:
         allowed = True
-    try:
-        if not allowed and getattr(n, 'matricula_request', None):
-            inst_admin = getattr(n.matricula_request.id_inst, 'id_adm', None)
-            if inst_admin and getattr(inst_admin, 'id_usu', None) and reg and getattr(inst_admin.id_usu, 'id', None) == getattr(reg, 'id', None):
-                allowed = True
-    except Exception:
-        pass
+    # Note: do NOT grant automatic access to institution-linked administrativos
+    # for opening notification details. They may only mark notifications as read.
 
-    # allow the administrativo linked to an InstitucionRequest to open it
-    try:
-        if not allowed and getattr(n, 'institucion_request', None):
-            inst_admin = getattr(n.institucion_request, 'id_adm', None)
-            if inst_admin and getattr(inst_admin, 'id_usu', None) and reg and getattr(inst_admin.id_usu, 'id_usu', None) == getattr(reg, 'id_usu', None):
-                allowed = True
-    except Exception:
-        pass
+    # Note: institution-linked administrativos are NOT allowed to open the
+    # full notification detail by design (they can only mark as read). The
+    # allowed flag above covers: recipient (n.user), or global admin roles.
 
     if not allowed:
         # debug output for console (useful during development)
@@ -981,6 +1118,13 @@ def notification_detail(request, pk):
         if rol_name in ('admin', 'administrator'):
             return redirect('adminpanel:matricula_request_detail', pk=n.matricula_request_id)
         else:
+            # allow the institution's administrative owner to open the matricula request
+            try:
+                inst_admin = getattr(n.matricula_request.id_inst, 'id_adm', None)
+                if inst_admin and getattr(inst_admin, 'id_usu', None) and reg and getattr(inst_admin.id_usu, 'id', None) == getattr(reg, 'id', None):
+                    return redirect('adminpanel:matricula_request_detail', pk=n.matricula_request_id)
+            except Exception:
+                pass
             return redirect('adminpanel:notifications')
 
     return redirect('adminpanel:notifications')
@@ -1007,7 +1151,6 @@ def institucion_request_public_view(request, pk):
     return redirect('adminpanel:notifications')
 
 
-@admin_required
 def matricula_request_detail(request, pk):
     try:
         req = MatriculaRequest.objects.get(pk=pk)
@@ -1015,9 +1158,38 @@ def matricula_request_detail(request, pk):
         messages.error(request, 'Solicitud no encontrada')
         return redirect('adminpanel:notifications')
 
+    # permisos: admins globales o administrativo dueño de la institución asociada a la solicitud
+    reg = _get_current_registro(request)
+    if not reg:
+        return redirect('accounts:login')
+    rol_name = (reg.id_rol.nom_rol or '').lower() if reg and reg.id_rol else ''
+    is_global_admin = rol_name in ('admin', 'administrator', 'administrador')
+    is_inst_admin = False
+    if not is_global_admin:
+        try:
+            inst_admin = getattr(req.id_inst, 'id_adm', None)
+            adm_current = _get_current_administrativo(request)
+            if inst_admin and adm_current and inst_admin.pk == adm_current.pk:
+                is_inst_admin = True
+        except Exception:
+            is_inst_admin = False
+    if not (is_global_admin or is_inst_admin):
+        messages.error(request, 'No tienes permiso para gestionar esta solicitud de matrícula')
+        return redirect('adminpanel:notifications')
+
     if request.method == 'POST':
         action = request.POST.get('action')
         comment = request.POST.get('comment', '')
+        # evitar reenviar mismo estado
+        if action == 'accept' and req.estado == 'accepted':
+            messages.info(request, 'La solicitud ya está ACEPTADA.')
+            return redirect('adminpanel:matricula_request_detail', pk=pk)
+        if action == 'reject' and req.estado == 'rejected':
+            messages.info(request, 'La solicitud ya está RECHAZADA.')
+            return redirect('adminpanel:matricula_request_detail', pk=pk)
+        if action == 'hold' and req.estado == 'pending':
+            messages.info(request, 'La solicitud ya está EN ESPERA.')
+            return redirect('adminpanel:matricula_request_detail', pk=pk)
         # registrar comentario en la solicitud y cambiar estado
         if comment:
             req.obs = (req.obs or '') + '\n' + comment
@@ -1081,6 +1253,11 @@ def matricula_request_detail(request, pk):
                         pass
             except Exception:
                 pass
+            # registrar historial
+            try:
+                log_action(request, 'accept', 'MatriculaRequest', object_repr=f'id={req.pk}', details=f'req_id={req.pk} status=accepted')
+            except Exception:
+                pass
             return redirect('adminpanel:notifications')
         elif action == 'reject':
             req.estado = 'rejected'
@@ -1104,6 +1281,10 @@ def matricula_request_detail(request, pk):
             except Exception:
                 pass
             messages.success(request, 'Solicitud rechazada')
+            try:
+                log_action(request, 'reject', 'MatriculaRequest', object_repr=f'id={req.pk}', details=f'req_id={req.pk} status=rejected')
+            except Exception:
+                pass
             return redirect('adminpanel:notifications')
         elif action == 'hold':
             req.estado = 'pending'
@@ -1132,14 +1313,18 @@ def matricula_request_detail(request, pk):
             except Exception:
                 pass
             messages.success(request, 'Solicitud puesta en espera')
+            try:
+                log_action(request, 'hold', 'MatriculaRequest', object_repr=f'id={req.pk}', details=f'req_id={req.pk} status=pending')
+            except Exception:
+                pass
             return redirect('adminpanel:notifications')
 
     # recolectar documentos relacionados al estudiante (incluye por id_est y últimos vinculados a matrícula previa)
     docs_qs = Documento.objects.filter(id_est=req.id_est).order_by('-id_doc')
     docs_list = []
     image_exts = ('.png', '.jpg', '.jpeg', '.gif', '.webp')
+    # construir lista estructurada de documentos (si existen)
     for d in docs_qs:
-        # para cada Documento, convertir sus campos en pares label/valor
         row = []
         for field in ['reg_civil_doc', 'doc_idn_acu', 'doc_idn_alum', 'cnt_vac_doc', 'adres_doc', 'fot_alum_doc', 'visa_extr_doc', 'cer_med_disca_doc', 'cer_esc_doc']:
             val = getattr(d, field, None)
@@ -1149,15 +1334,26 @@ def matricula_request_detail(request, pk):
                     is_image = str(val).lower().endswith(image_exts)
                 except Exception:
                     is_image = False
-                row.append({
-                    'field': field,
-                    'value': val,
-                    'is_image': is_image,
-                })
+                row.append({'field': field, 'value': val, 'is_image': is_image})
         if row:
             docs_list.append({'doc': d, 'items': row})
 
-    return render(request, 'adminpanel/matricula_request_detail.html', {'req': req, 'docs_list': docs_list, 'MEDIA_URL': settings.MEDIA_URL})
+    estado = req.estado
+    can_manage = is_global_admin or is_inst_admin
+    # historial de cambios (si existe)
+    try:
+        history = AdminActionLog.objects.filter(model_name='MatriculaRequest', details__contains=f'req_id={req.pk}').order_by('-timestamp')
+    except Exception:
+        history = []
+    # devolver detalle para gestión
+    return render(request, 'adminpanel/matricula_request_detail.html', {
+        'req': req,
+        'docs_list': docs_list,
+        'estado': estado,
+        'can_manage': can_manage,
+        'MEDIA_URL': getattr(settings, 'MEDIA_URL', ''),
+        'history': history,
+    })
 
 
 def curso_request_public_view(request, pk):
@@ -1183,7 +1379,7 @@ def curso_request_public_view(request, pk):
 def institucion_create(request):
     from .forms import InstitucionForm
     if request.method == 'POST':
-        form = InstitucionForm(request.POST)
+        form = InstitucionForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request, 'Institución creada correctamente')
@@ -1193,22 +1389,45 @@ def institucion_create(request):
     return render(request, 'adminpanel/institucion_form.html', {'form': form, 'create': True})
 
 
-@admin_required
 def institucion_edit(request, pk):
-    from .forms import InstitucionForm
+    # Permitir a admins globales y al administrativo dueño de la institución
+    reg = _get_current_registro(request)
+    if not reg:
+        return redirect('accounts:login')
     try:
         inst = Institucion.objects.get(pk=pk)
     except Institucion.DoesNotExist:
         messages.error(request, 'Institución no encontrada')
         return redirect('adminpanel:institucion_list')
+
+    rol_name = (reg.id_rol.nom_rol or '').lower() if reg and reg.id_rol else ''
+    is_admin_role = rol_name in ('admin', 'administrator', 'administrador')
+    is_owner = False
+    try:
+        inst_admin = getattr(inst, 'id_adm', None)
+        if inst_admin and getattr(inst_admin, 'id_usu', None) and getattr(inst_admin.id_usu, 'id', None) == getattr(reg, 'id', None):
+            is_owner = True
+    except Exception:
+        is_owner = False
+
+    if not (is_admin_role or is_owner):
+        messages.error(request, 'No tienes permiso para editar esta institución')
+        return redirect('accounts:panel_administrativo')
+
+    # Seleccionar formulario según permisos: dueño solo puede cambiar imagen
+    if is_admin_role:
+        from .forms import InstitucionForm as _Form
+    else:
+        from .forms import InstitucionImageForm as _Form
+
     if request.method == 'POST':
-        form = InstitucionForm(request.POST, instance=inst)
+        form = _Form(request.POST, request.FILES, instance=inst)
         if form.is_valid():
             form.save()
             messages.success(request, 'Institución actualizada')
-            return redirect('adminpanel:institucion_list')
+            return redirect('accounts:panel_administrativo')
     else:
-        form = InstitucionForm(instance=inst)
+        form = _Form(instance=inst)
     return render(request, 'adminpanel/institucion_form.html', {'form': form, 'create': False, 'inst': inst})
 
 

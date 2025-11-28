@@ -13,6 +13,7 @@ class Institucion(models.Model):
     tel_inst = models.CharField(max_length=20, null=True, blank=True, db_column='tel_inst')
     ema_inst = models.CharField(max_length=100, null=True, blank=True, db_column='ema_inst')
     id_adm = models.ForeignKey('accounts.Administrativo', db_column='id_adm', on_delete=models.PROTECT)
+    img_inst = models.ImageField(upload_to='instituciones/', null=True, blank=True, db_column='img_inst')
     # allow duplicate assignment of same subject in same timeslot (institution-wide toggle)
     allow_duplicate_subject_slots = models.BooleanField(default=False, db_column='allow_dup_sub_slots')
 

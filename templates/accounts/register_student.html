@@ -76,8 +76,12 @@
                     {% endif %}
                 </div>
 
-                <div>
+                <div class="foto-perfil-field" style="margin-top:14px;">
+                    <label for="id_foto_perfil" style="font-weight:600; display:block; margin-bottom:6px;">Foto de tu estudiante</label>
                     {{ form.foto_perfil }}
+                    <div id="preview-wrap" style="display:none; margin-top:10px;">
+                        <img id="preview-img" alt="Vista previa" style="max-width:160px; border-radius:12px; border:1px solid #e0e3e8; box-shadow:0 6px 16px -6px rgba(0,0,0,.15)">
+                    </div>
                     {% if form.foto_perfil.errors %}
                         <div class="field-error">{{ form.foto_perfil.errors|striptags }}</div>
                     {% endif %}
@@ -106,5 +110,18 @@
                 eyeIcon.classList.add('fa-eye');
             }
         }
+        (function(){
+          const input = document.getElementById('id_foto_perfil');
+          const wrap = document.getElementById('preview-wrap');
+          const img = document.getElementById('preview-img');
+          if(!input || !wrap || !img) return;
+          input.addEventListener('change', function(){
+            const f = this.files && this.files[0];
+            if(!f){ wrap.style.display='none'; img.removeAttribute('src'); return; }
+            const reader = new FileReader();
+            reader.onload = function(e){ img.src = e.target.result; wrap.style.display='block'; };
+            reader.readAsDataURL(f);
+          });
+        })();
     </script>
 {% endblock %}

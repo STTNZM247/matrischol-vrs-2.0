@@ -7,6 +7,9 @@ class RolForm(forms.ModelForm):
     class Meta:
         model = Rol
         fields = ['nom_rol']
+        labels = {
+            'nom_rol': 'Nombre del rol nuevo',
+        }
 
 
 class RegistroCreateForm(forms.ModelForm):
@@ -16,6 +19,12 @@ class RegistroCreateForm(forms.ModelForm):
     class Meta:
         model = Registro
         fields = ['nom_usu', 'ape_usu', 'ema_usu', 'id_rol']
+        labels = {
+            'nom_usu': 'Nombre',
+            'ape_usu': 'Apellido',
+            'ema_usu': 'Correo',
+            'id_rol': 'Rol',
+        }
 
     def clean(self):
         cleaned = super().clean()
@@ -39,6 +48,12 @@ class RegistroEditForm(forms.ModelForm):
     class Meta:
         model = Registro
         fields = ['nom_usu', 'ape_usu', 'ema_usu', 'id_rol']
+        labels = {
+            'nom_usu': 'Nombre',
+            'ape_usu': 'Apellido',
+            'ema_usu': 'Correo',
+            'id_rol': 'Rol',
+        }
 
 
 class PasswordChangeForm(forms.Form):
@@ -61,13 +76,40 @@ from school.models import Institucion, Curso
 class InstitucionForm(forms.ModelForm):
     class Meta:
         model = Institucion
-        fields = ['nom_inst', 'tip_inst', 'cod_dane_inst', 'dep_inst', 'mun_inst', 'dire_inst', 'tel_inst', 'ema_inst', 'id_adm']
+        fields = ['nom_inst', 'tip_inst', 'cod_dane_inst', 'dep_inst', 'mun_inst', 'dire_inst', 'tel_inst', 'ema_inst', 'img_inst', 'id_adm']
+        labels = {
+            'nom_inst': 'Nombre',
+            'tip_inst': 'Tipo de institución',
+            'cod_dane_inst': 'Código DANE',
+            'dep_inst': 'Departamento',
+            'mun_inst': 'Municipio',
+            'dire_inst': 'Dirección',
+            'tel_inst': 'Teléfono',
+            'ema_inst': 'Correo',
+            'img_inst': 'Imagen/Logo de la institución',
+            'id_adm': 'Administrativo',
+        }
+
+
+class InstitucionImageForm(forms.ModelForm):
+    class Meta:
+        model = Institucion
+        fields = ['img_inst']
+        labels = {
+            'img_inst': 'Imagen/Logo de la institución',
+        }
 
 
 class CursoForm(forms.ModelForm):
     class Meta:
         model = Curso
         fields = ['grd_cur', 'num_alum_cur', 'cup_disp_cur', 'id_inst']
+        labels = {
+            'grd_cur': 'Grado',
+            'num_alum_cur': 'Número de alumnos',
+            'cup_disp_cur': 'Cupos disponibles',
+            'id_inst': 'Institución',
+        }
 
 
 from .models import InstitucionRequest
@@ -77,6 +119,16 @@ class InstitucionRequestForm(forms.ModelForm):
     class Meta:
         model = InstitucionRequest
         fields = ['nom_inst', 'tip_inst', 'cod_dane_inst', 'dep_inst', 'mun_inst', 'dire_inst', 'tel_inst', 'ema_inst']
+        labels = {
+            'nom_inst': 'Nombre',
+            'tip_inst': 'Tipo de institución',
+            'cod_dane_inst': 'Código DANE',
+            'dep_inst': 'Departamento',
+            'mun_inst': 'Municipio',
+            'dire_inst': 'Dirección',
+            'tel_inst': 'Teléfono',
+            'ema_inst': 'Correo',
+        }
 
 
 class CursoRequestForm(forms.Form):
@@ -111,6 +163,15 @@ class AdministrativoForm(forms.ModelForm):
     class Meta:
         model = Administrativo
         fields = ['id_usu', 'num_doc_adm', 'tel_adm', 'dir_adm', 'tip_carg_adm', 'cedula_img', 'foto_perfil']
+        labels = {
+            'id_usu': 'Usuario (registro)',
+            'num_doc_adm': 'Número de documento',
+            'tel_adm': 'Teléfono',
+            'dir_adm': 'Dirección',
+            'tip_carg_adm': 'Cargo/Tipo',
+            'cedula_img': 'Cédula (imagen)',
+            'foto_perfil': 'Foto de perfil',
+        }
 
 
 class BulkCursoForm(forms.Form):
@@ -155,6 +216,12 @@ class AdminRegistroCreateForm(forms.ModelForm):
     class Meta:
         model = Registro
         fields = ['nom_usu', 'ape_usu', 'ema_usu', 'id_rol']
+        labels = {
+            'nom_usu': 'Nombre',
+            'ape_usu': 'Apellido',
+            'ema_usu': 'Correo',
+            'id_rol': 'Rol',
+        }
 
     def clean(self):
         cleaned = super().clean()

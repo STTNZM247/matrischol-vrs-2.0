@@ -25,5 +25,11 @@
     <div class="alert alert-info">No hay estudiantes matriculados en este curso.</div>
   {% endif %}
 
-  <p><a class="btn btn-outline" href="{% url 'adminpanel:curso_list' %}">Volver a cursos</a></p>
+  <p>
+    {% if curso.id_inst %}
+      <a class="btn btn-outline" href="{% url 'adminpanel:institucion_curso_list' curso.id_inst.pk %}">Volver a cursos</a>
+    {% else %}
+      <a class="btn btn-outline" href="{% url 'adminpanel:curso_list' %}">Volver a cursos</a>
+    {% endif %}
+  </p>
 {% endblock %}

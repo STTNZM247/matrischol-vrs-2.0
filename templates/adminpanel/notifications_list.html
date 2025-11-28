@@ -3,6 +3,14 @@
 {% block content %}
   <h1>Notificaciones</h1>
   <p><a class="btn btn-outline" href="{% url 'adminpanel:notification_mark_all_read' %}">Marcar todas como leídas</a></p>
+  {% if not is_acudiente %}
+  <div class="filters" style="margin: 10px 0;">
+    <a href="?tipo=all" class="btn btn-secondary {% if tipo == 'all' %}active{% endif %}">Todos</a>
+    <a href="?tipo=institucion" class="btn btn-secondary {% if tipo == 'institucion' %}active{% endif %}">Institución</a>
+    <a href="?tipo=matricula" class="btn btn-secondary {% if tipo == 'matricula' %}active{% endif %}">Matrícula</a>
+    <a href="?tipo=curso" class="btn btn-secondary {% if tipo == 'curso' %}active{% endif %}">Curso</a>
+  </div>
+  {% endif %}
   <div class="card">
     <table class="table">
       <thead>
@@ -22,18 +30,28 @@
           <td>{{ n.message }}</td>
           <td>{% if n.is_read %}Leída{% else %}No leída{% endif %}</td>
             <td>
-            {% if not n.is_read %}
-              <a href="{% url 'adminpanel:notification_mark_read' n.id %}" class="btn btn-primary">Marcar leída</a>
-            {% endif %}
-            {% comment %} Direct link to the related object when available to avoid indirection {% endcomment %}
-            {% if n.matricula_request_id %}
-              <a href="{% url 'adminpanel:matricula_request_detail' n.matricula_request_id %}" class="btn btn-outline">Ver</a>
-            {% elif n.institucion_request_id %}
-              <a href="{% url 'adminpanel:administracion_institucion_request_detail' n.institucion_request_id %}" class="btn btn-outline">Ver</a>
-            {% elif n.curso_request_id %}
-              <a href="{% url 'adminpanel:administracion_curso_request_detail' n.curso_request_id %}" class="btn btn-outline">Ver</a>
+            {% if is_acudiente %}
+              {% if not n.is_read %}
+                <a href="{% url 'adminpanel:notification_mark_read' n.id %}" class="btn btn-primary">Marcar leída</a>
+              {% endif %}
+              {# Acudiente no ve botón "Ver" #}
             {% else %}
-              <a href="{% url 'adminpanel:notification_detail' n.id %}" class="btn btn-outline">Ver</a>
+              {% if not n.is_read %}
+                <a href="{% url 'adminpanel:notification_mark_read' n.id %}" class="btn btn-primary">Marcar leída</a>
+              {% endif %}
+              {% comment %} Direct link to the related object when available to avoid indirection {% endcomment %}
+              {% comment %} Show the "Ver" link only when allowed (default True for backwards compatibility) {% endcomment %}
+              {% if n.allow_view|default:True %}
+                {% if n.matricula_request_id %}
+                  <a href="{% url 'adminpanel:matricula_request_detail' n.matricula_request_id %}" class="btn btn-outline">Ver</a>
+                {% elif n.institucion_request_id %}
+                  <a href="{% url 'adminpanel:administracion_institucion_request_detail' n.institucion_request_id %}" class="btn btn-outline">Ver</a>
+                {% elif n.curso_request_id %}
+                  <a href="{% url 'adminpanel:administracion_curso_request_detail' n.curso_request_id %}" class="btn btn-outline">Ver</a>
+                {% else %}
+                  <a href="{% url 'adminpanel:notification_detail' n.id %}" class="btn btn-outline">Ver</a>
+                {% endif %}
+              {% endif %}
             {% endif %}
           </td>
         </tr>
@@ -44,8 +62,8 @@
     </table>
   </div>
   <div class="pagination">
-    {% if notifications.has_previous %}<a href="?page={{ notifications.previous_page_number }}">Anterior</a>{% endif %}
+    {% if notifications.has_previous %}<a href="?tipo={{ tipo }}&page={{ notifications.previous_page_number }}">Anterior</a>{% endif %}
     <span>Page {{ notifications.number }} / {{ notifications.paginator.num_pages }}</span>
-    {% if notifications.has_next %}<a href="?page={{ notifications.next_page_number }}">Siguiente</a>{% endif %}
+    {% if notifications.has_next %}<a href="?tipo={{ tipo }}&page={{ notifications.next_page_number }}">Siguiente</a>{% endif %}
   </div>
 {% endblock %}

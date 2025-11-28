@@ -17,6 +17,12 @@ class RegistroForm(forms.ModelForm):
     class Meta:
         model = Registro
         fields = ('nom_usu', 'ape_usu', 'ema_usu', 'con_usu')
+        labels = {
+            'nom_usu': 'Nombre',
+            'ape_usu': 'Apellido',
+            'ema_usu': 'Correo',
+            'con_usu': 'Contraseña',
+        }
 
     def clean(self):
         cleaned = super().clean()

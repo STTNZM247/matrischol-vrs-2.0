@@ -12,15 +12,33 @@
     <dt>Comentarios del revisor</dt><dd>{{ req.reviewer_comments }}</dd>
   </dl>
 
-  <form method="post">
-    {% csrf_token %}
-    <label>Comentarios para el solicitante (si corresponde)</label>
-    <textarea name="reviewer_comments" rows="4" style="width:100%">{{ req.reviewer_comments }}</textarea>
-    <div style="margin-top:12px">
-      <button name="action" value="approve" class="btn btn-primary">Aprobar y crear cursos</button>
-      <button name="action" value="request_info" class="btn btn-primary">Solicitar información</button>
-      <button name="action" value="reject" class="btn btn-primary">Rechazar</button>
-      <a href="{% url 'adminpanel:administracion_curso_requests' %}" class="btn btn-outline">Volver</a>
-    </div>
-  </form>
+  {% if req.status != 'approved' and req.status != 'rejected' %}
+    <form method="post">
+      {% csrf_token %}
+      <label>Comentarios para el solicitante (si corresponde)</label>
+      <textarea name="reviewer_comments" rows="4" style="width:100%">{{ req.reviewer_comments }}</textarea>
+      <div style="margin-top:12px">
+        <button name="action" value="approve" class="btn btn-primary">Aprobar y crear cursos</button>
+        <button name="action" value="request_info" class="btn btn-primary">Solicitar información</button>
+        <button name="action" value="reject" class="btn btn-primary">Rechazar</button>
+        <a href="{% url 'adminpanel:administracion_curso_requests' %}" class="btn btn-outline">Volver</a>
+      </div>
+    </form>
+  {% else %}
+    <div class="alert alert-info" style="margin-top:12px;">Esta solicitud está finalizada ({{ req.get_status_display }}). No se puede reenviar estado.</div>
+    <a href="{% url 'adminpanel:administracion_curso_requests' %}" class="btn btn-outline">Volver</a>
+  {% endif %}
+
+  <div class="card" style="margin-top:16px; padding:12px;">
+    <h3>Historial de cambios</h3>
+    {% if history and history|length %}
+      <ul>
+        {% for h in history %}
+          <li>{{ h.timestamp|date:'Y-m-d H:i' }} — {{ h.action }} — {{ h.details }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No hay movimientos registrados aún.</p>
+    {% endif %}
+  </div>
 {% endblock %}

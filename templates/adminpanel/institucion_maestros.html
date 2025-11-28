@@ -1,22 +1,48 @@
 {% extends 'base_users.html' %}
 {% block title %}Maestros — {{ inst.nom_inst }}{% endblock %}
 {% block content %}
-  <h1>Maestros — {{ inst.nom_inst }}</h1>
+  <style>
+    /* Fix inputs inside registrar-maestro form to avoid overflow */
+    #registrar-maestro input[type="text"],
+    #registrar-maestro input[type="email"],
+    #registrar-maestro input[type="password"],
+    #registrar-maestro input[type="file"],
+    #registrar-maestro select,
+    #registrar-maestro textarea {
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 100%;
+      padding: 8px;
+    }
+    /* ensure the password wrapper keeps the eye inside */
+    .password-wrapper { position: relative; }
+    .password-wrapper .eye-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666; }
+    /* make the two-column layout collapse on small screens */
+    @media (max-width: 880px) {
+      section { flex-direction: column; }
+      .maestros-list { margin-top: 12px; }
+    }
+  </style>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+    <h1>Maestros — {{ inst.nom_inst }}</h1>
+    <a class="btn btn-primary" href="#registrar-maestro">Registrar maestro</a>
+  </div>
   <section style="display:flex;gap:20px;align-items:flex-start;">
     <div style="flex:1;min-width:360px;">
       <h3>Registrar maestro</h3>
-      <form method="post" enctype="multipart/form-data">
+      <form id="registrar-maestro" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <label>Nombre</label><br>
-        <input type="text" name="nom_usu" style="width:100%;padding:8px;margin-top:6px;" required>
+        <input type="text" name="nombre" style="width:100%;padding:8px;margin-top:6px;" required>
         <label>Apellido</label><br>
-        <input type="text" name="ape_usu" style="width:100%;padding:8px;margin-top:6px;" required>
+        <input type="text" name="apellido" style="width:100%;padding:8px;margin-top:6px;" required>
         <label>Correo</label><br>
         <input type="email" name="ema_usu" style="width:100%;padding:8px;margin-top:6px;" required>
         <label>Contraseña</label><br>
-        <div style="position:relative;">
-          <input type="password" name="password" id="password-maestro" style="width:100%;padding:8px;margin-top:6px;padding-right:36px;" required>
-          <i class="fas fa-eye" id="eye-icon-maestro" onclick="togglePasswordMaestro()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#666;"></i>
+        <div class="password-wrapper">
+          <input type="password" name="password" id="password-maestro" style="margin-top:6px;padding-right:36px;" required>
+          <i class="fas fa-eye eye-icon" id="eye-icon-maestro" onclick="togglePasswordMaestro()"></i>
         </div>
         <label>Número de documento</label><br>
         <input type="text" name="num_doc_mae" style="width:100%;padding:8px;margin-top:6px;" required>

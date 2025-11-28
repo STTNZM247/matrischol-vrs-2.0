@@ -38,11 +38,6 @@
  </style>
  <div class="sys-wrapper">
      <div class="sys-hero">
-         {% if user and user.foto_perfil %}
-             <img class="avatar" src="{{ user.foto_perfil.url }}" alt="Avatar {{ user.nom_usu }}" loading="lazy">
-         {% else %}
-             <div class="avatar">{{ user.nom_usu|slice:":1" }}{{ user.ape_usu|slice:":1" }}</div>
-         {% endif %}
          <h2>Hola {{ user.nom_usu }} {{ user.ape_usu }}</h2>
          <p>Panel maestro del sistema: acceso completo y herramientas centrales.</p>
      </div>

@@ -21,19 +21,27 @@
 
     <h3>Detalles de la solicitud</h3>
     <p>Grado solicitado: {{ req.grado_solicitado }}</p>
-    <p>Estado: {{ req.estado }}</p>
+    <p>Estado: <span class="badge">{{ req.estado }}</span></p>
     <p>Creada: {{ req.created_at }}</p>
 
-    <form method="post" style="margin-top:12px;">
-      {% csrf_token %}
-      <label>Observaciones administrativas (se guardan en la matrícula si acepta):</label>
-      <textarea name="comment" rows="4" style="width:100%;"></textarea>
-      <div style="display:flex;gap:8px;margin-top:8px;justify-content:flex-end">
-        <button name="action" value="accept" class="btn btn-primary">Aceptar</button>
-        <button name="action" value="hold" class="btn btn-primary">Poner en espera</button>
-        <button name="action" value="reject" class="btn btn-primary">Rechazar</button>
-      </div>
-    </form>
+    {% if can_manage %}
+      {% if estado != 'accepted' and estado != 'rejected' %}
+        <form method="post" style="margin-top:12px;">
+          {% csrf_token %}
+          <label>Observaciones administrativas (se guardan en la matrícula si acepta):</label>
+          <textarea name="comment" rows="4" style="width:100%;"></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px;justify-content:flex-end">
+            <button name="action" value="accept" class="btn btn-primary">Aceptar</button>
+            {% if estado != 'pending' %}
+              <button name="action" value="hold" class="btn btn-primary">Poner en espera</button>
+            {% endif %}
+            <button name="action" value="reject" class="btn btn-primary">Rechazar</button>
+          </div>
+        </form>
+      {% else %}
+        <div class="alert alert-info" style="margin-top:12px;">Esta solicitud ya está finalizada ({{ estado }}). No se puede reenviar estado.</div>
+      {% endif %}
+    {% endif %}
   </div>
   
   <div id="docs-registered-card" class="card" style="padding:12px;margin-top:12px">
@@ -58,6 +66,19 @@
       {% endfor %}
     {% else %}
       <p>No hay documentos registrados para este estudiante.</p>
+    {% endif %}
+  </div>
+
+  <div class="card" style="padding:12px;margin-top:12px">
+    <h3>Historial de cambios</h3>
+    {% if history and history|length %}
+      <ul>
+        {% for h in history %}
+          <li>{{ h.timestamp|date:'Y-m-d H:i' }} — {{ h.action }} — {{ h.details }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No hay movimientos registrados aún.</p>
     {% endif %}
   </div>
 {% endblock %}

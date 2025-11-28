@@ -2,16 +2,18 @@
 {% load static %}
 {% block title %}{% if create %}Crear Rol{% else %}Editar Rol{% endif %}{% endblock %}
 {% block content %}
-  <h1>{% if create %}Crear Rol{% else %}Editar Rol{% endif %}</h1>
-  <form method="post">{% csrf_token %}
-    <div>
-      {{ form.nom_rol.label_tag }}<br />
-      {{ form.nom_rol }}
-      {% if form.nom_rol.errors %}<div class="error">{{ form.nom_rol.errors }}</div>{% endif %}
-    </div>
-    <p>
-      <button class="btn btn-primary">{% if create %}Crear{% else %}Guardar{% endif %}</button>
-      <a href="{% url 'adminpanel:rol_list' %}" class="btn">Cancelar</a>
-    </p>
-  </form>
+  <div style="max-width:560px;margin:18px auto;padding:18px;background:#fff;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.04);">
+    <h1 style="margin-top:0;text-align:left;">{% if create %}Crear Rol{% else %}Editar Rol{% endif %}</h1>
+    <form method="post">{% csrf_token %}
+      <div style="margin-bottom:12px;">
+        {{ form.nom_rol.label_tag }}<br />
+        <div style="margin-top:6px;">{{ form.nom_rol }}</div>
+        {% if form.nom_rol.errors %}<div class="error">{{ form.nom_rol.errors }}</div>{% endif %}
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:8px;">
+        <button class="btn btn-primary">{% if create %}Crear{% else %}Guardar{% endif %}</button>
+        <a href="{% url 'adminpanel:rol_list' %}" class="btn">Cancelar</a>
+      </div>
+    </form>
+  </div>
 {% endblock %}

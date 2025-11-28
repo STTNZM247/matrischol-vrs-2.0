@@ -2,16 +2,29 @@
 {% load static %}
 {% block title %}Crear cursos en lote{% endblock %}
 {% block content %}
-  <h1>Crear cursos en lote para: {{ inst.nom_inst }}</h1>
-  <p>Elige el modo y cuántas secciones por grado quieres generar. El sistema evitará crear duplicados.</p>
-  <form method="post">
-    {% csrf_token %}
-    <table>
-      {{ form.as_table }}
-    </table>
-    <div style="margin-top:12px;">
-      <button class="btn btn-primary" type="submit">Crear cursos</button>
-      <a href="{% url 'adminpanel:institucion_curso_list' inst.id_inst %}" class="btn btn-outline">Cancelar</a>
-    </div>
-  </form>
+  <style>
+    .bulk-cursos-card { max-width:720px; margin:18px auto; padding:18px; background:#fff; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.06); }
+    .bulk-cursos-card p { margin-top:8px; color:#333; }
+    .bulk-cursos-card table { width:100%; border-collapse:collapse; }
+    .bulk-cursos-card td { padding:8px 6px; vertical-align:top; }
+    .bulk-cursos-card label { display:block; font-weight:600; margin-bottom:6px; }
+    .bulk-cursos-card input[type="text"], .bulk-cursos-card input[type="number"], .bulk-cursos-card select { width:100%; box-sizing:border-box; padding:8px; border-radius:6px; border:1px solid #e0e6ef; }
+    .bulk-cursos-actions { display:flex; justify-content:center; gap:12px; margin-top:14px; }
+    @media (max-width:760px) { .bulk-cursos-card { padding:14px; } }
+  </style>
+
+  <div class="bulk-cursos-card">
+    <h1 style="margin-top:0;">Crear cursos en lote para: {{ inst.nom_inst }}</h1>
+    <p>Elige el modo y cuántas secciones por grado quieres generar. El sistema evitará crear duplicados.</p>
+    <form method="post">
+      {% csrf_token %}
+      <table>
+        {{ form.as_table }}
+      </table>
+      <div class="bulk-cursos-actions">
+        <button class="btn btn-primary" type="submit">Crear cursos</button>
+        <a href="{% url 'adminpanel:institucion_curso_list' inst.id_inst %}" class="btn btn-outline">Cancelar</a>
+      </div>
+    </form>
+  </div>
 {% endblock %}

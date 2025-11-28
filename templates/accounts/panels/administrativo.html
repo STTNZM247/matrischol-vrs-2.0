@@ -26,13 +26,21 @@
   .institutions-header h3 { margin:0; font-size:1.25rem; font-weight:600; letter-spacing:.4px; color: var(--admin-text-dark); }
   .cta-register { padding:10px 18px; background:var(--admin-primary); color:#fff; border-radius:8px; text-decoration:none; font-size:.9rem; font-weight:500; transition:.25s; box-shadow:0 2px 6px -2px rgba(13,110,253,.4); }
   .cta-register:hover { background:#0b5ed7; }
-  .institutions-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:18px; margin-top:20px; }
-  .inst-card { border-radius:16px; border:1px solid var(--admin-border); background:var(--admin-card-bg); padding:18px 18px 16px; position:relative; overflow:hidden; display:flex; flex-direction:column; min-height:188px; box-shadow:0 3px 10px -4px rgba(0,0,0,.06); transition:.28s; }
+  .institutions-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:28px; margin-top:36px; padding-top:26px; }
+  .inst-card { border-radius:16px; border:1px solid var(--admin-border); background:var(--admin-card-bg); padding:84px 18px 16px; position:relative; overflow:visible; display:flex; flex-direction:column; min-height:188px; box-shadow:0 3px 10px -4px rgba(0,0,0,.06); transition:.28s; }
   /* Eliminado overlay blanco; solo elevación y leve borde al hacer hover */
   .inst-card:hover { transform:translateY(-4px); box-shadow:0 12px 26px -10px rgba(0,0,0,.18); border-color:#cfd6dd; background:var(--admin-card-bg); }
   .inst-card .inst-name { font-size:1.15rem; font-weight:600; margin:0 0 2px; color: var(--admin-text-dark); }
   .inst-card .inst-location,.inst-card .inst-email { font-size:.85rem; color:var(--admin-text-muted); margin-top:4px; }
   .inst-actions { margin-top:auto; display:grid; gap:8px; }
+  /* Avatar: mitad fuera, mitad dentro del card */
+  .inst-avatar { position:absolute; top:-40px; left:50%; transform:translateX(-50%); width:96px; height:96px; border-radius:50%; background:#fff; border:1px solid var(--admin-border); box-shadow:0 14px 28px -14px rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; overflow:hidden; z-index:3; }
+  .inst-avatar img { width:100%; height:100%; object-fit:cover; }
+  .inst-avatar .placeholder { font-weight:700; color:var(--admin-primary); font-size:1.1rem; }
+  /* Botón lápiz: exterior, borde inferior derecho del avatar */
+  .inst-avatar .inst-check { position:absolute; bottom:-22px; right:-22px; background:#fff; color:var(--admin-text-dark); border-radius:50%; width:34px; height:34px; display:flex; align-items:center; justify-content:center; font-size:16px; text-decoration:none; border:1px solid #e6e9ef; box-shadow:0 14px 30px -14px rgba(0,0,0,.35); z-index:6; cursor:pointer; }
+  .inst-meta { text-align:center; }
+  .inst-meta .inst-name { display:block; margin-top:6px; }
   .inst-actions a { display:block; text-align:center; padding:9px 12px; border-radius:8px; text-decoration:none; font-size:.8rem; font-weight:500; letter-spacing:.3px; border:1px solid var(--admin-border); background:#fff; color:var(--admin-text-dark); transition:.25s; }
   .inst-actions a:hover { background:var(--admin-primary-soft); border-color:#c6ddff; color:#0b5ed7; }
   .inst-actions a.btn-primary { background:var(--admin-primary); color:#fff; border-color:var(--admin-primary); }
@@ -44,11 +52,6 @@
 </style>
 <div class="admin-container">
   <div class="admin-hero">
-    {% if user and user.foto_perfil %}
-      <img class="avatar" src="{{ user.foto_perfil.url }}" alt="Avatar {{ user.nom_usu }}" loading="lazy">
-    {% else %}
-      <div class="avatar" aria-hidden="true">{{ user.nom_usu|slice:":1" }}{{ user.ape_usu|slice:":1" }}</div>
-    {% endif %}
     <h2>Hola {{ user.nom_usu }} {{ user.ape_usu }}</h2>
     <div class="subtxt">Gestión centralizada de tus instituciones y cursos</div>
   </div>
@@ -61,6 +64,24 @@
       <div class="institutions-grid">
         {% for inst in instituciones %}
           <div class="inst-card">
+              <div class="inst-avatar">
+                  {% if inst.img_inst %}
+                    <img src="{{ inst.img_inst.url }}" alt="Logo">
+                  {% else %}
+                    {% if inst.nom_inst %}
+                      <div class="placeholder">{{ inst.nom_inst|slice:":1" }}</div>
+                    {% elif inst.nombre %}
+                      <div class="placeholder">{{ inst.nombre|slice:":1" }}</div>
+                    {% else %}
+                      <div class="placeholder">?</div>
+                    {% endif %}
+                  {% endif %}
+                  {% if inst.id_inst %}
+                    <a class="inst-check" title="Cambiar imagen" href="{% url 'adminpanel:institucion_edit' inst.id_inst %}">✎</a>
+                  {% else %}
+                    <a class="inst-check" title="Cambiar imagen" href="{% url 'adminpanel:institucion_edit' inst.pk %}">✎</a>
+                  {% endif %}
+              </div>
               <div class="inst-meta">
                 <strong class="inst-name">
                   {% if inst.nombre_inst %}
@@ -73,6 +94,24 @@
                     -
                   {% endif %}
                 </strong>
+                <div class="inst-avatar">
+                  {% if inst.img_inst %}
+                    <img src="{{ inst.img_inst.url }}" alt="Logo">
+                  {% else %}
+                    {% if inst.nom_inst %}
+                      <div class="placeholder">{{ inst.nom_inst|slice:":1" }}</div>
+                    {% elif inst.nombre %}
+                      <div class="placeholder">{{ inst.nombre|slice:":1" }}</div>
+                    {% else %}
+                      <div class="placeholder">?</div>
+                    {% endif %}
+                  {% endif %}
+                  {% if inst.id_inst %}
+                    <a class="edit" title="Editar" href="{% url 'adminpanel:institucion_edit' inst.id_inst %}">✎</a>
+                  {% else %}
+                    <a class="edit" title="Editar" href="{% url 'adminpanel:institucion_edit' inst.pk %}">✎</a>
+                  {% endif %}
+                </div>
                 <div class="inst-location">
                   {% if inst.dep_inst %}
                     {{ inst.dep_inst }}{% if inst.mun_inst %} / {{ inst.mun_inst }}{% endif %}

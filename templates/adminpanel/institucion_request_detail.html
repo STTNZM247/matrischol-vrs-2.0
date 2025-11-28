@@ -17,21 +17,38 @@
     </div>
 
     <aside class="request-actions">
-      <form method="post">
-        {% csrf_token %}
-        <label for="reviewer_comments">Comentarios para el solicitante (si corresponde)</label>
-        <textarea id="reviewer_comments" name="reviewer_comments" rows="6">{{ req.reviewer_comments }}</textarea>
-        <div class="actions" style="margin-top:12px">
-          <button name="action" value="approve" class="btn btn-primary">Aprobar y crear institución</button>
-          <button name="action" value="request_info" class="btn btn-primary">Solicitar información</button>
-          <button name="action" value="reject" class="btn btn-primary">Rechazar</button>
-        </div>
-      </form>
+      {% if req.status != 'approved' and req.status != 'rejected' %}
+        <form method="post">
+          {% csrf_token %}
+          <label for="reviewer_comments">Comentarios para el solicitante (si corresponde)</label>
+          <textarea id="reviewer_comments" name="reviewer_comments" rows="6">{{ req.reviewer_comments }}</textarea>
+          <div class="actions" style="margin-top:12px">
+            <button name="action" value="approve" class="btn btn-primary">Aprobar y crear institución</button>
+            <button name="action" value="request_info" class="btn btn-primary">Solicitar información</button>
+            <button name="action" value="reject" class="btn btn-primary">Rechazar</button>
+          </div>
+        </form>
+      {% else %}
+        <div class="alert alert-info">Esta solicitud está finalizada ({{ req.get_status_display }}). No se puede reenviar estado.</div>
+      {% endif %}
       <div style="margin-top:12px">
         <a href="{% url 'adminpanel:administracion_institucion_requests' %}" class="btn btn-outline">Volver al listado</a>
       </div>
     </aside>
   </div>
+  <div class="card" style="margin:18px auto; max-width:1100px; background:#f8f9fb; padding:12px; border-radius:8px;">
+    <h3>Historial de cambios</h3>
+    {% if history and history|length %}
+      <ul>
+        {% for h in history %}
+          <li>{{ h.timestamp|date:'Y-m-d H:i' }} — {{ h.action }} — {{ h.details }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No hay movimientos registrados aún.</p>
+    {% endif %}
+  </div>
+
   <div class="card" style="margin:18px auto; max-width:1100px; background:#f8f9fb; padding:12px; border-radius:8px;">
     <h3>Depuración: valores guardados (solo para diagnóstico)</h3>
     <dl>
