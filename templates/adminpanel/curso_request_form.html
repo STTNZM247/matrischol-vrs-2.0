@@ -1,32 +1,55 @@
 {% extends 'base_users.html' %}
 {% block title %}Solicitar cursos - {{ inst.nom_inst }}{% endblock %}
 {% block content %}
-  <h1>Solicitar creación de cursos para {{ inst.nom_inst }}</h1>
-  <form method="post">
-    {% csrf_token %}
-    <div>
-      <label>Modo</label>
-      {{ form.mode }}
-    </div>
-    <div>
-      <label>Secciones por grado</label>
-      {{ form.sections }}
-    </div>
-    <div>
-      <label>Cupos por curso</label>
-      {{ form.cupos }}
-    </div>
-    <div>
-      <label>Grado inicio (solo para personalizado)</label>
-      {{ form.start_grade }}
-    </div>
-    <div>
-      <label>Grado fin (solo para personalizado)</label>
-      {{ form.end_grade }}
-    </div>
-    <div style="margin-top:12px">
-      <button class="btn btn-primary">Enviar solicitud</button>
-      <a href="{% url 'adminpanel:my_instituciones' %}" class="btn btn-outline">Cancelar</a>
-    </div>
-  </form>
+  <style>
+    .curso-request-card { max-width:820px; margin:18px auto; padding:24px 26px; background:#fff; border-radius:14px; box-shadow:0 10px 28px rgba(0,0,0,0.08); }
+    .curso-request-card h1 { margin:0 0 14px; font-size:28px; line-height:1.2; }
+    .curso-request-desc { color:#4b5b70; margin-bottom:18px; }
+    .form-grid { display:grid; grid-template-columns: repeat(2, minmax(240px,1fr)); gap:14px 18px; }
+    .form-group label { display:block; font-weight:600; color:#233244; margin-bottom:6px; }
+    .form-group .hint { font-size:12px; color:#6c7e90; margin-top:6px; }
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group select { width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; border:1px solid #dfe6ee; background:#f8fbff; outline:none; transition:box-shadow .15s, border-color .15s; }
+    .form-group input:focus,
+    .form-group select:focus { border-color:#b8d0ff; box-shadow:0 0 0 3px rgba(13,110,253,.15); background:#fff; }
+    .actions { display:flex; gap:12px; margin-top:18px; }
+    @media (max-width:680px){ .form-grid { grid-template-columns: 1fr; } .curso-request-card { padding:18px; } }
+  </style>
+
+  <div class="curso-request-card">
+    <h1>Solicitar creación de cursos para {{ inst.nom_inst }}</h1>
+    <p class="curso-request-desc">Define el modo de creación y los parámetros. La solicitud será enviada a un administrador para revisión.</p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Modo</label>
+          {{ form.mode }}
+        </div>
+        <div class="form-group">
+          <label>Secciones por grado</label>
+          {{ form.sections }}
+          <div class="hint">Ej: 3 secciones por cada grado.</div>
+        </div>
+        <div class="form-group">
+          <label>Cupos por curso</label>
+          {{ form.cupos }}
+          <div class="hint">Número de estudiantes por curso.</div>
+        </div>
+        <div class="form-group">
+          <label>Grado inicio (solo para personalizado)</label>
+          {{ form.start_grade }}
+        </div>
+        <div class="form-group">
+          <label>Grado fin (solo para personalizado)</label>
+          {{ form.end_grade }}
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Enviar solicitud</button>
+        <a href="{% url 'adminpanel:my_instituciones' %}" class="btn btn-outline">Cancelar</a>
+      </div>
+    </form>
+  </div>
 {% endblock %}
