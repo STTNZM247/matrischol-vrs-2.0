@@ -1,7 +1,13 @@
-<p>Hola {{ submitter_name }},</p>
-<p>Tu solicitud de cursos para la institución "<strong>{{ institucion }}</strong>" (ID: {{ request_id }}) ha sido <strong>{{ status_label }}</strong>.</p>
+{% extends 'email/base_school.html' %}
+{% block title %}Estado solicitud cursos{% endblock %}
+{% block content %}
+<h2>Estado de solicitud de cursos</h2>
+<p>Hola {{ submitter_name }}, tu solicitud para <strong>{{ institucion }}</strong> (ID: {{ request_id }}) ahora está <span class="badge">{{ status_label }}</span>.</p>
 {% if comments %}
-<p><strong>Comentarios del revisor:</strong><br>{{ comments|linebreaksbr }}</p>
+<div class="highlight-box">
+	<p style="margin:0 0 6px"><strong>Comentarios del revisor:</strong></p>
+	<p style="margin:0">{{ comments|linebreaksbr }}</p>
+</div>
 {% endif %}
-<p>Puedes ver la solicitud en tu panel: <a href="{{ panel_url }}">Ir al panel</a></p>
-<p>Soporte: {{ soporte_email }}</p>
+<p><a class="btn" href="{{ panel_url }}">Ir al panel</a></p>
+{% endblock %}

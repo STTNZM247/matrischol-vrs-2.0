@@ -15,6 +15,13 @@ def send_email(subject: str, to_email: str, template_html: str, context: dict, t
     :param tipo: Clasificación (password_change, notification, etc.)
     :param user: Registro relacionado (opcional)
     """
+    # Agregar datos comunes (logo, fecha actual) antes de renderizar
+    if 'now' not in context:
+        context['now'] = timezone.now()
+    # Logo global configurable en settings.SITE_LOGO_URL (opcional)
+    global_logo = getattr(settings, 'SITE_LOGO_URL', None)
+    if 'logo_url' not in context and global_logo:
+        context['logo_url'] = global_logo
     html_content = render_to_string(template_html, context)
     if template_txt:
         text_content = render_to_string(template_txt, context)

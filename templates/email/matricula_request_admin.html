@@ -1,15 +1,9 @@
-<html>
-  <body style="font-family: Arial, Helvetica, sans-serif; color:#222">
-    <h2>Nueva solicitud de matrícula</h2>
-    <p>Hola {{ admin_name }},</p>
-    <p>Se ha recibido una nueva solicitud de matrícula para <strong>{{ estudiante_nombre }}</strong> en la institución <strong>{{ institucion }}</strong>.</p>
-    {% if grado_solicitado %}
-      <p>Grado solicitado: {{ grado_solicitado }}</p>
-    {% endif %}
-    {% if request_id %}
-      <p>ID solicitud: {{ request_id }}</p>
-    {% endif %}
-    <p>Revisa la solicitud desde el panel administrativo para revisar documentos y procesarla.</p>
-    <p>Saludos,<br/>Equipo MatriSchol</p>
-  </body>
-</html>
+{% extends 'email/base_school.html' %}
+{% block title %}Nueva solicitud de matrícula{% endblock %}
+{% block content %}
+<h2>Nueva solicitud de matrícula</h2>
+<p>Hola {{ admin_name }}, se ha recibido una nueva solicitud para <strong>{{ estudiante_nombre }}</strong> en <strong>{{ institucion }}</strong>.</p>
+{% if grado_solicitado %}<p><strong>Grado solicitado:</strong> {{ grado_solicitado }}</p>{% endif %}
+{% if request_id %}<p><strong>ID solicitud:</strong> {{ request_id }}</p>{% endif %}
+<p>Revisa la solicitud en el panel administrativo para procesarla y validar documentos.</p>
+{% endblock %}

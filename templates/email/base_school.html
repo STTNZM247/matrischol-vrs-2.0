@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>{% block title %}Notificación MatriSchol{% endblock %}</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root {
+      --brand-bg: #f5f7fb;
+      --brand-primary: #1e3a8a; /* azul colegio */
+      --brand-accent: #f6b400; /* dorado escolar */
+      --brand-secondary: #345da7;
+      --text-main: #233244;
+      --text-muted: #627386;
+      --radius: 14px;
+    }
+    body { margin:0; padding:0; background:var(--brand-bg); font-family:'Segoe UI', Arial, sans-serif; -webkit-font-smoothing:antialiased; }
+    table { border-collapse:collapse; }
+    .email-container { width:100%; background:var(--brand-bg); padding:28px 0; }
+    .card { width:100%; max-width:640px; margin:0 auto; background:#ffffff; border-radius:var(--radius); box-shadow:0 6px 22px -10px rgba(0,0,0,0.18); overflow:hidden; }
+    .header { background:linear-gradient(135deg,var(--brand-primary),var(--brand-secondary)); padding:26px 34px; color:#fff; }
+    .header h1 { margin:0; font-size:22px; font-weight:600; letter-spacing:.5px; }
+    .brand-row { display:flex; align-items:center; gap:16px; }
+    .brand-logo { width:52px; height:52px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:700; color:var(--brand-primary); box-shadow:0 2px 6px rgba(0,0,0,0.25); }
+    .content { padding:34px 38px 40px; }
+    h2 { color:var(--brand-primary); font-size:20px; margin:0 0 18px; font-weight:600; }
+    h3 { color:var(--brand-secondary); font-size:18px; margin:26px 0 12px; font-weight:600; }
+    p { color:var(--text-main); line-height:1.55; font-size:15px; margin:0 0 14px; }
+    ul { margin:0 0 18px 20px; padding:0; }
+    ul li { margin:0 0 8px; color:var(--text-main); font-size:15px; }
+    .badge { display:inline-block; background:var(--brand-accent); color:#1a1a1a; font-weight:600; padding:4px 10px; border-radius:20px; font-size:12px; letter-spacing:.5px; }
+    a { color:var(--brand-secondary); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .btn { display:inline-block; background:var(--brand-accent); color:#062b5b !important; font-weight:600; padding:12px 20px; border-radius:10px; text-decoration:none; font-size:14px; letter-spacing:.3px; box-shadow:0 3px 10px -3px rgba(0,0,0,.25); transition:background .25s; }
+    .btn:hover { background:#ffca36; }
+    .highlight-box { background:#eef4ff; border:1px solid #d7e4ff; padding:16px 18px; border-radius:12px; margin:18px 0 22px; }
+    .separator { height:1px; background:#e3e8ee; margin:30px 0; }
+    .footer { background:#fafafa; padding:22px 34px; border-top:1px solid #e5e9ef; }
+    .footer p { margin:0 0 10px; font-size:12px; color:var(--text-muted); line-height:1.4; }
+    .social a { display:inline-block; margin-right:10px; font-size:12px; color:var(--brand-secondary); }
+    .tagline { font-size:12px; font-style:italic; color:var(--brand-secondary); margin-top:4px; }
+    @media (max-width:520px){
+      .content { padding:26px 24px 34px; }
+      .header { padding:22px 26px; }
+      h2 { font-size:19px; }
+      .brand-logo { width:46px; height:46px; font-size:22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="card">
+      <div class="header">
+        <div class="brand-row">
+          {% if logo_url %}
+            <img src="{{ logo_url }}" alt="Logo" class="brand-logo" style="object-fit:cover;">
+          {% else %}
+            <div class="brand-logo">M</div>
+          {% endif %}
+          <div>
+            <h1>MatriSchol</h1>
+            <div class="tagline">Educación y futuro para todos</div>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        {% block content %}{% endblock %}
+      </div>
+      <div class="footer">
+        <p>Este correo fue enviado automáticamente por el sistema MatriSchol. Si recibiste este mensaje por error, puedes ignorarlo.</p>
+        {% if soporte_email %}<p>Soporte: <a href="mailto:{{ soporte_email }}">{{ soporte_email }}</a></p>{% endif %}
+        <p>© {{ now|default:None|date:'Y' }} MatriSchol. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

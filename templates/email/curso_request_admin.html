@@ -1,12 +1,17 @@
-<p>Hola {{ admin_name }},</p>
-<p>Se ha enviado una nueva solicitud de cursos para la institución "<strong>{{ institucion }}</strong>".</p>
-<ul>
-  <li>Modalidad: {{ mode }}</li>
-  <li>Grado inicio: {{ start_grade }}</li>
-  <li>Grado fin: {{ end_grade }}</li>
-  <li>Secciones: {{ sections }}</li>
-  <li>Cupos por sección: {{ cupos }}</li>
-  <li>Solicitante: {{ estudiante_nombre }}</li>
-</ul>
-<p>Ver la solicitud en el panel: <a href="{{ panel_url }}">Ir al panel de solicitudes</a></p>
-<p>Soporte: {{ soporte_email }}</p>
+{% extends 'email/base_school.html' %}
+{% block title %}Nueva solicitud de cursos{% endblock %}
+{% block content %}
+<h2>Nueva solicitud de cursos</h2>
+<p>Hola {{ admin_name }}, se ha enviado una nueva solicitud para la institución <strong>{{ institucion }}</strong>.</p>
+<div class="highlight-box">
+  <ul style="margin:0;">
+    <li><strong>Modalidad:</strong> {{ mode }}</li>
+    <li><strong>Grado inicio:</strong> {{ start_grade }}</li>
+    <li><strong>Grado fin:</strong> {{ end_grade }}</li>
+    <li><strong>Secciones:</strong> {{ sections }}</li>
+    <li><strong>Cupos/Sección:</strong> {{ cupos }}</li>
+    <li><strong>Solicitante:</strong> {{ estudiante_nombre }}</li>
+  </ul>
+</div>
+<p><a class="btn" href="{{ panel_url }}">Ver en el panel</a></p>
+{% endblock %}

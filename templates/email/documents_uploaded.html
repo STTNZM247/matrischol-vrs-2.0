@@ -1,19 +1,18 @@
-<html>
-  <body style="font-family: Arial, Helvetica, sans-serif; color:#222">
-    <h2>Documentos subidos correctamente</h2>
-    <p>Hola {{ acudiente_nombre }},</p>
-    <p>Hemos recibido los documentos del estudiante <strong>{{ estudiante_nombre }}</strong>.</p>
-    {% if uploaded_fields %}
-    <p>Archivos subidos:</p>
-    <ul>
-      {% for f in uploaded_fields %}
-        <li>{{ f }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-    <p>Puedes revisar el estado y subir más documentos en tu panel:</p>
-    <p><a href="{{ panel_url }}">Ir al panel de acudiente</a></p>
-    <p>Si necesitas ayuda, escribe a {{ soporte_email }}.</p>
-    <p>Saludos,<br/>Equipo MatriSchol</p>
-  </body>
-</html>
+{% extends 'email/base_school.html' %}
+{% block title %}Documentos subidos{% endblock %}
+{% block content %}
+<h2>Documentos subidos correctamente</h2>
+<p>Hola {{ acudiente_nombre }}, hemos recibido los documentos de <strong>{{ estudiante_nombre }}</strong>.</p>
+{% if uploaded_fields %}
+<div class="highlight-box">
+  <p style="margin:0 0 8px"><strong>Archivos subidos:</strong></p>
+  <ul style="margin:0;">
+    {% for f in uploaded_fields %}
+      <li>{{ f }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+<p>Puedes revisar el estado y subir más documentos en tu panel:</p>
+<p><a class="btn" href="{{ panel_url }}">Ir al panel de acudiente</a></p>
+{% endblock %}

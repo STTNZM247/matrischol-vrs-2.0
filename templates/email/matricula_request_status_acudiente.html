@@ -1,15 +1,10 @@
-<html>
-  <body style="font-family: Arial, Helvetica, sans-serif; color:#222">
-    <h2>{{ subject|default:"Actualización de su solicitud" }}</h2>
-    <p>Hola {{ acudiente_nombre }},</p>
-    <p>La solicitud de matrícula para <strong>{{ estudiante_nombre }}</strong> ha sido actualizada: <strong>{{ status|capfirst }}</strong>.</p>
-    {% if assigned_course %}
-      <p>Curso asignado: <strong>{{ assigned_course }}</strong></p>
-    {% endif %}
-    {% if comment %}
-      <p>Observaciones: {{ comment }}</p>
-    {% endif %}
-    <p>Puedes revisar el estado y los detalles en tu panel: <a href="{{ panel_url }}">Ir al panel de acudiente</a></p>
-    <p>Saludos,<br/>Equipo MatriSchol</p>
-  </body>
-</html>
+{% extends 'email/base_school.html' %}
+{% block title %}Actualización solicitud matrícula{% endblock %}
+{% block content %}
+<h2>Actualización de tu solicitud</h2>
+<p>Hola {{ acudiente_nombre }}, la solicitud de matrícula para <strong>{{ estudiante_nombre }}</strong> ahora está en estado <span class="badge">{{ status|capfirst }}</span>.</p>
+{% if assigned_course %}<p><strong>Curso asignado:</strong> {{ assigned_course }}</p>{% endif %}
+{% if comment %}<div class="highlight-box"><p style="margin:0 0 4px"><strong>Observaciones:</strong></p><p style="margin:0">{{ comment }}</p></div>{% endif %}
+<p>Revisa el progreso y detalles adicionales en tu panel.</p>
+<p><a class="btn" href="{{ panel_url }}">Ir al panel de acudiente</a></p>
+{% endblock %}

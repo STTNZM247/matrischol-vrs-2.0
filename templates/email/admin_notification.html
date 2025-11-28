@@ -1,10 +1,8 @@
-<html>
-  <body>
-    <p>Hola {{ admin_name }},</p>
-    <h2>{{ title }}</h2>
-    <p>{{ message }}</p>
-    <p>Ver en el panel: <a href="{{ notif_link }}">Abrir notificación</a></p>
-    <hr/>
-    <p>Soporte: {{ soporte_email }}</p>
-  </body>
-</html>
+{% extends 'email/base_school.html' %}
+{% block title %}Notificación administrativa{% endblock %}
+{% block content %}
+<h2>{{ title }}</h2>
+<p>Hola {{ admin_name }},</p>
+<p>{{ message }}</p>
+<p><a class="btn" href="{{ notif_link }}">Abrir en el panel</a></p>
+{% endblock %}
