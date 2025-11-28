@@ -121,9 +121,43 @@ def matricula_request_create(request):
             if db_cur.id_inst != inst:
                 return JsonResponse({'status': 'error', 'error': 'Curso no pertenece a la institución'}, status=400)
 
-        # comprobar que el estudiante no tenga ya una matrícula activa
-        if Matricula.objects.filter(id_est=est).exists():
-            return JsonResponse({'status': 'error', 'error': 'El estudiante ya tiene matrícula asignada en otra institución'}, status=400)
+        # comprobar si el estudiante ya tiene una matrícula registrada
+        existing_mat = Matricula.objects.filter(id_est=est).order_by('-fch_reg_mat').first()
+        if existing_mat:
+            existing_inst = None
+            try:
+                existing_inst = getattr(existing_mat.id_cur, 'id_inst', None)
+            except Exception:
+                existing_inst = None
+            # Si ya está en la misma institución, no crear nueva solicitud; rechazar explícitamente
+            if existing_inst and existing_inst == inst:
+                req = MatriculaRequest.objects.create(
+                    id_acu=acudiente,
+                    id_est=est,
+                    id_inst=inst,
+                    estado='rejected',
+                    obs='Solicitud rechazada: el estudiante ya está matriculado en esta institución.',
+                )
+                return JsonResponse({
+                    'status': 'rejected',
+                    'request_id': req.id_req,
+                    'message': 'El estudiante ya está matriculado en esta institución.'
+                }, status=200)
+            else:
+                # Matriculado en otra institución: crear solicitud rechazada con orientación a traslado
+                nombre_inst = getattr(existing_inst, 'nom_inst', 'otra institución') if existing_inst else 'otra institución'
+                req = MatriculaRequest.objects.create(
+                    id_acu=acudiente,
+                    id_est=est,
+                    id_inst=inst,
+                    estado='rejected',
+                    obs=f'Solicitud rechazada: el estudiante ya está matriculado en {nombre_inst}. Solicite un traslado.',
+                )
+                return JsonResponse({
+                    'status': 'rejected',
+                    'request_id': req.id_req,
+                    'message': f'El estudiante ya está matriculado en {nombre_inst}. Solicite un traslado.'
+                }, status=200)
 
         # Validación de documentos: combinar todos los Documento vinculados al estudiante
         # (por id_est y por la última matrícula) y verificar que entre todos están los campos requeridos.
