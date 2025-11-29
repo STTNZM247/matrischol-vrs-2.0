@@ -38,24 +38,41 @@
       {% with admin_fields="num_doc_adm tel_adm dir_adm tip_carg_adm cedula_img foto_perfil" %}
         {% for field in form.visible_fields %}
           {% if field.name not in admin_fields %}
-            <div class="form-group">
-              {% if not create and field.name in 'password,password_confirm' %}
+            {% if not create %}
+              {% if field.name == 'password' or field.name == 'password_confirm' %}
                 {# ocultar los campos de contraseña en edición; usar acción dedicada #}
-                {% continue %}
-              {% endif %}
-              {{ field.label_tag }}
-              {% if field.name == 'con_usu' %}
-                <div class="password-wrapper">
-                  {{ field }}
-                  <i class="fa-solid fa-eye eye-icon" id="eye-icon-registro" onclick="togglePasswordRegistro()"></i>
-                </div>
               {% else %}
-                {{ field }}
+                <div class="form-group">
+                  {{ field.label_tag }}
+                  {% if field.name == 'con_usu' %}
+                    <div class="password-wrapper">
+                      {{ field }}
+                      <i class="fa-solid fa-eye eye-icon" id="eye-icon-registro" onclick="togglePasswordRegistro()"></i>
+                    </div>
+                  {% else %}
+                    {{ field }}
+                  {% endif %}
+                  {% if field.errors %}
+                    <div style="color:#dc3545;font-size:0.85rem;margin-top:4px;">{{ field.errors|striptags }}</div>
+                  {% endif %}
+                </div>
               {% endif %}
-              {% if field.errors %}
-                <div style="color:#dc3545;font-size:0.85rem;margin-top:4px;">{{ field.errors|striptags }}</div>
-              {% endif %}
-            </div>
+            {% else %}
+              <div class="form-group">
+                {{ field.label_tag }}
+                {% if field.name == 'con_usu' %}
+                  <div class="password-wrapper">
+                    {{ field }}
+                    <i class="fa-solid fa-eye eye-icon" id="eye-icon-registro" onclick="togglePasswordRegistro()"></i>
+                  </div>
+                {% else %}
+                  {{ field }}
+                {% endif %}
+                {% if field.errors %}
+                  <div style="color:#dc3545;font-size:0.85rem;margin-top:4px;">{{ field.errors|striptags }}</div>
+                {% endif %}
+              </div>
+            {% endif %}
           {% endif %}
         {% endfor %}
       {% endwith %}
