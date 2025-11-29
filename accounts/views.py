@@ -826,6 +826,7 @@ def panel_estudiante(request):
         'estudiante': estudiante,
         'matricula': matricula,
         'institucion': institucion,
+        'curso': getattr(matricula, 'id_cur', None),
         'media_url': media_url,
         'slots': slots,
     })

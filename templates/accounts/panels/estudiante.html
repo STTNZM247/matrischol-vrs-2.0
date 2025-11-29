@@ -59,6 +59,14 @@
 
   {# Mostrar primero el horario, luego la información de la institución centrada debajo #}
   <section style="margin-top:18px;">
+    {% if curso %}
+      <div style="text-align:center;margin-bottom:14px;">
+        <span style="display:inline-block;padding:8px 16px;border:2px solid #111;border-radius:24px;font-weight:600;font-size:0.95rem;background:#fff;">
+          Curso actual: <strong>{{ curso.grd_cur }}</strong>
+          {% if institucion %} <span style="color:#555;font-weight:400;">— {{ institucion.nom_inst }}</span>{% endif %}
+        </span>
+      </div>
+    {% endif %}
     <h3 style="text-align:center;margin-bottom:10px;">Tu Horario</h3>
     <div>
       {% if slots %}
