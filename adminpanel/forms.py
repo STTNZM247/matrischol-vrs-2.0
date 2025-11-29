@@ -223,12 +223,23 @@ class AdminRegistroCreateForm(forms.ModelForm):
             'id_rol': 'Rol',
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # En edición, no requerir contraseña
+        if getattr(self, 'instance', None) and getattr(self.instance, 'pk', None):
+            self.fields['password'].required = False
+            self.fields['password_confirm'].required = False
+
     def clean(self):
         cleaned = super().clean()
         p1 = cleaned.get('password')
         p2 = cleaned.get('password_confirm')
-        if p1 and p2 and p1 != p2:
-            raise forms.ValidationError('Las contraseñas no coinciden')
+        # Si se proporciona al menos una, ambas deben existir y coincidir
+        if p1 or p2:
+            if not p1 or not p2:
+                raise forms.ValidationError('Para cambiar la contraseña, completa ambos campos')
+            if p1 != p2:
+                raise forms.ValidationError('Las contraseñas no coinciden')
         return cleaned
 
     def save(self, commit=True, files=None):

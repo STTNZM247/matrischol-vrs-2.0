@@ -39,6 +39,10 @@
         {% for field in form.visible_fields %}
           {% if field.name not in admin_fields %}
             <div class="form-group">
+              {% if not create and field.name in 'password,password_confirm' %}
+                {# ocultar los campos de contraseña en edición; usar acción dedicada #}
+                {% continue %}
+              {% endif %}
               {{ field.label_tag }}
               {% if field.name == 'con_usu' %}
                 <div class="password-wrapper">
