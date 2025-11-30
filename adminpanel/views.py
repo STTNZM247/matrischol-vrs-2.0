@@ -32,6 +32,7 @@ from school.models import Asignatura, Horario
 from django import forms
 from communications.email_utils import send_institucion_status_email
 from communications.email_utils import send_curso_request_admin, send_curso_status_to_submitter
+from people.models import Acudiente
 
 
 def log_action(request, action, model_name, object_repr='', details=''):
@@ -178,6 +179,7 @@ def registro_edit(request, pk):
     # try to get existing administrativo to populate admin fields
     from accounts.models import Administrativo as AdmModel
     adm = AdmModel.objects.filter(id_usu=reg).first()
+    acu = Acudiente.objects.filter(id_usu=reg).first()
 
     if request.method == 'POST':
         form = AdminRegistroCreateForm(request.POST, request.FILES, instance=reg)
@@ -189,12 +191,18 @@ def registro_edit(request, pk):
     else:
         initial = {}
         if adm:
-            initial = {
+            initial.update({
                 'num_doc_adm': adm.num_doc_adm,
                 'tel_adm': adm.tel_adm,
                 'dir_adm': adm.dir_adm,
                 'tip_carg_adm': adm.tip_carg_adm,
-            }
+            })
+        if acu:
+            initial.update({
+                'acu_num_doc': acu.num_doc_acu,
+                'acu_tel': acu.tel_acu,
+                'acu_dir': acu.dir_acu,
+            })
         form = AdminRegistroCreateForm(instance=reg, initial=initial)
     return render(request, 'adminpanel/registro_form.html', {'form': form, 'create': False, 'reg': reg})
 

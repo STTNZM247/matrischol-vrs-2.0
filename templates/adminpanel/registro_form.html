@@ -35,9 +35,9 @@
     <h1>{% if create %}Crear Registro{% else %}Editar Registro{% endif %}</h1>
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
-      {% with admin_fields="num_doc_adm tel_adm dir_adm tip_carg_adm cedula_img foto_perfil" %}
+      {% with extra_fields="num_doc_adm tel_adm dir_adm tip_carg_adm cedula_img foto_perfil acu_num_doc acu_tel acu_dir acu_cedula_img acu_foto_perfil" %}
         {% for field in form.visible_fields %}
-          {% if field.name not in admin_fields %}
+          {% if field.name not in extra_fields %}
             {% if not create %}
               {% if field.name == 'password' or field.name == 'password_confirm' %}
                 {# ocultar los campos de contraseña en edición; usar acción dedicada #}
@@ -102,6 +102,31 @@
         <div class="form-group">
           {{ form.foto_perfil.label_tag }}
           {{ form.foto_perfil }}
+        </div>
+      {% endif %}
+
+      {% if form.acu_num_doc %}
+        <h3>Datos de acudiente</h3>
+        <div class="form-group">
+          {{ form.acu_num_doc.label_tag }}
+          {{ form.acu_num_doc }}
+          <div style="color:#6c757d;font-size:0.85rem;margin-top:4px;">Obligatorio si el rol es "acudiente"</div>
+        </div>
+        <div class="form-group">
+          {{ form.acu_tel.label_tag }}
+          {{ form.acu_tel }}
+        </div>
+        <div class="form-group">
+          {{ form.acu_dir.label_tag }}
+          {{ form.acu_dir }}
+        </div>
+        <div class="form-group">
+          {{ form.acu_cedula_img.label_tag }}
+          {{ form.acu_cedula_img }}
+        </div>
+        <div class="form-group">
+          {{ form.acu_foto_perfil.label_tag }}
+          {{ form.acu_foto_perfil }}
         </div>
       {% endif %}
 

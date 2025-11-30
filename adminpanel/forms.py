@@ -213,6 +213,13 @@ class AdminRegistroCreateForm(forms.ModelForm):
     cedula_img = forms.ImageField(required=False, label='Imagen de cédula')
     foto_perfil = forms.ImageField(required=False, label='Foto perfil')
 
+    # Campos de acudiente: se usan cuando el rol seleccionado es "acudiente"
+    acu_num_doc = forms.CharField(required=False, label='Número de documento (acudiente)')
+    acu_tel = forms.CharField(required=False, label='Teléfono acudiente')
+    acu_dir = forms.CharField(required=False, label='Dirección acudiente')
+    acu_cedula_img = forms.ImageField(required=False, label='Cédula (imagen) acudiente')
+    acu_foto_perfil = forms.ImageField(required=False, label='Foto de perfil (acudiente)')
+
     class Meta:
         model = Registro
         fields = ['nom_usu', 'ape_usu', 'ema_usu', 'id_rol']
@@ -240,6 +247,13 @@ class AdminRegistroCreateForm(forms.ModelForm):
                 raise forms.ValidationError('Para cambiar la contraseña, completa ambos campos')
             if p1 != p2:
                 raise forms.ValidationError('Las contraseñas no coinciden')
+
+        # Validación condicional para acudiente: se requiere número de documento
+        rol_obj = cleaned.get('id_rol')
+        rol_name = (rol_obj.nom_rol or '').strip().lower() if rol_obj else ''
+        if rol_name == 'acudiente':
+            if not cleaned.get('acu_num_doc'):
+                raise forms.ValidationError('Para rol acudiente, el número de documento es obligatorio')
         return cleaned
 
     def save(self, commit=True, files=None):
@@ -276,4 +290,29 @@ class AdminRegistroCreateForm(forms.ModelForm):
                     if foto:
                         adm.foto_perfil = foto
                 adm.save()
+
+            # Si el rol seleccionado es acudiente, crear/actualizar su objeto Acudiente
+            if role == 'acudiente':
+                from people.models import Acudiente
+                acu = Acudiente.objects.filter(id_usu=instance).first()
+                if acu:
+                    acu.num_doc_acu = self.cleaned_data.get('acu_num_doc') or acu.num_doc_acu
+                    acu.tel_acu = self.cleaned_data.get('acu_tel') or acu.tel_acu
+                    acu.dir_acu = self.cleaned_data.get('acu_dir') or acu.dir_acu
+                else:
+                    # num_doc_acu es obligatorio para crear
+                    acu = Acudiente(
+                        num_doc_acu=self.cleaned_data.get('acu_num_doc') or '',
+                        tel_acu=self.cleaned_data.get('acu_tel') or '',
+                        dir_acu=self.cleaned_data.get('acu_dir') or '',
+                        id_usu=instance,
+                    )
+                if files:
+                    ced_a = files.get('acu_cedula_img')
+                    foto_a = files.get('acu_foto_perfil')
+                    if ced_a:
+                        acu.cedula_img = ced_a
+                    if foto_a:
+                        acu.foto_perfil = foto_a
+                acu.save()
         return instance
