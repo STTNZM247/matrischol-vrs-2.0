@@ -30,11 +30,17 @@ else:
         except Exception:
             pass
 
-SECRET_KEY = 'changeme-please-set-a-secure-key'
+SECRET_KEY = os.environ.get("SECRET_KEY", default='sasasassdsasasa')
 
-DEBUG = True
+DEBUG = 'RENDER' not in os.environ
 
 ALLOWED_HOSTS = []
+
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    # Para CSRF en Render (usa HTTPS)
+    CSRF_TRUSTED_ORIGINS = [f"https://{RENDER_EXTERNAL_HOSTNAME}"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -52,6 +58,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'matrischol_project.middleware.NoCacheForAuthPagesMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -90,6 +97,16 @@ DATABASES = {
     }
 }
 
+# Si está definida DATABASE_URL (Render Postgres), usarla
+try:
+    import dj_database_url  # type: ignore
+except Exception:
+    dj_database_url = None
+
+db_url = os.getenv('DATABASE_URL')
+if db_url and dj_database_url:
+    DATABASES['default'] = dj_database_url.parse(db_url, conn_max_age=600, ssl_require=True)
+
 # Password validation (kept default)
 AUTH_PASSWORD_VALIDATORS = []
 
@@ -104,11 +121,19 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Static files (CSS, JavaScript, Images)
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+
+# WhiteNoise: servir estáticos comprimidos y con manifest en producción
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Media (uploads)
 MEDIA_URL = '/media/'
@@ -135,4 +160,15 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'no-repl
 # Evitar configuración inválida (TLS y SSL a la vez)
 if EMAIL_USE_TLS and EMAIL_USE_SSL:
     raise ValueError('Config: No puedes habilitar TLS y SSL simultáneamente. Ajusta variables de entorno.')
+
+# Respeto a cabeceras de proxy (Render) y cookies seguras en producción
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # Puedes habilitar HSTS cuando confirmes HTTPS estable en tu dominio
+    # SECURE_HSTS_SECONDS = 31536000
+    # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    # SECURE_HSTS_PRELOAD = True
 

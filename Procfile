@@ -1,0 +1,1 @@
+web: gunicorn matrischol_project.wsgi:application
