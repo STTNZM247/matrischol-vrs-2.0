@@ -2,23 +2,29 @@ import os
 from django.core.management.base import BaseCommand
 from django.contrib.auth.hashers import make_password
 from accounts.models import Registro, Rol
+import random
+import string
 
 
 class Command(BaseCommand):
     help = "Crea o actualiza un usuario admin (modelo Registro) usando variables de entorno."
 
     def handle(self, *args, **options):
-        email = os.getenv('DJANGO_ADMIN_EMAIL')
+        # Valores por defecto para reseteo/migración inicial
+        email = os.getenv('DJANGO_ADMIN_EMAIL') or 'matrischol.app@gmail.com'
         password = os.getenv('DJANGO_ADMIN_PASSWORD')
         first_name = os.getenv('DJANGO_ADMIN_FIRST_NAME', 'Admin')
         last_name = os.getenv('DJANGO_ADMIN_LAST_NAME', 'User')
         role_name = os.getenv('DJANGO_ADMIN_ROLE', 'admin')
 
-        if not email or not password:
-            self.stdout.write(self.style.WARNING(
-                'ensure_admin: variables DJANGO_ADMIN_EMAIL y DJANGO_ADMIN_PASSWORD no definidas; no se crea admin.'
-            ))
+        if not email:
+            self.stdout.write(self.style.WARNING('ensure_admin: sin email; define DJANGO_ADMIN_EMAIL o usa por defecto.'))
             return
+        # Si no hay password definido, generar uno fuerte temporal y mostrarlo en logs
+        if not password:
+            alphabet = string.ascii_letters + string.digits + '!@#$%^&*()-_=+'
+            password = ''.join(random.choice(alphabet) for _ in range(16))
+            self.stdout.write(self.style.WARNING(f"ensure_admin: DJANGO_ADMIN_PASSWORD no definido; generado temporal: {password}"))
 
         role, _ = Rol.objects.get_or_create(nom_rol=role_name)
 
