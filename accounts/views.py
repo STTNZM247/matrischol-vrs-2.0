@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 from django.urls import reverse
 from django.contrib import messages
 from .forms import RegistroForm, LoginForm, PasswordResetRequestForm, PasswordResetConfirmForm
@@ -183,13 +184,34 @@ def dashboard_view(request):
         user = Registro.objects.get(id_usu=user_id)
     except Registro.DoesNotExist:
         return redirect(reverse('accounts:login'))
-    # If the logged Registro has an Acudiente record, expose it to the template
+    # Obtener posibles perfiles vinculados
     acudiente = None
+    estudiante = None
+    administrativo = None
+    instituciones = []
     try:
         acudiente = Acudiente.objects.filter(id_usu=user).first()
     except Exception:
         acudiente = None
-    return render(request, 'accounts/dashboard.html', {'user': user, 'acudiente': acudiente})
+    try:
+        estudiante = Estudiante.objects.select_related('id_usu', 'id_acu').filter(id_usu=user).first()
+    except Exception:
+        estudiante = None
+    try:
+        administrativo = Administrativo.objects.filter(id_usu=user).select_related('id_usu').first()
+        if administrativo:
+            from school.models import Institucion
+            instituciones = list(Institucion.objects.filter(id_adm=administrativo))
+    except Exception:
+        administrativo = None
+        instituciones = []
+    return render(request, 'accounts/dashboard.html', {
+        'user': user,
+        'acudiente': acudiente,
+        'estudiante': estudiante,
+        'administrativo': administrativo,
+        'instituciones': instituciones,
+    })
 
 
 def panel_home(request):
@@ -239,16 +261,22 @@ def panel_profile(request):
         estudiante = Estudiante.objects.select_related('id_usu', 'id_acu').filter(id_usu=user).first()
     except Exception:
         estudiante = None
+    instituciones = []
     try:
-        administrativo = Administrativo.objects.filter(id_usu=user).first()
+        administrativo = Administrativo.objects.filter(id_usu=user).select_related('id_usu').first()
+        if administrativo:
+            from school.models import Institucion
+            instituciones = list(Institucion.objects.filter(id_adm=administrativo))
     except Exception:
         administrativo = None
+        instituciones = []
 
     context = {
         'user': user,
         'acudiente': acudiente,
         'estudiante': estudiante,
         'administrativo': administrativo,
+        'instituciones': instituciones,
     }
     return render(request, 'accounts/dashboard.html', context)
 
@@ -360,7 +388,23 @@ def panel_acudiente(request):
                         missing.append(f)
 
                 documents_complete = (len(missing) == 0)
-                students_list.append({'est': est, 'documents_complete': documents_complete, 'missing': missing, 'documento': doc, 'matricula': mat})
+                # Determinar grado para visualización (curso asignado o grado solicitado)
+                grado_display = None
+                try:
+                    if mat and getattr(mat, 'id_cur', None) and getattr(mat.id_cur, 'grd_cur', None):
+                        grado_display = mat.id_cur.grd_cur
+                    elif mat and getattr(mat, 'grado_solicitado', None):
+                        grado_display = f"{mat.grado_solicitado}º"
+                except Exception:
+                    grado_display = None
+                students_list.append({
+                    'est': est,
+                    'documents_complete': documents_complete,
+                    'missing': missing,
+                    'documento': doc,
+                    'matricula': mat,
+                    'grado_display': grado_display,
+                })
     except Exception:
         students_list = []
     # añadimos acudiente a contexto para dashboard y para el modal
@@ -368,7 +412,40 @@ def panel_acudiente(request):
         acudiente = Acudiente.objects.filter(id_usu=reg).first()
     except Exception:
         acudiente = None
-    return render(request, 'accounts/panels/acudiente.html', {'students_list': students_list, 'acudiente': acudiente})
+    # Instituciones sugeridas (hasta 6 aleatorias) con sus cursos para grados ofrecidos
+    from school.models import Institucion, Curso
+    try:
+        # Obtener hasta 6 instituciones aleatorias
+        suggested_instituciones = list(Institucion.objects.order_by('?')[:6])
+        import random
+        # Duplicar si hay menos de 6 para completar siempre dos páginas de 3
+        if suggested_instituciones and len(suggested_instituciones) < 6:
+            base = suggested_instituciones[:]
+            while len(suggested_instituciones) < 6:
+                suggested_instituciones.append(random.choice(base))
+        # Prefetch cursos para evitar múltiples queries en template
+        inst_ids = [i.id_inst for i in suggested_instituciones]
+        # Calcular número de páginas del carrusel (grupos de 3)
+        import math
+        carousel_pages = math.ceil(len(suggested_instituciones) / 3) if suggested_instituciones else 0
+        carousel_range = range(carousel_pages)
+        cursos_map = {}
+        for c in Curso.objects.filter(id_inst__in=inst_ids):
+            cursos_map.setdefault(c.id_inst_id, []).append(c)
+        # Adjuntar lista de cursos al objeto (atributo dinámico)
+        for i in suggested_instituciones:
+            setattr(i, 'cursos_list', cursos_map.get(i.id_inst, []))
+    except Exception:
+        suggested_instituciones = []
+        carousel_pages = 0
+        carousel_range = range(0)
+    return render(request, 'accounts/panels/acudiente.html', {
+        'students_list': students_list,
+        'acudiente': acudiente,
+        'suggested_instituciones': suggested_instituciones,
+        'carousel_pages': carousel_pages,
+        'carousel_range': carousel_range,
+    })
 
 
 def upload_profile_photo(request):
@@ -427,6 +504,116 @@ def upload_profile_photo(request):
         messages.error(request, 'Ocurrió un error al guardar la imagen.')
     # Redirect to panel_home so the user lands on their role-specific panel
     return redirect('accounts:panel_home')
+
+def update_profile_details(request):
+    """Actualiza nombre del usuario y teléfono/dirección del perfil asociado.
+
+    Acepta POST con: nom_usu, ape_usu, tel, dir, foto_perfil (opcional).
+    Si el usuario tiene Acudiente vinculado, actualiza tel_acu y dir_acu.
+    Si tiene Estudiante, actualiza tel_est y dir_est.
+    Responde JSON para uso desde modal en la misma página.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'error': 'Método no permitido'}, status=405)
+    try:
+        reg = None
+        # Preferimos la sesión usada en todo el sitio
+        reg_id = request.session.get('registro_id')
+        if reg_id:
+            try:
+                reg = Registro.objects.get(pk=reg_id)
+            except Registro.DoesNotExist:
+                reg = None
+        if not reg:
+            reg = request.user if hasattr(request, 'user') else None
+        if not reg:
+            return JsonResponse({'status': 'error', 'error': 'No autenticado'}, status=401)
+
+        nom = (request.POST.get('nom_usu') or '').strip()
+        ape = (request.POST.get('ape_usu') or '').strip()
+        tel = (request.POST.get('tel') or '').strip()
+        dire = (request.POST.get('dir') or '').strip()
+        foto = request.FILES.get('foto_perfil')
+
+        changed = False
+        if nom:
+            reg.nom_usu = nom
+            changed = True
+        if ape:
+            reg.ape_usu = ape
+            changed = True
+        if changed:
+            reg.save(update_fields=['nom_usu', 'ape_usu'])
+
+        # Actualizar perfil vinculado
+        updated_model = None
+        try:
+            acu = Acudiente.objects.filter(id_usu=reg).first()
+        except Exception:
+            acu = None
+        try:
+            est = Estudiante.objects.filter(id_usu=reg).first()
+        except Exception:
+            est = None
+        try:
+            adm = Administrativo.objects.filter(id_usu=reg).first()
+        except Exception:
+            adm = None
+
+        if acu:
+            if tel:
+                acu.tel_acu = tel
+                changed = True
+            if dire:
+                acu.dir_acu = dire
+                changed = True
+            if foto:
+                acu.foto_perfil = foto
+                changed = True
+            acu.save()
+            updated_model = 'acudiente'
+        elif est:
+            if tel:
+                # En modelo Estudiante el campo es tel_estu
+                est.tel_estu = tel
+                changed = True
+            if dire:
+                # Estudiante puede no tener dir_est; intentar setear si existe
+                if hasattr(est, 'dir_est'):
+                    est.dir_est = dire
+                    changed = True
+            if foto:
+                est.foto_perfil = foto
+                changed = True
+            est.save()
+            updated_model = 'estudiante'
+        elif adm:
+            if tel:
+                adm.tel_adm = tel
+                changed = True
+            if dire:
+                adm.dir_adm = dire
+                changed = True
+            if foto:
+                adm.foto_perfil = foto
+                changed = True
+            adm.save()
+            updated_model = 'administrativo'
+
+        avatar_url = None
+        try:
+            if acu and acu.foto_perfil:
+                avatar_url = acu.foto_perfil.url
+            elif est and est.foto_perfil:
+                avatar_url = est.foto_perfil.url
+            elif adm and adm.foto_perfil:
+                avatar_url = adm.foto_perfil.url
+        except Exception:
+            avatar_url = None
+
+        return JsonResponse({'status': 'ok', 'updated': bool(changed), 'profile': updated_model, 'avatar': avatar_url})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'error': str(e)}, status=500)
 
 
 @role_required('acudiente')
@@ -550,6 +737,38 @@ def estudiante_detail(request, pk):
     major_complete = (major_count >= 5)
 
     media_url = getattr(settings, 'MEDIA_URL', '/media/')
+    # otros estudiantes del mismo acudiente (hermanos)
+    siblings = []
+    siblings_info = []
+    try:
+        if acu:
+            siblings = list(Estudiante.objects.select_related('id_usu').filter(id_acu=acu).exclude(pk=estudiante.pk))
+            # Obtener institución y grado para cada herman@ (última matrícula)
+            from school.models import Matricula
+            for s in siblings:
+                inst_name = None
+                grado_disp = None
+                try:
+                    smat = Matricula.objects.filter(id_est=s).select_related('id_cur__id_inst').order_by('-fch_reg_mat').first()
+                    if smat and getattr(smat, 'id_cur', None):
+                        if getattr(smat.id_cur, 'id_inst', None):
+                            inst_name = smat.id_cur.id_inst.nom_inst
+                        if getattr(smat.id_cur, 'grd_cur', None):
+                            grado_disp = smat.id_cur.grd_cur
+                    # si no hay curso asignado, mostrar grado solicitado si existe
+                    if not grado_disp and smat and getattr(smat, 'grado_solicitado', None):
+                        grado_disp = smat.grado_solicitado
+                except Exception:
+                    inst_name = None
+                    grado_disp = None
+                siblings_info.append({
+                    's': s,
+                    'inst': inst_name,
+                    'grado': grado_disp,
+                })
+    except Exception:
+        siblings = []
+        siblings_info = []
 
     return render(request, 'accounts/estudiante_detail.html', {
         'est': estudiante,
@@ -559,6 +778,8 @@ def estudiante_detail(request, pk):
         'media_url': media_url,
         'major_count': major_count,
         'major_complete': major_complete,
+        'siblings': siblings,
+        'siblings_info': siblings_info,
     })
 
 

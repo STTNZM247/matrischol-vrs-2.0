@@ -1,56 +1,103 @@
 {% extends 'base_users.html' %}
 {% load static %}
 {% block title %}Cursos{% endblock %}
+{% block extra_head %}
+<style>
+  .courses-shell{max-width:1180px;margin:0 auto;padding:12px 20px 54px}
+  .courses-header{display:flex;flex-direction:column;gap:4px;margin-bottom:18px}
+  .courses-header h1{margin:0;font-size:clamp(1.5rem,4.5vw,2.2rem);font-weight:800;letter-spacing:.5px;color:#0f172a}
+  .inst-info-card{background:#fff;border:1px solid #e5e9ef;border-radius:20px;padding:18px 20px;margin-bottom:16px;box-shadow:0 16px 46px -20px rgba(0,0,0,.25)}
+  .inst-info-card h2{margin:0 0 6px;font-size:1.25rem;font-weight:800;color:#0f172a}
+  .inst-info-meta{font-size:.8rem;color:#64748b;display:flex;flex-wrap:wrap;gap:6px}
+  .actions-bar{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 18px}
+  .btn-lite{background:#fff;border:1px solid #d0d7de;color:#0f172a;padding:8px 14px;border-radius:12px;text-decoration:none;font-size:.75rem;font-weight:700;letter-spacing:.5px;display:inline-flex;align-items:center;gap:6px;box-shadow:0 6px 20px -10px rgba(0,0,0,.18);transition:.15s}
+  .btn-lite:hover{background:#f1f5f9}
+  .btn-prime{background:#0d63ff;border:1px solid #0d63ff;color:#fff;padding:8px 14px;border-radius:12px;text-decoration:none;font-size:.75rem;font-weight:700;letter-spacing:.5px;display:inline-flex;align-items:center;gap:6px;box-shadow:0 8px 26px -16px rgba(13,99,255,.55);transition:.15s}
+  .btn-prime:hover{background:#0a53d6}
+  /* Tabla moderna */
+  .courses-table-wrap{background:#fff;border:1px solid #e5e9ef;border-radius:24px;padding:12px 0 10px;box-shadow:0 20px 54px -22px rgba(0,0,0,.25);overflow:hidden}
+  .courses-table{width:100%;border-collapse:separate;border-spacing:0 4px}
+  .courses-table thead th{font-size:.60rem;letter-spacing:.7px;font-weight:800;text-transform:uppercase;color:#475569;padding:10px 14px;border-bottom:1px solid #e5e9ef;background:#f8fafc;position:sticky;top:0;z-index:2}
+  .courses-table tbody td{padding:10px 14px;font-size:.8rem;color:#0f172a;vertical-align:middle;background:#fff}
+  .courses-table tbody tr{transition:.18s}
+  .courses-table tbody tr:hover td{background:#f1f5f9}
+  .courses-table tbody tr td:first-child{border-left:4px solid #fff}
+  .grade-badge{display:inline-block;padding:4px 10px;border-radius:10px;font-size:.65rem;font-weight:800;letter-spacing:.6px;background:#eef2f7;color:#0f172a}
+  .seat-chip{display:inline-block;padding:4px 8px;border-radius:8px;background:#dcfce7;color:#065f46;font-size:.6rem;font-weight:700;letter-spacing:.5px}
+  .enrolled-chip{display:inline-block;padding:4px 8px;border-radius:8px;background:#fef9c3;color:#713f12;font-size:.6rem;font-weight:700;letter-spacing:.5px}
+  .action-links{display:flex;flex-wrap:wrap;gap:6px}
+  .action-links a{font-size:.65rem;font-weight:700;letter-spacing:.4px;text-decoration:none;padding:6px 10px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;color:#0f172a;transition:.15s}
+  .action-links a:hover{background:#0d63ff;color:#fff;border-color:#0d63ff}
+  .pagination{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:18px;font-size:.75rem;color:#475569}
+  .pagination a{text-decoration:none;padding:6px 10px;border:1px solid #d0d7de;border-radius:10px;font-weight:600;color:#0f172a;background:#fff}
+  .pagination a:hover{background:#eef2f7}
+  @media (max-width:860px){
+    .courses-table thead{display:none}
+    .courses-table tbody tr{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border:1px solid #e5e9ef;border-radius:16px;margin:0 12px 10px}
+    .courses-table tbody td{background:transparent;padding:8px 10px;border-bottom:1px solid #e5e9ef}
+    .courses-table tbody td:last-child{border:none}
+    .action-links{gap:4px}
+  }
+</style>
+{% endblock %}
 {% block content %}
-  <h1>Cursos</h1>
-  {% if institucion %}
-    <div class="card" style="padding:12px; margin-bottom:12px; border-radius:8px;">
-      <h2>{{ institucion.nom_inst }}</h2>
-      <div style="color:var(--muted);">{{ institucion.dep_inst }} / {{ institucion.mun_inst }} — Email: {{ institucion.ema_inst|default:'-' }}</div>
+  <div class="courses-shell">
+    <div class="courses-header">
+      <h1>Cursos</h1>
     </div>
-  {% endif %}
-  <p>
-    {% if not institucion %}
-      <a href="{% url 'adminpanel:institucion_list' %}" class="btn btn-primary">Crear curso</a>
-    {% else %}
-      {% if can_bulk_create %}
-        <a href="{% url 'adminpanel:institucion_bulk_cursos' institucion.id_inst %}" class="btn btn-primary">Crear cursos por lotes</a>
-      {% endif %}
+    {% if institucion %}
+      <div class="inst-info-card">
+        <h2>{{ institucion.nom_inst }}</h2>
+        <div class="inst-info-meta">{{ institucion.dep_inst }} / {{ institucion.mun_inst }} • Email: {{ institucion.ema_inst|default:'-' }}</div>
+      </div>
     {% endif %}
-    <a href="{% url 'adminpanel:curso_export_csv' %}" class="btn btn-outline">Exportar CSV</a>
-  </p>
-  <table class="table">
-    <thead>
-      <tr><th>ID</th><th>Grado</th><th>Cupos</th><th>Inscritos</th><th>Institución</th><th></th></tr>
-    </thead>
-    <tbody>
-      {% for c in cursos %}
-        <tr>
-          <td>{{ c.id_cur }}</td>
-          <td>{{ c.grd_cur }}</td>
-          <td>{{ c.cup_disp_cur }}</td>
-          <td>{{ c.student_count|default:0 }}</td>
-          <td>{{ c.id_inst.nom_inst }}</td>
-           <td>
-            {% if institucion %}
-              <a href="{% url 'adminpanel:curso_matriculas' c.pk %}">Ver</a> |
-              <a href="{% url 'adminpanel:curso_horario' c.pk %}">Horario</a>
-            {% else %}
-              <a class="btn btn-outline" href="{% url 'adminpanel:curso_edit' c.pk %}">Editar</a> |
-              <a class="btn btn-outline" href="{% url 'adminpanel:curso_delete' c.pk %}">Eliminar</a> |
-              <a class="btn btn-outline" href="{% url 'adminpanel:curso_matriculas' c.pk %}">Ver</a> |
-              <a class="btn btn-outline" href="{% url 'adminpanel:curso_horario' c.pk %}">Horario</a>
-            {% endif %}
-           </td>
-        </tr>
-      {% empty %}
-        <tr><td colspan="6">No hay cursos.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <div class="pagination">
-    {% if cursos.has_previous %}<a href="?page={{ cursos.previous_page_number }}&q={{ q }}">Anterior</a>{% endif %}
-    <span>Page {{ cursos.number }} / {{ cursos.paginator.num_pages }}</span>
-    {% if cursos.has_next %}<a href="?page={{ cursos.next_page_number }}&q={{ q }}">Siguiente</a>{% endif %}
+    <div class="actions-bar">
+      {% if not institucion %}
+        <a href="{% url 'adminpanel:institucion_list' %}" class="btn-prime">Crear curso</a>
+      {% else %}
+        {% if can_bulk_create %}
+          <a href="{% url 'adminpanel:institucion_bulk_cursos' institucion.id_inst %}" class="btn-prime">Crear cursos por lotes</a>
+        {% endif %}
+      {% endif %}
+      <a href="{% url 'adminpanel:curso_export_csv' %}" class="btn-lite">Exportar CSV</a>
+    </div>
+    <div class="courses-table-wrap">
+      <table class="courses-table">
+        <thead>
+          <tr><th>ID</th><th>Grado</th><th>Cupos</th><th>Inscritos</th><th>Institución</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+        {% for c in cursos %}
+          <tr>
+            <td>{{ c.id_cur }}</td>
+            <td><span class="grade-badge">{{ c.grd_cur }}</span></td>
+            <td><span class="seat-chip">{{ c.cup_disp_cur }}</span></td>
+            <td><span class="enrolled-chip">{{ c.student_count|default:0 }}</span></td>
+            <td style="font-size:.7rem;color:#475569">{{ c.id_inst.nom_inst }}</td>
+            <td>
+              <div class="action-links">
+              {% if institucion %}
+                <a href="{% url 'adminpanel:curso_matriculas' c.pk %}">Ver</a>
+                <a href="{% url 'adminpanel:curso_horario' c.pk %}">Horario</a>
+              {% else %}
+                <a href="{% url 'adminpanel:curso_edit' c.pk %}">Editar</a>
+                <a href="{% url 'adminpanel:curso_delete' c.pk %}">Eliminar</a>
+                <a href="{% url 'adminpanel:curso_matriculas' c.pk %}">Ver</a>
+                <a href="{% url 'adminpanel:curso_horario' c.pk %}">Horario</a>
+              {% endif %}
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" style="text-align:center;color:#64748b;font-size:.8rem;padding:26px 10px">No hay cursos.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      {% if cursos.has_previous %}<a href="?page={{ cursos.previous_page_number }}&q={{ q }}">Anterior</a>{% endif %}
+      <span>Página {{ cursos.number }} / {{ cursos.paginator.num_pages }}</span>
+      {% if cursos.has_next %}<a href="?page={{ cursos.next_page_number }}&q={{ q }}">Siguiente</a>{% endif %}
+    </div>
   </div>
 {% endblock %}

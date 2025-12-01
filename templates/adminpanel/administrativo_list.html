@@ -1,43 +1,74 @@
 {% extends 'base_users.html' %}
 {% load static %}
 {% block title %}Administrativos{% endblock %}
+{% block extra_head %}
+<style>
+  .adm-shell{max-width:1150px;margin:0 auto;padding:40px 34px 120px}
+  .adm-header{display:flex;flex-direction:column;gap:6px;margin:0 0 24px}
+  .adm-header h1{margin:0;font-size:clamp(1.6rem,4.5vw,2.3rem);font-weight:800;letter-spacing:-.5px;color:#0f172a}
+  .adm-actions{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:18px}
+  .adm-btn{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:.8rem;border-radius:14px;padding:12px 18px;text-decoration:none;cursor:pointer;transition:background .16s,border-color .16s,color .16s}
+  .adm-btn.primary{background:#0d6efd;color:#fff;box-shadow:0 4px 16px -6px rgba(13,110,253,.45)}
+  .adm-btn.primary:hover{background:#0b5ed7}
+  .adm-search{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:20px;background:#ffffff;border:1px solid #e2e8f0;padding:16px 18px;border-radius:20px}
+  .adm-search input{flex:1;min-width:220px;border:1px solid #d0d7de;background:#f9fbfc;border-radius:12px;padding:10px 12px;font-size:.85rem}
+  .adm-search input:focus{outline:none;background:#fff;border-color:#0d63ff;box-shadow:0 0 0 3px rgba(13,99,255,.25)}
+  .adm-search button{border:1px solid #d0d7de;background:#ffffff;color:#0f172a;font-weight:600;padding:10px 16px;border-radius:12px;font-size:.75rem;cursor:pointer;transition:background .16s,border-color .16s}
+  .adm-search button:hover{background:#f1f5f9;border-color:#c3ccd2}
+  .adm-table-wrap{overflow:auto;border:1px solid #e2e8f0;border-radius:24px;background:#ffffff;box-shadow:0 16px 48px -18px rgba(0,0,0,.18),0 6px 18px -6px rgba(0,0,0,.08)}
+  table.adm-table{width:100%;border-collapse:separate;border-spacing:0;min-width:820px}
+  table.adm-table thead th{background:#f8fafc;padding:14px 16px;font-size:.62rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#475569;border-bottom:1px solid #e2e8f0;text-align:left}
+  table.adm-table tbody td{padding:14px 16px;font-size:.78rem;color:#0f172a;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+  table.adm-table tbody tr:last-child td{border-bottom:none}
+  table.adm-table tbody tr:hover{background:#f8fbff}
+  .adm-actions-links a{font-size:.63rem;font-weight:600;letter-spacing:.4px;color:#0d63ff;text-decoration:none;margin-right:10px;white-space:nowrap}
+  .adm-actions-links a:hover{text-decoration:underline}
+  .adm-empty-row{text-align:center;color:#64748b;font-size:.75rem;padding:42px 16px}
+  .pagination{margin-top:24px;display:flex;align-items:center;gap:12px;font-size:.7rem;font-weight:600;color:#475569}
+  .pagination a{padding:8px 12px;border-radius:10px;border:1px solid #d0d7de;background:#ffffff;color:#0f172a;text-decoration:none;font-size:.65rem;font-weight:600}
+  .pagination a:hover{background:#f1f5f9}
+  @media (max-width:760px){.adm-shell{padding:34px 20px 100px}.adm-table-wrap{border-radius:18px}.adm-actions-links a{margin-right:6px}}
+</style>
+{% endblock %}
 {% block content %}
-  <h1>Administrativos</h1>
-  <div>
-    <a class="btn btn-primary" href="{% url 'adminpanel:administrativo_create' %}">Crear Administrativo</a>
+<div class="adm-shell">
+  <div class="adm-header">
+    <h1>Administrativos</h1>
   </div>
-  <form method="get" style="margin-top:8px;">
+  <div class="adm-actions">
+    <a class="adm-btn primary" href="{% url 'adminpanel:administrativo_create' %}">Crear Administrativo</a>
+  </div>
+  <form method="get" class="adm-search" autocomplete="off">
     <input type="text" name="q" value="{{ q }}" placeholder="Buscar por documento" />
-    <button class="btn">Buscar</button>
+    <button type="submit">Buscar</button>
   </form>
-  <table class="table" style="margin-top:12px;">
-    <thead>
-      <tr><th>ID</th><th>Registro</th><th>Documento</th><th>Tel</th><th>Acciones</th></tr>
-    </thead>
-    <tbody>
-      {% for adm in administrativos %}
-        <tr>
-          <td>{{ adm.id_adm }}</td>
-          <td>{{ adm.id_usu }}</td>
-          <td>{{ adm.num_doc_adm }}</td>
-          <td>{{ adm.tel_adm }}</td>
-          <td>
-            <a href="{% url 'adminpanel:administrativo_edit' adm.id_adm %}">Editar</a> |
-            <a href="{% url 'adminpanel:administrativo_delete' adm.id_adm %}">Eliminar</a>
-          </td>
-        </tr>
-      {% empty %}
-        <tr><td colspan="5">No hay administrativos</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <div>
-    {% if administrativos.has_previous %}
-      <a href="?page={{ administrativos.previous_page_number }}{% if q %}&q={{ q }}{% endif %}">Anterior</a>
-    {% endif %}
-    <span>Page {{ administrativos.number }} of {{ administrativos.paginator.num_pages }}</span>
-    {% if administrativos.has_next %}
-      <a href="?page={{ administrativos.next_page_number }}{% if q %}&q={{ q }}{% endif %}">Siguiente</a>
-    {% endif %}
+  <div class="adm-table-wrap">
+    <table class="adm-table">
+      <thead>
+        <tr><th>ID</th><th>Registro</th><th>Documento</th><th>Tel</th><th>Acciones</th></tr>
+      </thead>
+      <tbody>
+        {% for adm in administrativos %}
+          <tr>
+            <td>{{ adm.id_adm }}</td>
+            <td>{{ adm.id_usu }}</td>
+            <td>{{ adm.num_doc_adm }}</td>
+            <td>{{ adm.tel_adm }}</td>
+            <td class="adm-actions-links">
+              <a href="{% url 'adminpanel:administrativo_edit' adm.id_adm %}">Editar</a>
+              <a href="{% url 'adminpanel:administrativo_delete' adm.id_adm %}">Eliminar</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="adm-empty-row">No hay administrativos</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
+  <div class="pagination">
+    {% if administrativos.has_previous %}<a href="?page={{ administrativos.previous_page_number }}{% if q %}&q={{ q }}{% endif %}">Anterior</a>{% endif %}
+    <span>Página {{ administrativos.number }} / {{ administrativos.paginator.num_pages }}</span>
+    {% if administrativos.has_next %}<a href="?page={{ administrativos.next_page_number }}{% if q %}&q={{ q }}{% endif %}">Siguiente</a>{% endif %}
+  </div>
+</div>
 {% endblock %}

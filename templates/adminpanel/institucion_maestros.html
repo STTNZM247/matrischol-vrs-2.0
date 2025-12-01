@@ -1,102 +1,130 @@
 {% extends 'base_users.html' %}
 {% block title %}Maestros — {{ inst.nom_inst }}{% endblock %}
+{% block extra_head %}
+<style>
+  .teachers-shell{max-width:1220px;margin:0 auto;padding:12px 20px 60px}
+  .teachers-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  .teachers-head h1{margin:0;font-size:clamp(1.6rem,4.5vw,2.3rem);font-weight:800;letter-spacing:.5px;color:#0f172a}
+  .jump-btn{background:#0d63ff;color:#fff;border:1px solid #0d63ff;padding:10px 16px;border-radius:14px;font-size:.75rem;font-weight:700;letter-spacing:.5px;text-decoration:none;box-shadow:0 8px 26px -16px rgba(13,99,255,.55);transition:.15s}
+  .jump-btn:hover{background:#0a53d6}
+  .teachers-grid{display:grid;grid-template-columns:420px 1fr;gap:26px;align-items:start}
+  @media (max-width:1080px){.teachers-grid{grid-template-columns:1fr}}
+  .register-card{background:#fff;border:1px solid #e5e9ef;border-radius:24px;padding:20px 20px 24px;box-shadow:0 16px 46px -22px rgba(0,0,0,.25)}
+  .register-card h3{margin:0 0 14px;font-size:1rem;font-weight:800;color:#0f172a}
+  .reg-form{display:flex;flex-direction:column;gap:10px}
+  .reg-form label{font-size:.65rem;font-weight:800;letter-spacing:.6px;color:#475569;text-transform:uppercase}
+  .reg-form input[type=text],.reg-form input[type=email],.reg-form input[type=password],.reg-form input[type=file]{padding:10px 12px;border:1px solid #d0d7de;border-radius:12px;font-size:.8rem}
+  .password-wrapper{position:relative}
+  .password-wrapper input[type=password],
+  .password-wrapper input[type=text]{padding-right:42px}
+  .password-wrapper .eye-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:30px;height:30px;border:none;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:8px;color:#64748b;font-size:1rem;transition:.15s}
+  .password-wrapper .eye-btn:hover{background:#f1f5f9;color:#0f172a}
+  .submit-row{margin-top:4px}
+  .submit-btn{background:#0d63ff;color:#fff;border:1px solid #0d63ff;padding:9px 16px;border-radius:12px;font-size:.75rem;font-weight:700;letter-spacing:.5px;cursor:pointer;box-shadow:0 8px 26px -16px rgba(13,99,255,.55);transition:.15s;width:100%}
+  .submit-btn:hover{background:#0a53d6}
+  /* Tabla maestros */
+  .teachers-card{background:#fff;border:1px solid #e5e9ef;border-radius:24px;padding:20px 20px 28px;box-shadow:0 20px 54px -22px rgba(0,0,0,.25)}
+  .teachers-card h3{margin:0 0 12px;font-size:1rem;font-weight:800;color:#0f172a}
+  .teachers-table{width:100%;border-collapse:separate;border-spacing:0 4px}
+  .teachers-table thead th{font-size:.58rem;letter-spacing:.7px;font-weight:800;text-transform:uppercase;color:#475569;padding:10px 12px;border-bottom:1px solid #e5e9ef;background:#f8fafc}
+  .teachers-table tbody td{padding:10px 12px;font-size:.72rem;color:#0f172a;background:#fff;border-top:1px solid #f1f5f9}
+  .teachers-table tbody tr{transition:.18s}
+  .teachers-table tbody tr:hover td{background:#f1f5f9}
+  .act-cell{display:flex;gap:6px;flex-wrap:wrap}
+  .action-btn{background:#fff;border:1px solid #d0d7de;color:#0f172a;padding:6px 10px;border-radius:10px;font-size:.55rem;font-weight:700;letter-spacing:.4px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:.15s}
+  .action-btn:hover{background:#0d63ff;color:#fff;border-color:#0d63ff}
+  .del-action{background:#fff;border-color:#d0d7de;color:#dc2626}
+  .del-action:hover{background:#dc2626;color:#fff;border-color:#dc2626}
+  .empty-row{padding:20px 12px;font-size:.75rem;color:#64748b;font-weight:600;text-align:center}
+  @media (max-width:900px){
+    .teachers-table thead{display:none}
+    .teachers-table tbody tr{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border:1px solid #e5e9ef;border-radius:14px;margin:0 0 10px}
+    .teachers-table tbody td{background:transparent;border:none;padding:8px 10px}
+    .act-cell{justify-content:flex-start}
+  }
+</style>
+{% endblock %}
 {% block content %}
-  <style>
-    /* Fix inputs inside registrar-maestro form to avoid overflow */
-    #registrar-maestro input[type="text"],
-    #registrar-maestro input[type="email"],
-    #registrar-maestro input[type="password"],
-    #registrar-maestro input[type="file"],
-    #registrar-maestro select,
-    #registrar-maestro textarea {
-      box-sizing: border-box;
-      width: 100%;
-      max-width: 100%;
-      padding: 8px;
-    }
-    /* ensure the password wrapper keeps the eye inside */
-    .password-wrapper { position: relative; }
-    .password-wrapper .eye-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666; }
-    /* make the two-column layout collapse on small screens */
-    @media (max-width: 880px) {
-      section { flex-direction: column; }
-      .maestros-list { margin-top: 12px; }
-    }
-  </style>
-
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
-    <h1>Maestros — {{ inst.nom_inst }}</h1>
-    <a class="btn btn-primary" href="#registrar-maestro">Registrar maestro</a>
+  <div class="teachers-shell">
+    <div class="teachers-head">
+      <h1>Maestros — {{ inst.nom_inst }}</h1>
+    </div>
+    <div class="teachers-grid">
+      <div class="register-card" id="registrar-maestro">
+        <h3>Registrar maestro</h3>
+        <form class="reg-form" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div>
+            <label>Nombre</label>
+            <input type="text" name="nombre" required>
+          </div>
+          <div>
+            <label>Apellido</label>
+            <input type="text" name="apellido" required>
+          </div>
+            <div>
+              <label>Correo</label>
+              <input type="email" name="ema_usu" required>
+            </div>
+          <div class="password-wrapper">
+            <label>Contraseña</label>
+            <input type="password" name="password" id="password-maestro" required>
+            <button type="button" class="eye-btn" id="eye-btn-maestro" aria-label="Mostrar u ocultar contraseña" onclick="togglePasswordMaestro()" title="Mostrar/ocultar">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div>
+            <label>Número de documento</label>
+            <input type="text" name="num_doc_mae" required>
+          </div>
+          <div>
+            <label>Especialidad</label>
+            <input type="text" name="especialidad" placeholder="Ej: Matemáticas">
+          </div>
+          <div>
+            <label>Foto (opcional)</label>
+            <input type="file" name="foto" accept="image/*">
+          </div>
+          <div class="submit-row"><button class="submit-btn" type="submit">Registrar maestro</button></div>
+        </form>
+      </div>
+      <div class="teachers-card">
+        <h3>Maestros registrados</h3>
+        <table class="teachers-table">
+          <thead><tr><th>Nombre</th><th>Documento</th><th>Especialidad</th><th>Correo</th><th>Acciones</th></tr></thead>
+          <tbody>
+            {% for m in maestros %}
+              <tr>
+                <td>{{ m.id_usu.nom_usu }} {{ m.id_usu.ape_usu }}</td>
+                <td>{{ m.num_doc_mae }}</td>
+                <td>{{ m.especialidad|default:'-' }}</td>
+                <td style="font-size:.7rem;color:#334155">{{ m.id_usu.ema_usu }}</td>
+                <td class="act-cell">
+                  <a class="action-btn" href="{% url 'adminpanel:maestro_edit' m.id_mae %}">Editar</a>
+                  <form method="post" action="{% url 'adminpanel:maestro_delete' m.id_mae %}" style="display:inline">
+                    {% csrf_token %}
+                    <button class="action-btn del-action" type="submit">Eliminar</button>
+                  </form>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" class="empty-row">No hay maestros registrados para esta institución.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
-  <section style="display:flex;gap:20px;align-items:flex-start;">
-    <div style="flex:1;min-width:360px;">
-      <h3>Registrar maestro</h3>
-      <form id="registrar-maestro" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <label>Nombre</label><br>
-        <input type="text" name="nombre" style="width:100%;padding:8px;margin-top:6px;" required>
-        <label>Apellido</label><br>
-        <input type="text" name="apellido" style="width:100%;padding:8px;margin-top:6px;" required>
-        <label>Correo</label><br>
-        <input type="email" name="ema_usu" style="width:100%;padding:8px;margin-top:6px;" required>
-        <label>Contraseña</label><br>
-        <div class="password-wrapper">
-          <input type="password" name="password" id="password-maestro" style="margin-top:6px;padding-right:36px;" required>
-          <i class="fas fa-eye eye-icon" id="eye-icon-maestro" onclick="togglePasswordMaestro()"></i>
-        </div>
-        <label>Número de documento</label><br>
-        <input type="text" name="num_doc_mae" style="width:100%;padding:8px;margin-top:6px;" required>
-        <label>Especialidad</label><br>
-        <input type="text" name="especialidad" style="width:100%;padding:8px;margin-top:6px;">
-        <label>Foto (opcional)</label><br>
-        <input type="file" name="foto" style="margin-top:6px;">
-        <div style="margin-top:10px;"><button class="btn btn-primary">Registrar maestro</button></div>
-      </form>
-    </div>
-
-    <div style="flex:2;min-width:420px;">
-      <h3>Maestros registrados</h3>
-      <table style="width:100%;border-collapse:collapse;margin-top:8px;">
-        <thead>
-          <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">Nombre</th><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">Documento</th><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">Especialidad</th><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">Correo</th></tr>
-        </thead>
-        <tbody>
-          {% for m in maestros %}
-            <tr>
-              <td style="padding:8px;border-top:1px solid #f3f3f3;">{{ m.id_usu.nom_usu }} {{ m.id_usu.ape_usu }}</td>
-              <td style="padding:8px;border-top:1px solid #f3f3f3;">{{ m.num_doc_mae }}</td>
-              <td style="padding:8px;border-top:1px solid #f3f3f3;">{{ m.especialidad|default:'-' }}</td>
-              <td style="padding:8px;border-top:1px solid #f3f3f3;">{{ m.id_usu.ema_usu }}</td>
-              <td style="padding:8px;border-top:1px solid #f3f3f3;">
-                <a class="btn btn-outline" href="{% url 'adminpanel:maestro_edit' m.id_mae %}">Editar</a>
-                <form method="post" action="{% url 'adminpanel:maestro_delete' m.id_mae %}" style="display:inline;">
-                  {% csrf_token %}
-                  <button class="btn btn-outline" style="margin-left:6px;">Eliminar</button>
-                </form>
-              </td>
-            </tr>
-          {% empty %}
-            <tr><td colspan="4" style="padding:8px;color:var(--muted);">No hay maestros registrados para esta institución.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </section>
-
   <script>
-    function togglePasswordMaestro() {
-      const passwordInput = document.getElementById('password-maestro');
-      const eyeIcon = document.getElementById('eye-icon-maestro');
-      if (!passwordInput || !eyeIcon) return;
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        eyeIcon.classList.remove('fa-eye');
-        eyeIcon.classList.add('fa-eye-slash');
-      } else {
-        passwordInput.type = 'password';
-        eyeIcon.classList.remove('fa-eye-slash');
-        eyeIcon.classList.add('fa-eye');
-      }
+    function togglePasswordMaestro(){
+      const input = document.getElementById('password-maestro');
+      const btn = document.getElementById('eye-btn-maestro');
+      if(!input||!btn) return;
+      const isPwd = input.type === 'password';
+      input.type = isPwd ? 'text' : 'password';
+      btn.innerHTML = isPwd
+        ? '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.77 21.77 0 0 1 5.06-6.94"/><path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.82 21.82 0 0 1-2.61 3.95"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path d="m2 2 20 20"/></svg>'
+        : '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>';
     }
   </script>
 {% endblock %}

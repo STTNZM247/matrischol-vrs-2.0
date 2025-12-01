@@ -1,8 +1,63 @@
 {% extends 'base_users.html' %}
+{% block extra_head %}
+<style>
+  /* Contenedor principal */
+  .notify-container { max-width: 1100px; margin: 14px auto; padding: 0 10px; }
+  .notify-header { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .notify-title { font-size: 28px; font-weight: 800; margin: 0; }
+  .notify-actions { display:flex; gap:8px; }
+
+  /* Tarjeta y tabla */
+  .card { background:#fff; border:1px solid #e6e8eb; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.06); }
+  .table { width:100%; border-collapse:separate; border-spacing:0; }
+  .table thead th { text-align:left; font-weight:700; color:#222; background:#f7f9fc; border-bottom:1px solid #e0e3e8; padding:12px; font-size:14px; }
+  .table tbody td { padding:12px; border-top:1px solid #f1f2f4; font-size:14px; color:#222; }
+  .table thead tr:first-child th:first-child { border-top-left-radius:12px; }
+  .table thead tr:first-child th:last-child { border-top-right-radius:12px; }
+  .table tbody tr:last-child td:first-child { border-bottom-left-radius:12px; }
+  .table tbody tr:last-child td:last-child { border-bottom-right-radius:12px; }
+
+  /* Filas no leídas */
+  .table tr.highlight td { background:#fffdf5; border-top-color:#f4e6bf; }
+  .table tr:hover td { background:#f9fbff; }
+
+  /* Filtros tipo chip */
+  .filters { display:flex; gap:6px; flex-wrap:wrap; }
+  .filters .btn { border-radius:999px; padding:6px 12px; border:1px solid #d0d7de; background:#f8f9fa; color:#111; text-decoration:none; }
+  .filters .btn.active { background:#e7f0ff; border-color:#b7cffb; color:#0b4bc7; }
+
+  /* Botones tabla */
+  .btn { display:inline-block; padding:8px 12px; border-radius:8px; border:1px solid #d0d7de; background:#f8f9fa; color:#111; text-decoration:none; }
+  .btn:hover { background:#eef3ff; }
+  .btn-primary { background:#1e4ed8; border-color:#1e4ed8; color:#fff; }
+  .btn-outline { background:#fff; border-color:#d0d7de; color:#0b4bc7; }
+  .btn-secondary { background:#fff; }
+
+  /* Paginación */
+  .pagination { display:flex; align-items:center; gap:10px; justify-content:flex-end; margin:12px 0; color:#333; }
+  .pagination a { border:1px solid #d0d7de; padding:6px 10px; border-radius:8px; text-decoration:none; color:#0b4bc7; background:#fff; }
+
+  /* Estado */
+  .status-badge { display:inline-block; border-radius:999px; padding:4px 10px; font-size:12px; }
+  .status-read { background:#e9f7ec; color:#1b6b2b; border:1px solid #c9eacc; }
+  .status-unread { background:#fff0f0; color:#8a1f1f; border:1px solid #f0d0d0; }
+
+  /* Mensaje columna: evitar desbordes en móviles */
+  @media (max-width: 720px){
+    .table thead { display:none; }
+    .table, .table tbody, .table tr, .table td { display:block; width:100%; }
+    .table tr { margin-bottom:12px; border:1px solid #e6e8eb; border-radius:10px; overflow:hidden; }
+    .table td { border:0; padding:10px; }
+  }
+</style>
+{% endblock %}
 {% block title %}Notificaciones{% endblock %}
 {% block content %}
-  <h1>Notificaciones</h1>
-  <p><a class="btn btn-outline" href="{% url 'adminpanel:notification_mark_all_read' %}">Marcar todas como leídas</a></p>
+  <div class="notify-container">
+    <div class="notify-header">
+      <h1 class="notify-title">Notificaciones</h1>
+      <div class="notify-actions"><a class="btn btn-outline" href="{% url 'adminpanel:notification_mark_all_read' %}">Marcar todas como leídas</a></div>
+    </div>
   {% if not is_acudiente %}
   <div class="filters" style="margin: 10px 0;">
     <a href="?tipo=all" class="btn btn-secondary {% if tipo == 'all' %}active{% endif %}">Todos</a>
@@ -28,7 +83,13 @@
           <td>{{ n.timestamp|date:'Y-m-d H:i' }}</td>
           <td>{{ n.title }}</td>
           <td>{{ n.message }}</td>
-          <td>{% if n.is_read %}Leída{% else %}No leída{% endif %}</td>
+          <td>
+            {% if n.is_read %}
+              <span class="status-badge status-read">Leída</span>
+            {% else %}
+              <span class="status-badge status-unread">No leída</span>
+            {% endif %}
+          </td>
             <td>
             {% if is_acudiente %}
               {% if not n.is_read %}
@@ -65,5 +126,6 @@
     {% if notifications.has_previous %}<a href="?tipo={{ tipo }}&page={{ notifications.previous_page_number }}">Anterior</a>{% endif %}
     <span>Page {{ notifications.number }} / {{ notifications.paginator.num_pages }}</span>
     {% if notifications.has_next %}<a href="?tipo={{ tipo }}&page={{ notifications.next_page_number }}">Siguiente</a>{% endif %}
+  </div>
   </div>
 {% endblock %}

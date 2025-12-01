@@ -1,385 +1,256 @@
 {% extends 'base_users.html' %}
-{% load static %}
+{% load static doc_labels %}
 {% block title %}Panel Acudiente{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/panel_acudiente.css' %}?v=7">
+<script defer src="{% static 'js/carousel_acudiente_native.js' %}?v=1"></script>
+{% endblock %}
 {% block content %}
-  <div class="acudiente-header" style="text-align:center; margin-bottom:12px;">
-    {% if current_registro %}
-      <h2>Hola {{ current_registro.nom_usu }} {{ current_registro.ape_usu }}</h2>
+  <div class="center" style="margin:20px 0 8px;">
+    {% if acudiente %}
+      <h2 style="margin:0;font-weight:700;">Hola {{ acudiente.id_usu.nom_usu }} {{ acudiente.id_usu.ape_usu }}</h2>
     {% else %}
-      <h2>Hola {{ request.user.first_name|default:request.user.username }}</h2>
+      <h2 style="margin:0;font-weight:700;">Hola</h2>
     {% endif %}
-    <p style="margin:6px 0 0 0; font-weight:600;">Tus estudiantes</p>
   </div>
 
-  <!-- Búsqueda de instituciones -->
-  <div style="max-width:900px;margin:14px auto;">
-    <label for="inst-search" style="display:block;margin-bottom:6px;font-weight:600">Buscar institución por nombre, teléfono, email o dirección</label>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <input id="inst-search" type="search" placeholder="Ej: colegio la esperanza, 3123456789, direccion" style="flex:1;padding:10px;border-radius:8px;border:1px solid #e0e6e4">
-      <button id="inst-search-btn" class="btn">Buscar</button>
+  <!-- Barra de búsqueda -->
+  <div class="search-wrap">
+    <input id="inst-search" class="search-input" type="search" placeholder="Busca una institución..." aria-label="Buscar institución">
+    <div class="search-btn" aria-hidden="true" style="pointer-events:none;opacity:.6;">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 5 1.5-1.5-5-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"></path></svg>
     </div>
-    <div id="inst-results" style="margin-top:12px;"></div>
   </div>
+  <div id="inst-results"></div>
 
-  <!-- Modal simplificado para solicitar matrícula -->
-  <style>
-    .enrollment-status{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700;margin-top:8px;font-size:0.9rem}
-    .enrollment-status.enrolled{background:#e6ffef;color:#0a8a3d}
-    .enrollment-status.not-enrolled{background:#fff3e6;color:#b35a00}
-    .enrollment-institution{font-size:0.9rem;color:#555;margin-top:6px}
-  </style>
-  <div id="mat-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;z-index:13000;">
-    <div style="background:#fff;border-radius:10px;padding:16px;max-width:520px;width:96%;box-shadow:0 12px 40px rgba(0,0,0,0.3);">
+  <!-- Carrusel instituciones sugeridas -->
+  <section class="testimonial-section" aria-label="Instituciones sugeridas">
+    <div class="testimonial-head">
+      <h2>Instituciones que te pueden interesar</h2>
+    </div>
+    <div class="testimonial-viewport">
+    <div class="testimonial-carousel" role="list" id="suggested-carousel">
+      {% for inst in suggested_instituciones %}
+        {% with cursos=inst.cursos_list %}
+        {% regroup cursos by id_inst as curso_list %}
+        <article class="testimonial-item" role="listitem" data-inst-id="{{ inst.id_inst }}" data-inst-name="{{ inst.nom_inst }}" data-grades="[{% for c in cursos %}{% with g=c.grd_cur|default:'' %}{% if g %}{% if not forloop.first %},{% endif %}"{{ g|cut:'º' }}"{% endif %}{% endwith %}{% endfor %}]">
+          <div class="ti-top">
+            {% if inst.img_inst %}
+              <img src="{{ inst.img_inst.url }}" alt="{{ inst.nom_inst }}">
+            {% else %}
+              <img src="{% static 'img/default_inst.png' %}" alt="{{ inst.nom_inst }}">
+            {% endif %}
+            <div class="ti-texts">
+              <h3 class="ti-name">{{ inst.nom_inst }}</h3>
+              <p class="ti-role">{{ inst.tip_inst|default:'Institución' }}</p>
+            </div>
+          </div>
+          <p>{{ inst.dire_inst|default:'Sin dirección' }}</p>
+          <a href="#" class="testimonial-matricular" data-action="matricular" data-inst-id="{{ inst.id_inst }}">Matricular</a>
+        </article>
+        {% endwith %}
+      {% empty %}
+        <article class="testimonial-item" role="listitem"><p>No hay instituciones registradas aún.</p></article>
+      {% endfor %}
+    </div>
+    </div>
+    <div class="testimonial-dots" role="tablist" aria-label="Paginación">
+      {% for p in carousel_range %}
+        <button class="owl-dot{% if forloop.first %} active{% endif %}" aria-label="Grupo {{ forloop.counter }}"></button>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Modal matrícula -->
+  <div id="mat-modal">
+    <div class="modal-box">
       <h3 id="mat-modal-title">Solicitar matrícula</h3>
       <p id="mat-modal-inst" style="margin:6px 0 12px 0;color:#444"></p>
-      <label>Elegir grado (1 - 11)</label>
-      <select id="mat-modal-grado" style="width:100%;padding:8px;border-radius:8px;margin-bottom:8px">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
-        <option value="9">9</option>
-        <option value="10">10</option>
-        <option value="11">11</option>
-      </select>
-      <label>Seleccionar estudiante</label>
-      <select id="mat-modal-est" style="width:100%;padding:8px;border-radius:8px;margin-bottom:12px"></select>
-      <div style="display:flex;gap:8px;justify-content:flex-end">
-        <button id="mat-modal-cancel" class="btn secondary">Cancelar</button>
-        <button id="mat-modal-send" class="btn">Enviar solicitud</button>
+      <label for="mat-modal-grado">Elegir grado</label>
+      <select id="mat-modal-grado"></select>
+      <label for="mat-modal-est">Seleccionar estudiante</label>
+      <select id="mat-modal-est"></select>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;">
+        <button id="mat-modal-cancel" class="btn secondary" type="button">Cancelar</button>
+        <button id="mat-modal-send" class="btn" type="button">Enviar solicitud</button>
       </div>
     </div>
   </div>
 
-  {% if students_list %}
-    <div class="students-grid">
+
+  <!-- Lista de estudiantes -->
+  <center><p style="margin:6px 0 0;font-weight:600;color:#64748b;text-align:center;">Tus estudiantes</p></center>
+  <section class="student-list" aria-label="Estudiantes registrados">
+    {% if students_list %}
       {% for item in students_list %}
         {% with est=item.est %}
-        <div class="student-card">
-          <a href="{% url 'accounts:estudiante_detail' est.id_est %}" class="student-link">
-            {% if est.foto_perfil %}
-              <img src="{{ est.foto_perfil.url }}" alt="Foto {{ est.id_usu.nom_usu }}" class="avatar">
-            {% else %}
-              <div class="avatar avatar-fallback">{{ est.id_usu.nom_usu|first|default:'' }}{{ est.id_usu.ape_usu|first|default:'' }}</div>
-            {% endif %}
-            <div class="student-meta">
-              <div class="student-name">{{ est.id_usu.nom_usu }} {{ est.id_usu.ape_usu }}</div>
-              <div class="student-doc">{{ est.num_doc_est }}</div>
-              {# Mostrar estado de matrícula #}
-              {% if item.matricula %}
-                <div class="enrollment-status enrolled">Matriculado</div>
-                {% if item.matricula.id_cur and item.matricula.id_cur.id_inst %}
-                  <div class="enrollment-institution">Institución: {{ item.matricula.id_cur.id_inst.nom_inst }}</div>
-                {% else %}
-                  <div class="enrollment-institution">Matriculado (sin curso asignado)</div>
-                {% endif %}
-              {% else %}
-                <div class="enrollment-status not-enrolled">Sin matrícula</div>
-              {% endif %}
-              {% if item.documents_complete %}
-                <div class="doc-status doc-ok">Documentos: Al día</div>
-              {% else %}
-                <div class="doc-status doc-pending">Documentos: Pendiente</div>
-                {# Mostrar hasta 3 documentos faltantes con nombres legibles #}
-                {% load doc_labels %}
-                {% if item.missing %}
-                  <div class="missing-list" style="margin-top:6px;font-size:0.9em;color:#b33;">
-                    <strong>Faltan:</strong>
-                    {% for m in item.missing|slice:":3" %}
-                      <span>{{ m|doc_label }}{% if not forloop.last %}, {% endif %}</span>
-                    {% endfor %}
-                    {% if item.missing|length > 3 %} <span>... ({{ item.missing|length }})</span>{% endif %}
-                  </div>
-                {% endif %}
-              {% endif %}
+        <a class="student-item" href="{% url 'accounts:estudiante_detail' est.id_est %}" aria-label="Detalle de {{ est.id_usu.nom_usu }} {{ est.id_usu.ape_usu }}">
+          <div class="avatar" aria-hidden="true">
+            {% if est.foto_perfil %}<img src="{{ est.foto_perfil.url }}" alt="Foto" style="width:100%;height:100%;object-fit:cover;border-radius:999px;">{% else %}{{ est.id_usu.nom_usu|first }}{{ est.id_usu.ape_usu|first }}{% endif %}
+          </div>
+          <div class="item-main">
+            <div class="item-line">
+              <span class="item-name">{{ est.id_usu.nom_usu }} {{ est.id_usu.ape_usu }}</span>
+              <span class="item-amount">{% if item.grado_display %}{{ item.grado_display }}{% else %}-{% endif %}</span>
             </div>
-          </a>
-          <div class="student-actions">
-            {# Single contextual button: green if complete, red if missing. Both point to the estudiante detail. #}
-            {% if item.documents_complete %}
-              <a class="btn btn-sm btn-success" href="{% url 'accounts:estudiante_detail' est.id_est %}">Documentos completos</a>
+            <div class="item-sub">Documento: {{ est.num_doc_est }} • Inst.: {% if item.matricula and item.matricula.id_cur and item.matricula.id_cur.id_inst %}{{ item.matricula.id_cur.id_inst.nom_inst }}{% else %}Sin asignar{% endif %}</div>
+            {% if item.matricula %}
+              <div class="enrollment-status enrolled">Matriculado</div>
             {% else %}
-              <a class="btn btn-sm btn-danger" href="{% url 'accounts:estudiante_detail' est.id_est %}">Documentos sin subir</a>
+              <div class="enrollment-status not-enrolled">Sin matrícula</div>
+            {% endif %}
+            {% if item.documents_complete %}
+              <div class="doc-status doc-ok">Documentos completos</div>
+            {% else %}
+              <div class="doc-status doc-pending">Documentos pendientes</div>
+              {% if item.missing %}
+                <div class="missing-list">
+                  <strong>Faltan:</strong>
+                  {% for m in item.missing|slice:':3' %}
+                    <span>{{ m|doc_label }}{% if not forloop.last %}, {% endif %}</span>
+                  {% endfor %}
+                  {% if item.missing|length > 3 %}<span> ... ({{ item.missing|length }})</span>{% endif %}
+                </div>
+              {% endif %}
             {% endif %}
           </div>
-        </div>
+          {% if item.documents_complete %}
+            <div class="item-status ok" title="Matriculado">✓</div>
+            <span class="item-action" aria-hidden="true">Ver</span>
+          {% else %}
+            <div class="item-status warn" title="Pendiente">!</div>
+            <span class="item-action" aria-hidden="true">Completar</span>
+          {% endif %}
+        </a>
         {% endwith %}
       {% endfor %}
-    </div>
-  {% else %}
-    <p>No tienes estudiantes registrados aún.</p>
-  {% endif %}
+    {% else %}
+      <p style="text-align:center;color:#64748b;margin:0;">No tienes estudiantes registrados aún.</p>
+    {% endif %}
+  </section>
+
   <script>
-    (function(){
-      const btn = document.getElementById('inst-search-btn');
-      const input = document.getElementById('inst-search');
-      const results = document.getElementById('inst-results');
-      const modal = document.getElementById('mat-modal');
-      const modalTitle = document.getElementById('mat-modal-title');
-      const modalInst = document.getElementById('mat-modal-inst');
-      const modalGrado = document.getElementById('mat-modal-grado');
-      const modalEst = document.getElementById('mat-modal-est');
-      const modalCancel = document.getElementById('mat-modal-cancel');
-      const modalSend = document.getElementById('mat-modal-send');
+  (function(){
+    const input = document.getElementById('inst-search');
+    const results = document.getElementById('inst-results');
+    const modal = document.getElementById('mat-modal');
+    const modalInst = document.getElementById('mat-modal-inst');
+    const modalGrado = document.getElementById('mat-modal-grado');
+    const modalEst = document.getElementById('mat-modal-est');
+    const modalCancel = document.getElementById('mat-modal-cancel');
+    const modalSend = document.getElementById('mat-modal-send');
+    const suggested = document.getElementById('suggested-carousel');
 
-      // Build students array from template context
-      const students = [];
-      {% if students_list %}
-        {% for item in students_list %}
-          {% with est=item.est %}
-            students.push({id: '{{ est.id_est }}', name: '{{ est.id_usu.nom_usu }} {{ est.id_usu.ape_usu }}'});
-          {% endwith %}
-        {% endfor %}
-      {% endif %}
+    const students = [];
+    {% for item in students_list %}{% with est=item.est %}students.push({id:'{{ est.id_est }}',name:'{{ est.id_usu.nom_usu }} {{ est.id_usu.ape_usu }}'});{% endwith %}{% endfor %}
 
-      function getCookie(name) {
-        const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
-        return v ? v.pop() : '';
-      }
-
-      function renderResults(data){
-        results.innerHTML = '';
-        if(!data.results || !data.results.length){
-          results.innerHTML = '<p>No se encontraron instituciones.</p>';
-          return;
-        }
-        const container = document.createElement('div');
-        container.className = 'institutions-grid';
-        data.results.forEach(inst => {
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.style.padding = '12px';
-          card.style.marginBottom = '10px';
-          const title = document.createElement('div');
-          title.className = 'inst-name';
-          title.textContent = inst.nom_inst;
-          const meta = document.createElement('div');
-          meta.className = 'inst-location';
-          meta.textContent = inst.dire_inst || '';
-          const contact = document.createElement('div');
-          contact.style.marginTop = '6px';
-          contact.innerHTML = '<small>' + (inst.tel_inst||'') + ' ' + (inst.ema_inst||'') + '</small>';
-          const cursosWrap = document.createElement('div');
-          cursosWrap.style.marginTop = '8px';
-          // Mostrar resumen de cuántos grados (no cupos) por nivel y construir selector
-          const gradesOffered = new Set();
-          inst.cursos.forEach(cur => {
-            const grd = (cur.grd_cur || '').toString();
-            const m = grd.match(/(\d{1,2})/);
-            if(m){
-              const g = parseInt(m[1], 10);
-              if(!isNaN(g) && g>=1 && g<=11) gradesOffered.add(g);
-            }
-          });
-          // counts are number of distinct grades offered in each level
-          const counts = { primaria: 0, secundaria: 0, cualquiera: gradesOffered.size };
-          gradesOffered.forEach(g => { if(g>=1 && g<=5) counts.primaria++; if(g>=6 && g<=11) counts.secundaria++; });
-          const summary = document.createElement('div');
-          summary.style.marginBottom = '8px';
-          summary.innerHTML = '<strong>Grados ofrecidos:</strong> Primaria: ' + counts.primaria + ' — Secundaria: ' + counts.secundaria + ' — Total: ' + counts.cualquiera;
-          cursosWrap.appendChild(summary);
-
-          const levelRow = document.createElement('div');
-          levelRow.style.display = 'flex';
-          levelRow.style.gap = '8px';
-          levelRow.style.alignItems = 'center';
-          const gradeSelect = document.createElement('select');
-          gradeSelect.style.padding = '6px';
-          gradeSelect.style.borderRadius = '8px';
-          // populate select only with offered grades sorted
-          const sortedGrades = Array.from(gradesOffered).sort((a,b)=>a-b);
-          if(sortedGrades.length===0){
-            const o = document.createElement('option'); o.value=''; o.textContent='Sin grados disponibles'; gradeSelect.appendChild(o);
-          } else {
-            sortedGrades.forEach(g => { const o = document.createElement('option'); o.value = String(g); o.textContent = String(g); gradeSelect.appendChild(o); });
-          }
-          levelRow.appendChild(gradeSelect);
-          const solicitBtn = document.createElement('button');
-          solicitBtn.className = 'btn btn-sm';
-          solicitBtn.textContent = 'Solicitar matrícula';
-          solicitBtn.dataset.instId = inst.id_inst;
-          solicitBtn.dataset.instName = inst.nom_inst;
-          // attach offered grades so modal can be populated correctly
-          try{ solicitBtn.dataset.grades = JSON.stringify(sortedGrades); }catch(e){ solicitBtn.dataset.grades = '[]'; }
-          // on click, open modal and set requested grade
-          solicitBtn.addEventListener('click', function(e){
-            const grade = gradeSelect.value;
-            e.currentTarget.dataset.grado = grade;
-            e.currentTarget.dataset.instName = inst.nom_inst;
-            onSolicitar(e);
-          });
-          const rightWrap = document.createElement('div');
-          rightWrap.appendChild(solicitBtn);
-          levelRow.appendChild(rightWrap);
-          cursosWrap.appendChild(levelRow);
-
-          card.appendChild(title);
-          card.appendChild(meta);
-          card.appendChild(contact);
-          card.appendChild(cursosWrap);
-          container.appendChild(card);
-        });
-        results.appendChild(container);
-      }
-
-      function pickCourseByGrade(inst, grado){
-        const cand = inst.cursos.filter(cur => {
-          const g = parseInt((cur.grd_cur||'').replace(/[^0-9]/g,''),10);
-          if(isNaN(g)) return false;
-          if((cur.cup_disp_cur||0) <= 0) return false;
-          return g === Number(grado);
-        });
-        if(!cand.length) return null;
-        return cand[Math.floor(Math.random() * cand.length)];
-      }
-
-      function onSolicitar(ev){
-        const instId = ev.currentTarget.dataset.instId;
-        const curId = ev.currentTarget.dataset.curId;
-        const instName = ev.currentTarget.dataset.instName;
-        // open modal and populate
-        modal.style.display = 'flex';
-        // determine offered grades from button dataset
-        let offered = [];
-        try{ offered = JSON.parse(ev.currentTarget.dataset.grades || '[]'); }catch(e){ offered = []; }
-        // show institution name and levels
-        let levels = [];
-        if(offered.some(g=>g>=1 && g<=5)) levels.push('Primaria');
-        if(offered.some(g=>g>=6 && g<=11)) levels.push('Secundaria');
-        modalInst.textContent = instName + (levels.length? (' — Niveles: ' + levels.join(' y ')) : '');
-        // populate modal grade select only with offered grades
-        modalGrado.innerHTML = '';
-        if(!offered || offered.length===0){
-          const o = document.createElement('option'); o.value=''; o.textContent='Sin grados disponibles'; modalGrado.appendChild(o);
-        } else {
-          offered.forEach(g => { const o = document.createElement('option'); o.value = String(g); o.textContent = String(g); modalGrado.appendChild(o); });
-        }
-        // if the button specified a preferred grade, select it
-        if(ev.currentTarget && ev.currentTarget.dataset && ev.currentTarget.dataset.grado){
-          modalGrado.value = ev.currentTarget.dataset.grado;
-        }
-        // populate students
-        modalEst.innerHTML = '';
-        if(students.length===0){
-          const o = document.createElement('option'); o.textContent = 'No tienes estudiantes'; modalEst.appendChild(o);
-        } else {
-          students.forEach(s => {
-            const o = document.createElement('option'); o.value = s.id; o.textContent = s.name; modalEst.appendChild(o);
-          });
-        }
-        // store ids on modal element for sending
-        modal.dataset.instId = instId;
-        if(ev.currentTarget && ev.currentTarget.dataset && ev.currentTarget.dataset.grado){
-          modal.dataset.grado = ev.currentTarget.dataset.grado;
-        } else {
-          delete modal.dataset.grado;
-        }
-      }
-
-      modalCancel.addEventListener('click', function(){ modal.style.display='none'; });
-
-      // evitar envíos múltiples: flag y UI de estado
-      let matriculaSending = false;
-      function showSendingState(btn){
-        btn.dataset.orig = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = 'Enviando...';
-        const box = document.createElement('div');
-        box.className = 'sending-box';
-        box.style.position = 'fixed';
-        box.style.right = '20px';
-        box.style.bottom = '20px';
-        box.style.background = '#fffbe6';
-        box.style.border = '1px solid #ffd27a';
-        box.style.padding = '8px 12px';
-        box.style.borderRadius = '8px';
-        box.style.boxShadow = '0 6px 18px rgba(0,0,0,0.08)';
-        box.style.zIndex = 20000;
-        box.textContent = 'Enviando solicitud...';
-        document.body.appendChild(box);
-        return box;
-      }
-      function clearSendingState(btn, box){
-        try{ if(box && box.parentNode) box.parentNode.removeChild(box); }catch(e){}
-        try{ btn.disabled = false; btn.innerHTML = btn.dataset.orig || btn.innerHTML; }catch(e){}
-        matriculaSending = false;
-      }
-
-      modalSend.addEventListener('click', function(){
-        if(matriculaSending){ return; }
-        matriculaSending = true;
-        const instId = modal.dataset.instId;
-        // Usar siempre el valor actual del select; si no hay, caer al dataset inicial
-        const grado = modalGrado.value || modal.dataset.grado || '';
-        const estId = modalEst.value;
-        if(!estId){ alert('Selecciona un estudiante'); return; }
-        const csrf = getCookie('csrftoken');
-        const form = new FormData();
-        form.append('inst_id', instId);
-        if(grado) form.append('grado', grado);
-        form.append('est_id', estId);
-        const sendBox = showSendingState(modalSend);
-        fetch('{% url "school:matricula_request_create" %}', {
-          method: 'POST',
-          credentials: 'same-origin',
-          headers: { 'X-CSRFToken': csrf },
-          body: form,
-        }).then(r => r.json()).then(data => {
-          console.log('matricula_request_create response:', data);
-          if(data.status === 'ok'){
-            alert('Solicitud enviada correctamente');
-            modal.style.display = 'none';
-            clearSendingState(modalSend, sendBox);
-          } else {
-            // show detailed info when available for debugging and guidance
-            let msg = data.error || 'no se pudo enviar';
-            if(data.missing && data.missing.length){
-              msg += "\nFaltan documentos: " + data.missing.join(', ');
-            }
-            if(data.detail){
-              msg += "\nDetalle: " + data.detail;
-            }
-            alert('Error: ' + msg);
-            clearSendingState(modalSend, sendBox);
-          }
-        }).catch(err => { alert('Error al enviar la solicitud (ver consola)'); console.error(err); clearSendingState(modalSend, sendBox); });
+    function getCookie(name){ const v=document.cookie.match('(^|;)\\s*'+name+'\\s*=\\s*([^;]+)'); return v? v.pop():''; }
+    function renderResults(data){
+      results.innerHTML='';
+      if(!data.results || !data.results.length){ results.innerHTML='<p>No se encontraron instituciones.</p>'; return; }
+      const grid=document.createElement('div'); grid.className='institutions-grid';
+      data.results.forEach(inst=>{
+        const grades = (inst.cursos||[]).map(c=>c.grd_cur).filter(Boolean);
+        // Convertir "701", "1-01", "1003" en nivel principal 7, 1, 10
+        const gradeLevelFromString = (s)=>{
+          const digits = String(s).replace(/[^0-9]/g,'');
+          if(!digits) return null;
+          const n = parseInt(digits,10);
+          if(isNaN(n)) return null;
+          return n >= 100 ? Math.floor(n/100) : n;
+        };
+        const majorGrades = Array.from(new Set(grades.map(gradeLevelFromString).filter(g=>g!=null))).sort((a,b)=>a-b);
+        const card=document.createElement('div'); card.className='inst-card';
+        const imgHtml = inst.img ? `<img src='${inst.img}' alt='${inst.nom_inst}'>` : `<img src="{% static 'img/default_inst.png' %}" alt='${inst.nom_inst}'>`;
+        const chipsHtml = majorGrades.length ? `<div class='grade-chips'>${majorGrades.map(n=>`<span class='grade-chip'>${n}º</span>`).join('')}</div>` : 'Sin cursos';
+        const hasCourses = majorGrades.length > 0;
+        const btnHtml = hasCourses ? `<a href='#' class='btn-matricular' data-inst-id='${inst.id_inst}' data-inst-name='${inst.nom_inst}' data-grades='${JSON.stringify(grades)}'>Matricular</a>` : `<span class='btn-matricular disabled' title='No disponible'>No disponible</span>`;
+        card.innerHTML = `<div class='inst-top'><div class='inst-thumb'>${imgHtml}</div><div class='inst-texts'><h4 class='inst-name'>${inst.nom_inst}</h4><div class='inst-location'>${inst.dire_inst||''}</div></div></div><div class='inst-contact'><small>${inst.tel_inst||''} ${inst.ema_inst||''}</small></div><div class='inst-grade-summary'><strong>Grados:</strong> ${chipsHtml}</div><div class='inst-actions'>${btnHtml}</div>`;
+        grid.appendChild(card);
       });
+      results.appendChild(grid);
+    }
+    // Búsqueda en tiempo real con debounce y cancelación
+    let debounceTimer=null; let pendingCtrl=null;
+    function performSearch(q){
+      if(pendingCtrl){ try{ pendingCtrl.abort(); }catch(e){} }
+      if(!q){ results.innerHTML=''; return; }
+      results.innerHTML='<p style="text-align:center;color:#64748b;">Buscando...</p>';
+      pendingCtrl = new AbortController();
+      fetch('{% url "school:institutions_search" %}?q='+encodeURIComponent(q),{credentials:'same-origin', signal: pendingCtrl.signal})
+        .then(r=>r.json())
+        .then(data=>renderResults(data))
+        .catch(err=>{ if(err && err.name==='AbortError') return; results.innerHTML='<p>Error en la búsqueda.</p>'; });
+    }
+    input.addEventListener('input', function(){
+      const q = input.value.trim();
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(()=>performSearch(q), 220);
+    });
 
-      btn.addEventListener('click', function(){
-        const q = input.value.trim();
-        if(!q){ results.innerHTML = '<p>Escribe algo para buscar.</p>'; return; }
-        results.innerHTML = '<p>Buscando...</p>';
-        fetch('{% url "school:institutions_search" %}?q=' + encodeURIComponent(q), { credentials: 'same-origin' }).then(async r => {
-          if(!r.ok){
-            // try read JSON detail if present
-            let detail = null;
-            try{
-              const j = await r.clone().json().catch(()=>null);
-              if(j){ detail = j.detail || j.error || JSON.stringify(j); }
-            }catch(e){ /* ignore */ }
-            const text = await r.text().catch(()=>null);
-            console.error('institutions_search failed', r.status, text, detail);
-            results.innerHTML = '<p>Error en la búsqueda.' + (detail ? ` Detalle: ${detail}` : '') + '</p>';
-            return null;
-          }
-          try{
-            return await r.json();
-          }catch(e){
-            console.error('Invalid JSON from institutions_search', e);
-            results.innerHTML = '<p>Error en la búsqueda (respuesta inválida).</p>';
-            return null;
-          }
-        }).then(data => { if(data) renderResults(data); }).catch(err => { results.innerHTML = '<p>Error en la búsqueda.</p>'; console.error(err); });
-      });
+    function closeMatModal(){ modal.style.display='none'; modal.classList.remove('open'); }
+    modalCancel.addEventListener('click', closeMatModal);
+    function openMatricula(instName, instId, offeredGrades){
+      modal.style.display='flex';
+      modal.classList.add('open');
+      modalInst.textContent = instName;
+      modalGrado.innerHTML='';
+      const gradeLevelFromString = (s)=>{
+        const digits = String(s).replace(/[^0-9]/g,'');
+        if(!digits) return null;
+        const n = parseInt(digits,10);
+        if(isNaN(n)) return null;
+        return n >= 100 ? Math.floor(n/100) : n;
+      };
+      const unique = Array.from(new Set((offeredGrades||[]).map(gradeLevelFromString).filter(g=>g!=null))).sort((a,b)=>a-b);
+      (unique.length? unique: [1,2,3,4,5,6,7,8,9,10,11]).forEach(g=>{ const o=document.createElement('option'); o.value=String(g); o.textContent=String(g); modalGrado.appendChild(o); });
+      modalEst.innerHTML='';
+      if(!students.length){ const o=document.createElement('option'); o.textContent='No tienes estudiantes'; modalEst.appendChild(o); }
+      else students.forEach(s=>{ const o=document.createElement('option'); o.value=s.id; o.textContent=s.name; modalEst.appendChild(o); });
+      modal.dataset.instId = instId;
+      setTimeout(()=>{ try{ modalGrado.focus(); }catch(e){} }, 60);
+    }
 
-      // allow Enter key on input
-      input.addEventListener('keypress', function(e){ if(e.key === 'Enter'){ btn.click(); e.preventDefault(); } });
-      // Mantener dataset.grado sincronizado si el usuario cambia el select en el modal
-      modalGrado.addEventListener('change', function(){ modal.dataset.grado = modalGrado.value; });
-    })();
+    // Delegación para botones Matricular en carrusel y resultados
+    function handleMatricularClick(e){
+      const btn = e.target.closest('[data-action="matricular"], .btn-matricular');
+      if(!btn) return;
+      if(btn.classList.contains('disabled')) return;
+      e.preventDefault();
+      const instName = btn.getAttribute('data-inst-name') || btn.closest('[data-inst-name]')?.getAttribute('data-inst-name') || 'Institución';
+      const instId = btn.getAttribute('data-inst-id') || btn.closest('[data-inst-id]')?.getAttribute('data-inst-id');
+      let gradesRaw = btn.getAttribute('data-grades') || btn.closest('[data-grades]')?.getAttribute('data-grades') || '[]';
+      let grades = [];
+      try{ grades = JSON.parse(gradesRaw.replace(/'/g,'"')); }catch{ grades = []; }
+      openMatricula(instName, instId, grades);
+    }
+    suggested.addEventListener('click', handleMatricularClick);
+    results.addEventListener('click', handleMatricularClick);
+
+    // Cerrar modal al hacer click fuera del cuadro o con Escape
+    modal.addEventListener('click', function(e){ if(e.target === modal){ closeMatModal(); } });
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && modal.style.display==='flex'){ closeMatModal(); } });
+
+    // Enviar solicitud matrícula
+    let sending=false;
+    modalSend.addEventListener('click',()=>{
+      if(sending) return;
+      const instId = modal.dataset.instId;
+      const grado = modalGrado.value;
+      const estId = modalEst.value;
+      if(!instId || !grado || !estId){ alert('Completa los campos'); return; }
+      sending=true; modalSend.disabled=true; modalSend.textContent='Enviando...';
+      const fd = new FormData(); fd.append('inst_id', instId); fd.append('grado', grado); fd.append('est_id', estId);
+      fetch('{% url "school:matricula_request_create" %}',{method:'POST',credentials:'same-origin',headers:{'X-CSRFToken':getCookie('csrftoken')},body:fd})
+        .then(r=>r.json())
+        .then(data=>{
+          sending=false; modalSend.disabled=false; modalSend.textContent='Enviar solicitud';
+          if(data.status==='ok'){ alert('Solicitud enviada'); closeMatModal(); }
+          else { let msg=data.error||'Error'; if(data.missing){ msg+='\nFaltan: '+data.missing.join(', ');} if(data.detail){ msg+='\nDetalle: '+data.detail;} alert(msg); }
+        })
+        .catch(()=>{ sending=false; modalSend.disabled=false; modalSend.textContent='Enviar solicitud'; alert('Error de red'); });
+    });
+
+  })();
   </script>
 {% endblock %}

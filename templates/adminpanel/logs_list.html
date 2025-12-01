@@ -1,9 +1,45 @@
 {% extends 'base_users.html' %}
 {% load static %}
 {% block title %}Historial de acciones{% endblock %}
+{% block extra_head %}
+<style>
+  .audit-shell{max-width:1350px;margin:0 auto;padding:42px 40px 120px}
+  .audit-header{display:flex;flex-direction:column;gap:6px;margin:0 0 26px}
+  .audit-header h1{margin:0;font-size:clamp(1.6rem,4.5vw,2.35rem);font-weight:800;letter-spacing:-.6px;color:#0f172a}
+  .audit-filters{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-bottom:26px;background:#ffffff;border:1px solid #e2e8f0;padding:18px 20px;border-radius:24px}
+  .audit-filters select,.audit-filters input[type=text]{border:1px solid #d0d7de;background:#f9fbfc;border-radius:14px;padding:10px 14px;font-size:.8rem;min-width:170px}
+  .audit-filters select:focus,.audit-filters input[type=text]:focus{outline:none;background:#ffffff;border-color:#0d63ff;box-shadow:0 0 0 3px rgba(13,99,255,.25)}
+  .audit-filters button{border:none;background:#0d63ff;color:#ffffff;font-weight:600;padding:10px 18px;border-radius:14px;font-size:.72rem;cursor:pointer;box-shadow:0 4px 14px -6px rgba(13,99,255,.4);transition:background .16s}
+  .audit-filters button:hover{background:#0a53d6}
+  .audit-filters a.clear-btn{background:#ffffff;color:#0f172a;border:1px solid #d0d7de;text-decoration:none;font-weight:600;padding:10px 18px;border-radius:14px;font-size:.72rem;transition:background .16s,border-color .16s}
+  .audit-filters a.clear-btn:hover{background:#f1f5f9;border-color:#c3ccd2}
+  .audit-meta{font-size:.65rem;font-weight:600;color:#64748b;margin-top:-6px}
+  .audit-table-wrap{overflow:auto;border:1px solid #e2e8f0;border-radius:28px;background:#ffffff;box-shadow:0 18px 54px -22px rgba(0,0,0,.18),0 8px 24px -8px rgba(0,0,0,.08)}
+  table.audit-table{width:100%;border-collapse:separate;border-spacing:0;min-width:1100px}
+  table.audit-table thead th{background:#f8fafc;padding:14px 18px;font-size:.62rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#475569;border-bottom:1px solid #e2e8f0;text-align:left;white-space:nowrap}
+  table.audit-table tbody td{padding:14px 18px;font-size:.74rem;color:#0f172a;border-bottom:1px solid #f1f5f9;vertical-align:top;line-height:1.25}
+  table.audit-table tbody tr:last-child td{border-bottom:none}
+  table.audit-table tbody tr:hover{background:#f8fbff}
+  .audit-action-badge{display:inline-block;padding:4px 10px;border-radius:10px;font-size:.55rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase}
+  .act-create{background:#dcfce7;color:#065f46}
+  .act-update{background:#bfdbfe;color:#1e3a8a}
+  .act-delete{background:#fecaca;color:#7f1d1d}
+  .act-accept{background:#fde68a;color:#92400e}
+  .act-other{background:#e2e8f0;color:#334155}
+  .audit-details{font-size:.6rem;color:#64748b;word-break:break-word;max-width:260px}
+  .audit-pagination{margin-top:28px;display:flex;align-items:center;gap:14px;font-size:.7rem;font-weight:600;color:#475569}
+  .audit-pagination a{padding:8px 12px;border-radius:10px;border:1px solid #d0d7de;background:#ffffff;color:#0f172a;text-decoration:none;font-size:.65rem;font-weight:600}
+  .audit-pagination a:hover{background:#f1f5f9}
+  .audit-empty-row{text-align:center;color:#64748b;font-size:.75rem;padding:46px 16px}
+  @media (max-width:780px){.audit-shell{padding:36px 24px 100px}.audit-table-wrap{border-radius:22px}.audit-details{max-width:100%}}
+</style>
+{% endblock %}
 {% block content %}
-  <h1>Historial (Audit Log)</h1>
-  <form method="get" class="search-form" style="margin-bottom:12px; display:flex; gap:8px; align-items:center;">
+<div class="audit-shell">
+  <div class="audit-header">
+    <h1>Historial (Audit Log)</h1>
+  </div>
+  <form method="get" class="audit-filters" autocomplete="off">
     <select name="model">
       <option value="">-- Modelo --</option>
       {% for m in models_list %}
@@ -11,36 +47,39 @@
       {% endfor %}
     </select>
     <input name="q" placeholder="Buscar en objeto o detalles" value="{{ q }}" />
-    <button class="btn btn-primary">Filtrar</button>
-    <a href="{% url 'adminpanel:admin_logs' %}" class="btn btn-outline">Limpiar</a>
+    <button type="submit">Filtrar</button>
+    <a href="{% url 'adminpanel:admin_logs' %}" class="clear-btn">Limpiar</a>
   </form>
-
-  <div class="card">
-    <table class="table">
+  <div class="audit-meta">Mostrando {{ logs|length }} registros{% if model %} de <strong>{{ model }}</strong>{% endif %}{% if q %} filtrados por "{{ q }}"{% endif %}</div>
+  <div class="audit-table-wrap" role="region" aria-label="Tabla de auditoría">
+    <table class="audit-table">
       <thead>
         <tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Modelo</th><th>Objeto</th><th>Detalles</th></tr>
       </thead>
       <tbody>
         {% for l in logs %}
+        {% with act=l.get_action_display|lower %}
         <tr>
           <td>{{ l.timestamp }}</td>
           <td>{% if l.user %}{{ l.user.nom_usu }} {{ l.user.ape_usu }}{% else %}-{% endif %}</td>
-          <td>{{ l.get_action_display }}</td>
+          <td>
+            <span class="audit-action-badge {% if 'creat' in act %}act-create{% elif 'updat' in act %}act-update{% elif 'delet' in act %}act-delete{% elif 'accept' in act %}act-accept{% else %}act-other{% endif %}">{{ l.get_action_display }}</span>
+          </td>
           <td>{{ l.model_name }}</td>
           <td>{{ l.object_repr }}</td>
-          <td><small class="text-muted">{{ l.details }}</small></td>
+          <td><div class="audit-details">{{ l.details }}</div></td>
         </tr>
+        {% endwith %}
         {% empty %}
-        <tr><td colspan="6">No hay registros de auditoría.</td></tr>
+        <tr><td colspan="6" class="audit-empty-row">No hay registros de auditoría.</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
-
-  <div class="pagination">
+  <div class="audit-pagination">
     {% if logs.has_previous %}<a href="?page={{ logs.previous_page_number }}&q={{ q }}&model={{ model }}">Anterior</a>{% endif %}
-    <span>Page {{ logs.number }} / {{ logs.paginator.num_pages }}</span>
+    <span>Página {{ logs.number }} / {{ logs.paginator.num_pages }}</span>
     {% if logs.has_next %}<a href="?page={{ logs.next_page_number }}&q={{ q }}&model={{ model }}">Siguiente</a>{% endif %}
   </div>
-
+</div>
 {% endblock %}

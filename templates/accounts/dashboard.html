@@ -3,68 +3,336 @@
 
 {% block title %}Panel{% endblock %}
 
+{% block extra_head %}
+<style>
+.modal-box{animation:modalIn .18s ease-out}
+@keyframes modalIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+/* Modal actualizar datos */
+#upd-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(2px);align-items:center;justify-content:center;z-index:13000}
+#upd-modal.open{display:flex}
+/* Toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 14px;border-radius:12px;box-shadow:0 16px 40px -16px rgba(0,0,0,.35);z-index:14000;display:none}
+.toast.show{display:block;animation:fadeIn .15s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+/* Modal: header con avatares y inputs contenidos */
+.upd-avatars{display:flex;gap:14px;align-items:center;justify-content:center;margin-bottom:10px}
+.upd-avatar{width:84px;height:84px;border-radius:999px;overflow:hidden;background:#e2e8f0;border:2px solid #e6e8eb;flex:0 0 auto}
+.upd-avatar img{width:100%;height:100%;object-fit:cover}
+.upd-avatar-uploader{width:84px;height:84px;border-radius:999px;display:flex;align-items:center;justify-content:center;border:2px dashed #94a3b8;color:#475569;background:#f8fafc;cursor:pointer;position:relative;overflow:hidden}
+.upd-avatar-uploader input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.upd-avatar-uploader img{width:100%;height:100%;object-fit:cover;display:none}
+.upd-form{display:flex;flex-direction:column;gap:10px}
+.upd-input{width:100%;padding:10px;border-radius:10px;border:1px solid #d0d7de;box-sizing:border-box}
+.upd-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+/* Perfil moderno: layout centrado, suave, sin tarjeta rígida */
+.profile-wrap{width:min(92vw,720px);margin:clamp(16px,4vw,36px) auto}
+.profile-modern{display:flex;flex-direction:column;align-items:center;gap:14px}
+.pf-avatar{width:120px;height:120px;border-radius:24px;overflow:hidden;background:#e2e8f0;box-shadow:0 10px 24px -10px rgba(0,0,0,.18)}
+.pf-avatar img{width:100%;height:100%;object-fit:cover}
+.pf-name{margin:0;font-size:clamp(1.4rem,4.2vw,1.8rem);font-weight:800;color:#0f172a;text-align:center}
+.pf-email{color:#0b8a40;font-weight:700;text-align:center}
+.pf-badge{display:inline-block;margin-top:8px;padding:4px 10px;border-radius:999px;background:#10b981;color:#fff;font-weight:800;font-size:.8rem;border:1px solid #0ea672}
+.pf-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px}
+.pf-chip{padding:6px 10px;border-radius:999px;background:#f1f5f9;color:#0f172a;font-weight:700;border:1px solid #e6e8eb}
+.pf-meta{margin-top:8px;display:grid;gap:8px;justify-items:center}
+.pf-row{display:flex;gap:6px;color:#475569}
+.pf-label{font-weight:700;color:#334155}
+.pf-actions{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.btn-soft{padding:8px 14px;border-radius:12px;background:#f8fafc;color:#0f172a;border:1px solid #e6e8eb}
+.btn-soft:hover{background:#eef2f7}
+.btn-cta{padding:8px 14px;border-radius:12px;background:#0f4d57;color:#fff;border:none}
+.btn-cta:hover{background:#0c3f48}
+.pf-edit{position:absolute;top:8px;right:8px}
+.pf-card{position:relative;background:#fff;border-radius:24px;padding:18px 16px;box-shadow:0 20px 54px -18px rgba(0,0,0,.22);border:1px solid #e9edf5}
+
+/* Lista de settings tipo tarjetas con icono y flecha */
+.settings{margin-top:18px}
+.settings h4{margin:0 0 10px;color:#0f172a;font-weight:800}
+.setting-list{display:grid;gap:10px}
+.setting-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e9edf5;border-radius:16px;padding:12px;box-shadow:0 8px 26px -16px rgba(0,0,0,.12)}
+.setting-item{text-decoration:none;position:relative;transition:background .15s,border-color .15s}
+.setting-item:hover{background:#f8fafc;border-color:#dbe0e6}
+.si-icon{width:36px;height:36px;border-radius:12px;background:#eef2f7;color:#0f172a;display:flex;align-items:center;justify-content:center}
+.si-icon svg{width:22px;height:22px;stroke-width:1.8}
+.si-main{flex:1;min-width:0}
+.si-title{margin:0;font-weight:800;color:#0f172a}
+.si-sub{margin:2px 0 0;color:#64748b;font-size:.85rem;font-weight:500}
+.si-arrow{color:#0f172a;display:flex;align-items:center;justify-content:center}
+.si-arrow svg{width:18px;height:18px;stroke-width:2;opacity:.55}
+.safe-space{margin-top:20px}
+.safe-space h4{margin:0 0 10px;color:#0f172a;font-weight:800}
+/* Instituciones (administrativo) */
+/* Panel Administrativo - instituciones */
+.admin-insts{margin-top:30px}
+.admin-insts h4{margin:0 0 12px;font-weight:800;color:#0f172a;letter-spacing:.3px;font-size:1.05rem}
+.admin-insts-grid{display:grid;gap:26px;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));margin-top:10px}
+.admin-inst-card{background:#ffffff;border:1px solid #e4e8ec;border-radius:22px;padding:60px 18px 18px;position:relative;box-shadow:0 20px 50px -18px rgba(0,0,0,.20),0 4px 14px -2px rgba(0,0,0,.07);display:flex;flex-direction:column;gap:8px;transition:transform .18s, box-shadow .18s}
+.admin-inst-card:focus-within,.admin-inst-card:hover{transform:translateY(-3px);box-shadow:0 26px 66px -22px rgba(0,0,0,.25),0 6px 18px -4px rgba(0,0,0,.08)}
+.admin-inst-avatar{position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:80px;height:80px;border-radius:50%;background:#fff;border:2px solid #e2e6ea;box-shadow:0 14px 34px -12px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;overflow:hidden;font-weight:700;color:#0f172a;font-size:20px}
+.admin-inst-avatar img{width:100%;height:100%;object-fit:cover}
+.admin-inst-name{font-weight:700;font-size:1rem;margin:2px 0 0;text-align:center;color:#0f172a}
+.admin-inst-location{font-size:.72rem;color:#64748b;text-align:center;letter-spacing:.3px}
+.admin-inst-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:6px}
+.admin-inst-actions a{font-size:.72rem;padding:7px 10px;border-radius:10px;background:#f8fafc;border:1px solid #e2e6ea;color:#0f172a;text-decoration:none;font-weight:600;letter-spacing:.25px;line-height:1.2;position:relative;transition:background .16s,border-color .16s,box-shadow .16s}
+.admin-inst-actions a:hover{background:#eef2f7;border-color:#d3d9de}
+.admin-inst-actions a:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(13,110,253,.45)}
+.admin-inst-actions a.primary{background:#0d63ff;color:#fff;border-color:#0d63ff}
+.admin-inst-actions a.primary:hover{background:#0a53d6}
+.admin-inst-actions a.primary:focus-visible{box-shadow:0 0 0 3px rgba(13,110,253,.55)}
+@media (max-width:560px){
+  .admin-insts-grid{gap:34px 18px}
+  .admin-inst-card{padding:56px 16px 16px}
+}
+
+/* Avatar editable en panel administrativo */
+.pf-avatar-wrapper{position:relative;display:inline-block}
+.avatar-edit-btn{position:absolute;bottom:6px;right:6px;width:34px;height:34px;border-radius:12px;border:1px solid #d1d7dd;background:#ffffff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 12px -4px rgba(0,0,0,.25);transition:background .16s,border-color .16s,transform .16s}
+.avatar-edit-btn:hover{background:#f1f5f9;border-color:#c3ccd2}
+.avatar-edit-btn:active{transform:scale(.94)}
+.avatar-edit-btn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(13,110,253,.5)}
+.avatar-edit-btn svg{width:18px;height:18px;stroke:#0f172a;stroke-width:1.8}
+</style>
+</style>
+{% endblock %}
 {% block content %}
   <section class="dashboard">
     {% if acudiente %}
-      <div class="student-detail student-profile">
-        <div class="detail-card">
-          <div class="detail-avatar">
-            <div class="avatar-wrapper">
-              <form id="foto-form" action="{% url 'accounts:upload_profile_photo' %}" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                {% if acudiente.foto_perfil %}
-                  <img src="{{ acudiente.foto_perfil.url }}" alt="Foto {{ user.nom_usu }}" class="avatar-large">
-                {% else %}
-                  <div class="avatar-large avatar-fallback">{{ user.nom_usu|first }}{{ user.ape_usu|first }}</div>
-                {% endif %}
-                <input id="foto_perfil_input" class="avatar-edit-input" name="foto_perfil" type="file" accept="image/*">
-                <label for="foto_perfil_input" class="avatar-edit-label" title="Cambiar foto de perfil">
-                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10l3 3 7-7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </label>
-              </form>
+      <div class="profile-wrap">
+        <div class="pf-card">
+          
+          <div class="profile-modern">
+            <div class="pf-avatar" style="border-radius:999px">
+              {% if acudiente.foto_perfil %}
+                <img src="{{ acudiente.foto_perfil.url }}" alt="Foto {{ user.nom_usu }}">
+              {% else %}
+                <div class="avatar-large avatar-fallback" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#0f172a">{{ user.nom_usu|first }}{{ user.ape_usu|first }}</div>
+              {% endif %}
+            </div>
+            <h3 class="pf-name">{{ user.nom_usu }} {{ user.ape_usu }}</h3>
+            <div class="pf-email">{{ user.ema_usu|default:'Sin correo' }}</div>
+            <div class="pf-chips">
+              {% if acudiente.num_doc_acu %}<span class="pf-chip">Documento: {{ acudiente.num_doc_acu }}</span>{% endif %}
+              {% if acudiente.tel_acu %}<span class="pf-chip">Teléfono: {{ acudiente.tel_acu }}</span>{% endif %}
             </div>
           </div>
-          <div class="detail-info">
-            <h3 class="student-name">{{ user.nom_usu }} {{ user.ape_usu }}</h3>
-            <div class="student-doc">Correo: <span class="muted">{{ user.ema_usu }}</span></div>
-            {% if acudiente.num_doc_acu %}
-              <div class="student-doc">Documento: <span class="muted">{{ acudiente.num_doc_acu }}</span></div>
-            {% endif %}
-            {% if acudiente.tel_acu %}
-              <div class="student-doc">Teléfono: <span class="muted">{{ acudiente.tel_acu }}</span></div>
-            {% endif %}
+          <div class="pf-meta">
             {% if acudiente.dir_acu %}
-              <div class="student-doc">Dirección: <span class="muted">{{ acudiente.dir_acu }}</span></div>
+              <div class="pf-row"><span class="pf-label">Dirección:</span> <span>{{ acudiente.dir_acu }}</span></div>
             {% endif %}
+            <div class="pf-actions"></div>
+          </div>
+          
+          <div class="settings">
+            <h4>Configuración</h4>
+            <div class="setting-list">
+              <a class="setting-item" id="upd-open" href="#">
+                <div class="si-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 3.6 15a1.65 1.65 0 0 0-1.51-1H2a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 3.6 8a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8 3.6a1.65 1.65 0 0 0 1-1.51V2a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.73 0 1.38.48 1.51 1.2V10a2 2 0 0 1 0 4h-.09c-.72.12-1.32.77-1.42 1.51Z"/></svg>
+                </div>
+                <div class="si-main">
+                  <p class="si-title">Actualizar datos</p>
+                  <p class="si-sub">Nombre, correo y dirección</p>
+                </div>
+                <div class="si-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              </a>
+              <a class="setting-item" href="{% url 'adminpanel:notifications' %}">
+                <div class="si-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke-linecap="round"/></svg>
+                </div>
+                <div class="si-main">
+                  <p class="si-title">Notificaciones</p>
+                  <p class="si-sub">Preferencias de aviso</p>
+                </div>
+                <div class="si-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              </a>
+            </div>
+          </div>
+          <div class="safe-space">
+            <h4>Seguridad</h4>
+            <div class="setting-list">
+              <a class="setting-item" href="{% url 'accounts:password_reset_request' %}">
+                <div class="si-icon" aria-hidden="true">🔒</div>
+                <div class="si-main">
+                  <p class="si-title">Cambiar contraseña</p>
+                  <p class="si-sub">Solicita restablecimiento</p>
+                </div>
+                <div class="si-arrow" aria-hidden="true">›</div>
+              </a>
+            </div>
           </div>
         </div>
       </div>
 
     {% elif estudiante %}
-      <div class="student-detail student-profile">
-        <div class="detail-card">
-          <div class="detail-avatar">
-            <div class="avatar-wrapper">
+      <div class="profile-wrap">
+        <div class="pf-card">
+          <div class="pf-edit"><a class="btn-soft" href="{% url 'accounts:panel_profile' %}">Editar</a></div>
+          <div class="profile-modern">
+            <div class="pf-avatar">
               {% if estudiante.foto_perfil %}
-                <img src="{{ estudiante.foto_perfil.url }}" alt="Foto {{ estudiante.id_usu.nom_usu }}" class="avatar-large">
+                <img src="{{ estudiante.foto_perfil.url }}" alt="Foto {{ estudiante.id_usu.nom_usu }}">
               {% else %}
-                <div class="avatar-large avatar-fallback">{{ estudiante.id_usu.nom_usu|first }}{{ estudiante.id_usu.ape_usu|first }}</div>
+                <div class="avatar-large avatar-fallback" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#0f172a">{{ estudiante.id_usu.nom_usu|first }}{{ estudiante.id_usu.ape_usu|first }}</div>
               {% endif %}
             </div>
+            <h3 class="pf-name">{{ estudiante.id_usu.nom_usu }} {{ estudiante.id_usu.ape_usu }}</h3>
+            <div class="pf-email">{{ estudiante.id_usu.ema_usu|default:'Sin correo' }}</div>
+            <div class="pf-chips">
+              {% if estudiante.num_doc_est %}<span class="pf-chip">Documento: {{ estudiante.num_doc_est }}</span>{% endif %}
+              {% if estudiante.tel_estu %}<span class="pf-chip">Teléfono: {{ estudiante.tel_estu }}</span>{% endif %}
+            </div>
           </div>
-          <div class="detail-info">
-            <h3 class="student-name">{{ estudiante.id_usu.nom_usu }} {{ estudiante.id_usu.ape_usu }}</h3>
-            <div class="student-doc">Correo: <span class="muted">{{ estudiante.id_usu.ema_usu }}</span></div>
-            {% if estudiante.num_doc_est %}
-              <div class="student-doc">Documento: <span class="muted">{{ estudiante.num_doc_est }}</span></div>
-            {% endif %}
-            {% if estudiante.tel_est %}
-              <div class="student-doc">Teléfono: <span class="muted">{{ estudiante.tel_est }}</span></div>
-            {% endif %}
+          <div class="pf-meta">
             {% if estudiante.dir_est %}
-              <div class="student-doc">Dirección: <span class="muted">{{ estudiante.dir_est }}</span></div>
+              <div class="pf-row"><span class="pf-label">Dirección:</span> <span>{{ estudiante.dir_est }}</span></div>
             {% endif %}
-            <p style="margin-top:8px"><a class="btn btn-sm btn-success" href="{% url 'accounts:documentos_panel' estudiante.id_est %}">Subir / Ver documentos</a></p>
+            <div class="pf-actions">
+              <a class="btn-soft" href="{% url 'accounts:documentos_panel' estudiante.id_est %}">Ver / Subir documentos</a>
+            </div>
+          </div>
+          <div class="pf-meta">
+            <span class="pf-badge">Miembro desde {{ user.fch_reg|date:'Y' }}</span>
+          </div>
+          <div class="settings">
+            <h4>Configuración</h4>
+            <div class="setting-list">
+              <a class="setting-item" id="upd-open-2" href="#">
+                <div class="si-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 3.6 15a1.65 1.65 0 0 0-1.51-1H2a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 3.6 8a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8 3.6a1.65 1.65 0 0 0 1-1.51V2a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.73 0 1.38.48 1.51 1.2V10a2 2 0 0 1 0 4h-.09c-.72.12-1.32.77-1.42 1.51Z"/></svg>
+                </div>
+                <div class="si-main">
+                  <p class="si-title">Actualizar datos</p>
+                  <p class="si-sub">Nombre y correo</p>
+                </div>
+                <div class="si-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              </a>
+              <a class="setting-item" href="{% url 'adminpanel:notifications' %}">
+                <div class="si-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke-linecap="round"/></svg>
+                </div>
+                <div class="si-main">
+                  <p class="si-title">Notificaciones</p>
+                  <p class="si-sub">Preferencias de aviso</p>
+                </div>
+                <div class="si-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              </a>
+            </div>
+          </div>
+          <div class="safe-space">
+            <h4>Seguridad</h4>
+            <div class="setting-list">
+              <a class="setting-item" href="{% url 'accounts:password_reset_request' %}">
+                <div class="si-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+                <div class="si-main">
+                  <p class="si-title">Cambiar contraseña</p>
+                  <p class="si-sub">Solicita restablecimiento</p>
+                </div>
+                <div class="si-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    {% elif administrativo %}
+      <div class="profile-wrap">
+        <div class="pf-card">
+          <div class="profile-modern">
+            <div class="pf-avatar-wrapper">
+              <div class="pf-avatar" style="border-radius:999px">
+                {% if administrativo.foto_perfil %}
+                  <img src="{{ administrativo.foto_perfil.url }}" alt="Foto {{ user.nom_usu }}">
+                {% else %}
+                  <div class="avatar-large avatar-fallback" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#0f172a">{{ user.nom_usu|first }}{{ user.ape_usu|first }}</div>
+                {% endif %}
+              </div>
+              <button type="button" class="avatar-edit-btn" id="avatar-edit-adm" aria-label="Cambiar foto" title="Cambiar foto">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 20h4.586a2 2 0 0 0 1.414-.586l9.414-9.414a2 2 0 0 0 0-2.828l-2.586-2.586a2 2 0 0 0-2.828 0L4 14.586A2 2 0 0 0 3.414 16v4a0 0 0 0 0 0 0Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M13 7 17 11" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+              </button>
+            </div>
+            <h3 class="pf-name">{{ user.nom_usu }} {{ user.ape_usu }}</h3>
+            <div class="pf-email">{{ user.ema_usu|default:'Sin correo' }}</div>
+            <div class="pf-chips">
+              {% if administrativo.num_doc_adm %}<span class="pf-chip">Documento: {{ administrativo.num_doc_adm }}</span>{% endif %}
+              {% if administrativo.tel_adm %}<span class="pf-chip">Teléfono: {{ administrativo.tel_adm }}</span>{% endif %}
+              {% if administrativo.tip_carg_adm %}<span class="pf-chip">Cargo: {{ administrativo.tip_carg_adm }}</span>{% endif %}
+            </div>
+          </div>
+          <div class="pf-meta">
+            {% if administrativo.dir_adm %}
+              <div class="pf-row"><span class="pf-label">Dirección:</span> <span>{{ administrativo.dir_adm }}</span></div>
+            {% endif %}
+            <div class="pf-actions"></div>
+          </div>
+          <div class="settings">
+            <h4>Configuración</h4>
+            <div class="setting-list">
+              <a class="setting-item" id="upd-open-adm" href="#">
+                <div class="si-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 3.6 15a1.65 1.65 0 0 0-1.51-1H2a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 3.6 8a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8 3.6a1.65 1.65 0 0 0 1-1.51V2a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.73 0 1.38.48 1.51 1.2V10a2 2 0 0 1 0 4h-.09c-.72.12-1.32.77-1.42 1.51Z"/></svg>
+                </div>
+                <div class="si-main">
+                  <p class="si-title">Actualizar datos</p>
+                  <p class="si-sub">Nombre, cargo y dirección</p>
+                </div>
+                <div class="si-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              </a>
+              <a class="setting-item" href="{% url 'adminpanel:notifications' %}">
+                <div class="si-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke-linecap="round"/></svg>
+                </div>
+                <div class="si-main">
+                  <p class="si-title">Notificaciones</p>
+                  <p class="si-sub">Avisos y estados</p>
+                </div>
+                <div class="si-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              </a>
+            </div>
+          </div>
+          {% if instituciones %}
+          <div class="admin-insts">
+            <h4>Mis instituciones</h4>
+            <div class="admin-insts-grid">
+              {% for inst in instituciones %}
+                <div class="admin-inst-card">
+                  <div class="admin-inst-avatar">
+                    {% if inst.img_inst %}
+                      <img src="{{ inst.img_inst.url }}" alt="Logo">
+                    {% else %}
+                      {{ inst.nom_inst|first|default:'?' }}
+                    {% endif %}
+                  </div>
+                  <p class="admin-inst-name">{{ inst.nom_inst|default:'Institución' }}</p>
+                  <p class="admin-inst-location">{{ inst.dep_inst|default:'' }}{% if inst.mun_inst %} / {{ inst.mun_inst }}{% endif %}</p>
+                  <div class="admin-inst-actions">
+                    <a href="{% url 'adminpanel:institucion_curso_list' inst.id_inst %}">Datos/Cursos</a>
+                    <a href="{% url 'adminpanel:institucion_maestros' inst.id_inst %}">Maestros</a>
+                    <a class="primary" href="{% url 'adminpanel:request_curso_create' inst.id_inst %}">Registrar curso</a>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% else %}
+            <p style="text-align:center;margin:20px 0 0;font-weight:600;color:#64748b">No tienes instituciones aún.</p>
+            <div style="display:flex;justify-content:center;margin-top:10px"><a href="{% url 'adminpanel:request_institucion_create' %}" class="btn-cta" style="text-decoration:none">Registrar institución</a></div>
+          {% endif %}
+          <div class="safe-space">
+            <h4>Seguridad</h4>
+            <div class="setting-list">
+              <a class="setting-item" href="{% url 'accounts:password_reset_request' %}">
+                <div class="si-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+                <div class="si-main">
+                  <p class="si-title">Cambiar contraseña</p>
+                  <p class="si-sub">Solicita restablecimiento</p>
+                </div>
+                <div class="si-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -73,27 +341,106 @@
       <h2>Bienvenido, {{ user.nom_usu }} {{ user.ape_usu }}</h2>
     {% endif %}
   </section>
+  <!-- Modal Actualizar Datos (global para acudiente/estudiante) -->
+  <div id="upd-modal" role="dialog" aria-modal="true" aria-labelledby="upd-title">
+    <div class="modal-box" style="background:#fff;border-radius:16px;padding:18px 16px;max-width:520px;width:96%;box-shadow:0 16px 48px rgba(0,0,0,.30);border:1px solid #e6e8eb">
+      <h3 id="upd-title" style="margin:0 0 8px;color:#0f172a">Actualizar datos</h3>
+      <div class="upd-avatars">
+        <div class="upd-avatar">
+          {% if acudiente and acudiente.foto_perfil %}
+            <img id="upd-current-avatar" src="{{ acudiente.foto_perfil.url }}" alt="Foto actual">
+          {% elif estudiante and estudiante.foto_perfil %}
+            <img id="upd-current-avatar" src="{{ estudiante.foto_perfil.url }}" alt="Foto actual">
+          {% else %}
+            <img id="upd-current-avatar" src="{% static 'img/default_inst.png' %}" alt="Foto actual">
+          {% endif %}
+        </div>
+        <label class="upd-avatar-uploader" title="Subir nueva foto">
+          <img id="upd-new-avatar-preview" alt="Vista previa nueva">
+          <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;color:#475569">Subir nueva</span>
+          <input id="upd-new-avatar-input" name="foto_perfil" type="file" accept="image/*">
+        </label>
+      </div>
+      <form id="upd-form" class="upd-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label style="display:block;margin-top:4px;color:#334155;font-weight:700">Nombre</label>
+        <input class="upd-input" name="nom_usu" value="{{ user.nom_usu }}">
+        <label style="display:block;margin-top:4px;color:#334155;font-weight:700">Apellido</label>
+        <input class="upd-input" name="ape_usu" value="{{ user.ape_usu }}">
+        <label style="display:block;margin-top:4px;color:#334155;font-weight:700">Teléfono</label>
+        <input class="upd-input" name="tel" value="{% if acudiente %}{{ acudiente.tel_acu|default:'' }}{% elif estudiante %}{{ estudiante.tel_estu|default:'' }}{% elif administrativo %}{{ administrativo.tel_adm|default:'' }}{% endif %}">
+        <label style="display:block;margin-top:4px;color:#334155;font-weight:700">Dirección</label>
+        <input class="upd-input" name="dir" value="{% if acudiente %}{{ acudiente.dir_acu|default:'' }}{% elif estudiante %}{{ estudiante.dir_est|default:'' }}{% elif administrativo %}{{ administrativo.dir_adm|default:'' }}{% endif %}">
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+          <button type="button" id="upd-cancel" class="btn-soft">Cancelar</button>
+          <button type="submit" class="btn-cta">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script>
-    // Auto-submit the foto form when a file is selected
     (function(){
-      const input = document.getElementById('foto_perfil_input');
-      if (!input) return;
-      input.addEventListener('change', function(){
-        if (input.files && input.files.length) {
-          const f = input.files[0];
-          if (f.size > 5 * 1024 * 1024) {
-            alert('La imagen debe ser menor a 5 MB.');
-            input.value = '';
-            return;
-          }
-          document.getElementById('foto-form').submit();
+      const openers = [
+        document.getElementById('upd-open'),
+        document.getElementById('upd-open-2'),
+        document.getElementById('upd-open-adm'),
+        document.getElementById('avatar-edit-adm')
+      ].filter(Boolean);
+      const modal = document.getElementById('upd-modal');
+      const form = document.getElementById('upd-form');
+      const cancelBtn = document.getElementById('upd-cancel');
+      const newAvatarInput = document.getElementById('upd-new-avatar-input');
+      const newAvatarPreview = document.getElementById('upd-new-avatar-preview');
+      const toast = document.getElementById('toast');
+      function showToast(msg, variant){
+        if(!toast) return;
+        toast.textContent = msg;
+        toast.style.background = variant==='error' ? '#b91c1c' : (variant==='success' ? '#065f46' : '#0f172a');
+        toast.classList.add('show');
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(()=> toast.classList.remove('show'), 2200);
+      }
+      function getCookie(name){ const m=document.cookie.match('(^|;)\\s*'+name+'\\s*=\\s*([^;]+)'); return m? m.pop():''; }
+      function open(){ modal.classList.add('open'); }
+      function close(){ modal.classList.remove('open'); }
+      openers.forEach(b=> b && b.addEventListener('click', function(e){ e.preventDefault(); open(); }));
+      cancelBtn && cancelBtn.addEventListener('click', close);
+      modal && modal.addEventListener('click', function(e){ if(e.target===modal) close(); });
+      document.addEventListener('keydown', function(e){ if(e.key==='Escape' && modal.classList.contains('open')) close(); });
+      // Vista previa de nueva foto en el círculo derecho (sin tocar la actual)
+      if(newAvatarInput && newAvatarPreview){
+        newAvatarInput.addEventListener('change', function(){
+          const f = newAvatarInput.files && newAvatarInput.files[0];
+          if(!f) return;
+          if(f.size > 5 * 1024 * 1024){ showToast('La imagen debe ser menor a 5 MB','error'); newAvatarInput.value=''; return; }
+          const url = URL.createObjectURL(f);
+          newAvatarPreview.src = url;
+          newAvatarPreview.style.display = 'block';
+        });
+      }
+      form && form.addEventListener('submit', function(e){
+        e.preventDefault();
+        const fd = new FormData(form);
+        // Asegurar que la foto del uploader (fuera del <form>) se incluya
+        if(newAvatarInput && newAvatarInput.files && newAvatarInput.files[0]){
+          fd.append('foto_perfil', newAvatarInput.files[0]);
         }
+        const csrf = getCookie('csrftoken');
+        fetch('{% url "accounts:update_profile_details" %}', { method:'POST', body:fd, credentials:'same-origin', headers:{'X-CSRFToken':csrf} })
+          .then(r=>r.json())
+          .then(data=>{
+            if(data.status==='ok'){
+              const names = document.querySelectorAll('.pf-name');
+              names.forEach(n=> n.textContent = (fd.get('nom_usu')||'') + ' ' + (fd.get('ape_usu')||''));
+              if(data.avatar){ const imgs = document.querySelectorAll('.pf-avatar img'); imgs.forEach(i=> i.src = data.avatar); }
+              close();
+              showToast('Datos guardados','success');
+            } else { showToast('No se pudo guardar: '+(data.error||'Error'),'error'); }
+          })
+          .catch(()=> showToast('Error al guardar','error'));
       });
     })();
   </script>
 {% endblock %}
-                  }
-                });
-              })();
-            </script>
-      <h2>Bienvenido, {{ user.nom_usu }} {{ user.ape_usu }}</h2>
+ 

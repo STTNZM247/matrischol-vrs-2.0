@@ -1,4 +1,27 @@
 {% extends 'base_users.html' %}
+{% block extra_head %}
+<style>
+    /* Borde negro delgadito para todos los campos del formulario */
+    .cuadro-login input[type="text"],
+    .cuadro-login input[type="email"],
+    .cuadro-login input[type="password"],
+    .cuadro-login input[type="date"],
+    .cuadro-login input[type="tel"],
+    .cuadro-login input[type="file"],
+    .cuadro-login select,
+    .cuadro-login textarea {
+        border: 1px solid #000;
+        background: #fff;
+        border-radius: 8px;
+    }
+    /* Mantener el icono de ojo bien posicionado */
+    .cuadro-login .password-field { position: relative; }
+    .cuadro-login .password-field #eye-icon {
+        position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+        cursor: pointer; color: #333;
+    }
+</style>
+{% endblock %}
 {% block title %}Registrar Estudiante{% endblock %}
 {% block content %}
     <section class="hero">

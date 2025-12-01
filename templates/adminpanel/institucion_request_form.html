@@ -1,11 +1,50 @@
 {% extends 'base_users.html' %}
 {% block title %}Solicitar institución{% endblock %}
+
+{% block extra_head %}
+<style>
+  .inst-req-shell { max-width:880px; margin:0 auto; padding:34px 32px 120px; }
+  .inst-req-card { background:#ffffff; border-radius:26px; padding:42px 48px 52px; position:relative; box-shadow:0 24px 60px -20px rgba(0,0,0,.22), 0 4px 22px -6px rgba(0,0,0,.10); }
+  .inst-req-card:before { content:""; position:absolute; inset:0; border:1px solid #e5e9ee; border-radius:26px; pointer-events:none; }
+  .inst-req-header { text-align:center; margin:0 0 6px; font-size:32px; font-weight:800; letter-spacing:-.5px; line-height:1.1; color:#0f172a; }
+  .inst-req-sub { text-align:center; margin:0 0 34px; font-size:15px; color:#5b6675; }
+  .inst-req-grid { display:grid; gap:24px 34px; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); }
+  .fgroup { display:flex; flex-direction:column; }
+  .fgroup label { font-size:11px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; margin-bottom:6px; color:#2b3a4a; }
+  .fgroup input[type=text], .fgroup input[type=email], .fgroup input[type=number], .fgroup select { border:1px solid #d3dbe3; background:#f9fbfc; border-radius:14px; padding:13px 15px; font-size:15px; outline:none; transition:border-color .16s, background .16s, box-shadow .16s; width:100%; color:#0f172a; }
+  .fgroup input:focus, .fgroup select:focus { background:#fff; border-color:#2b7cff; box-shadow:0 0 0 3px rgba(43,124,255,.20); }
+  .actions-row { margin-top:46px; display:flex; gap:16px; justify-content:flex-end; flex-wrap:wrap; }
+  .primary-btn { background:#0d6efd; color:#ffffff; border:none; padding:16px 30px; font-size:15px; font-weight:600; border-radius:16px; cursor:pointer; box-shadow:0 4px 10px -2px rgba(13,110,253,.50); transition:background .16s, transform .16s, box-shadow .16s; }
+  .primary-btn:hover { background:#0b5ed7; }
+  .primary-btn:active { background:#0a58ca; transform:translateY(1px); box-shadow:0 2px 6px -2px rgba(13,110,253,.50); }
+  .outline-btn { background:#ffffff; color:#0f172a; border:1px solid #d0d7de; padding:16px 26px; font-size:15px; font-weight:600; border-radius:16px; cursor:pointer; transition:background .16s,border-color .16s,color .16s; text-decoration:none; display:inline-flex; align-items:center; }
+  .outline-btn:hover { background:#f1f5f9; border-color:#c4ccd4; }
+  .full-span { grid-column:1 / -1; }
+  @media (max-width:680px){ .inst-req-card { padding:34px 30px 46px; } .actions-row { justify-content:center; } }
+</style>
+{% endblock %}
+
 {% block content %}
-  <h1>Solicitar nueva institución</h1>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button class="btn btn-primary">Enviar solicitud</button>
-    <a href="{% url 'accounts:panel_administrativo' %}" class="btn btn-outline">Cancelar</a>
-  </form>
+<div class="inst-req-shell">
+  <div class="inst-req-card">
+    <h1 class="inst-req-header">Solicitar nueva institución</h1>
+    <p class="inst-req-sub">Completa los datos y envía la solicitud para revisión por un administrador.</p>
+    <form method="post" autocomplete="off">{% csrf_token %}
+      <div class="inst-req-grid">
+        <div class="fgroup"><label>Nombre</label>{{ form.nom_inst }}</div>
+        <div class="fgroup"><label>Tipo de institución</label>{{ form.tip_inst }}</div>
+        <div class="fgroup"><label>Código DANE</label>{{ form.cod_dane_inst }}</div>
+        <div class="fgroup"><label>Departamento</label>{{ form.dep_inst }}</div>
+        <div class="fgroup"><label>Municipio</label>{{ form.mun_inst }}</div>
+        <div class="fgroup"><label>Dirección</label>{{ form.dire_inst }}</div>
+        <div class="fgroup"><label>Teléfono</label>{{ form.tel_inst }}</div>
+        <div class="fgroup"><label>Correo</label>{{ form.ema_inst }}</div>
+      </div>
+      <div class="actions-row">
+        <button type="submit" class="primary-btn">Enviar solicitud</button>
+        <a href="{% url 'accounts:panel_administrativo' %}" class="outline-btn" role="button">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}

@@ -1,43 +1,233 @@
 {% extends 'base_users.html' %}
 {% block title %}Editar Maestro — {{ inst.nom_inst }}{% endblock %}
-{% block content %}
-  <h1>Editar Maestro — {{ inst.nom_inst }}</h1>
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <label>Nombre</label><br>
-    <input type="text" name="nom_usu" value="{{ mae.id_usu.nom_usu }}" style="width:100%;padding:8px;margin-top:6px;" required>
-    <label>Apellido</label><br>
-    <input type="text" name="ape_usu" value="{{ mae.id_usu.ape_usu }}" style="width:100%;padding:8px;margin-top:6px;" required>
-    <label>Correo</label><br>
-    <input type="email" name="ema_usu" value="{{ mae.id_usu.ema_usu }}" style="width:100%;padding:8px;margin-top:6px;" required>
-    <label>Contraseña (dejar en blanco para no cambiar)</label><br>
-    <div style="position:relative;">
-      <input type="password" name="password" id="password-edit" style="width:100%;padding:8px;margin-top:6px;padding-right:36px;">
-      <i class="fas fa-eye" id="eye-icon-edit" onclick="togglePasswordEdit()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#666;"></i>
-    </div>
-    <label>Número de documento</label><br>
-    <input type="text" name="num_doc_mae" value="{{ mae.num_doc_mae }}" style="width:100%;padding:8px;margin-top:6px;" required>
-    <label>Especialidad</label><br>
-    <input type="text" name="especialidad" value="{{ mae.especialidad }}" style="width:100%;padding:8px;margin-top:6px;">
-    <label>Foto (opcional)</label><br>
-    <input type="file" name="foto" style="margin-top:6px;">
-    <div style="margin-top:10px;"><button class="btn btn-primary">Guardar cambios</button></div>
-  </form>
 
-  <script>
-    function togglePasswordEdit() {
-      const passwordInput = document.getElementById('password-edit');
-      const eyeIcon = document.getElementById('eye-icon-edit');
-      if (!passwordInput || !eyeIcon) return;
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        eyeIcon.classList.remove('fa-eye');
-        eyeIcon.classList.add('fa-eye-slash');
-      } else {
-        passwordInput.type = 'password';
-        eyeIcon.classList.remove('fa-eye-slash');
-        eyeIcon.classList.add('fa-eye');
-      }
-    }
-  </script>
+{% block extra_head %}
+<style>
+  .teacher-edit-shell {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 32px 32px 120px; /* espacio para bottom nav */
+  }
+  .teacher-edit-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .teacher-edit-header h1 {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.2;
+  }
+  .current-photo-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+  .current-photo {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    border: 2px solid #fff;
+    background: #f2f4f7;
+  }
+  .edit-form {
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 4px 14px -2px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.06);
+    padding: 30px 34px 38px;
+    position: relative;
+  }
+  .edit-form:before {
+    content:"";
+    position:absolute;
+    inset:0;
+    border:1px solid #e7ebf0;
+    border-radius:18px;
+    pointer-events:none;
+  }
+  .form-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:22px 28px;
+  }
+  .form-group {
+    display:flex;
+    flex-direction:column;
+  }
+  .form-group label {
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:.4px;
+    text-transform:uppercase;
+    color:#2b3a4a;
+    margin-bottom:6px;
+  }
+  .edit-input, .file-input {
+    border:1px solid #d7dfe6;
+    background:#f9fbfc;
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:15px;
+    outline:none;
+    transition:border-color .15s, background .15s;
+    width:100%;
+  }
+  .edit-input:focus, .file-input:focus {
+    border-color:#2b7cff;
+    background:#ffffff;
+  }
+  .password-wrapper {
+    position:relative;
+    display:flex;
+    align-items:center;
+  }
+  .password-wrapper .edit-input {
+    padding-right:46px;
+  }
+  .eye-btn {
+    position:absolute;
+    right:10px;
+    top:50%;
+    transform:translateY(-50%);
+    background:#ffffff;
+    border:1px solid #d0d9e2;
+    width:32px;
+    height:32px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:10px;
+    cursor:pointer;
+    padding:0;
+    transition:background .15s, box-shadow .15s, border-color .15s;
+  }
+  .eye-btn:hover {
+    background:#f1f5f9;
+  }
+  .eye-btn:active {
+    background:#e8eef4;
+  }
+  .eye-btn svg {
+    width:18px;
+    height:18px;
+    stroke:#34465a;
+  }
+  .submit-row {
+    margin-top:34px;
+    display:flex;
+    justify-content:flex-end;
+  }
+  .primary-btn {
+    background:#0d6efd;
+    color:#ffffff;
+    border:none;
+    padding:14px 26px;
+    font-size:15px;
+    font-weight:600;
+    border-radius:14px;
+    cursor:pointer;
+    box-shadow:0 3px 8px -2px rgba(13,110,253,.45);
+    transition:background .15s, transform .15s, box-shadow .15s;
+  }
+  .primary-btn:hover { background:#0b5ed7; }
+  .primary-btn:active { background:#0a58ca; transform:translateY(1px); box-shadow:0 2px 6px -2px rgba(13,110,253,.45); }
+  .file-input { padding:10px 14px; cursor:pointer; }
+  .file-input::-webkit-file-upload-button {
+    background:#2b7cff;
+    color:#fff;
+    border:none;
+    padding:8px 14px;
+    border-radius:8px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .file-input::-webkit-file-upload-button:hover { background:#1f5fbf; }
+  @media (max-width:640px){
+    .teacher-edit-shell { padding:24px 20px 110px; }
+    .edit-form { padding:26px 24px 34px; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="teacher-edit-shell">
+  <div class="teacher-edit-header">
+    <h1>Editar Maestro — {{ inst.nom_inst }}</h1>
+  </div>
+  <div class="edit-form">
+    <form method="post" enctype="multipart/form-data" class="edit-teacher-form" autocomplete="off">
+      {% csrf_token %}
+      <div class="current-photo-wrapper">
+        {% if mae.id_usu.foto_perfil %}
+          <img src="{{ mae.id_usu.foto_perfil.url }}" alt="Foto actual" class="current-photo" loading="lazy">
+        {% else %}
+          <img src="/static/img/user-placeholder.png" alt="Sin foto" class="current-photo" loading="lazy">
+        {% endif %}
+        <span style="font-size:14px;color:#4a5b6c;">Vista previa actual</span>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input type="text" name="nom_usu" value="{{ mae.id_usu.nom_usu }}" class="edit-input" required>
+        </div>
+        <div class="form-group">
+          <label>Apellido</label>
+          <input type="text" name="ape_usu" value="{{ mae.id_usu.ape_usu }}" class="edit-input" required>
+        </div>
+        <div class="form-group">
+          <label>Correo</label>
+          <input type="email" name="ema_usu" value="{{ mae.id_usu.ema_usu }}" class="edit-input" required>
+        </div>
+        <div class="form-group">
+          <label>Contraseña (dejar en blanco)</label>
+          <div class="password-wrapper">
+            <input type="password" name="password" id="password-edit" class="edit-input" autocomplete="new-password">
+            <button type="button" class="eye-btn" id="eye-btn-edit" aria-label="Mostrar contraseña" title="Mostrar contraseña">
+              <svg id="eye-svg-edit" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 15.75a3.75 3.75 0 1 0 0-7.5 3.75 3.75 0 0 0 0 7.5Z"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Número de documento</label>
+          <input type="text" name="num_doc_mae" value="{{ mae.num_doc_mae }}" class="edit-input" required>
+        </div>
+        <div class="form-group">
+          <label>Especialidad</label>
+          <input type="text" name="especialidad" value="{{ mae.especialidad }}" class="edit-input">
+        </div>
+        <div class="form-group">
+          <label>Foto (opcional)</label>
+          <input type="file" name="foto" class="file-input" accept="image/*">
+        </div>
+      </div>
+      <div class="submit-row">
+        <button class="primary-btn">Guardar cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function(){
+    const btn = document.getElementById('eye-btn-edit');
+    const svg = document.getElementById('eye-svg-edit');
+    const input = document.getElementById('password-edit');
+    if(!btn || !svg || !input) return;
+    btn.addEventListener('click', function(){
+      const isPwd = input.type === 'password';
+      input.type = isPwd ? 'text' : 'password';
+      btn.setAttribute('aria-label', isPwd ? 'Ocultar contraseña' : 'Mostrar contraseña');
+      btn.title = isPwd ? 'Ocultar contraseña' : 'Mostrar contraseña';
+      svg.innerHTML = isPwd
+        ? '<path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223C2.89 9.47 2.25 10.94 2.25 12c0 1.06.64 2.53 1.73 3.777C5.86 18.53 8.52 20.25 12 20.25c3.48 0 6.14-1.72 8.02-4.473 1.09-1.247 1.73-2.717 1.73-3.777 0-1.06-.64-2.53-1.73-3.777"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 0 1-3 3"/><path stroke-linecap="round" stroke-linejoin="round" d="M9.53 9.53A3 3 0 0 1 15 12"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 9a3 3 0 0 1 2.12.879"/><path stroke-linecap="round" stroke-linejoin="round" d="m3 3 18 18"/>'
+        : '<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 15.75a3.75 3.75 0 1 0 0-7.5 3.75 3.75 0 0 0 0 7.5Z"/>';
+    });
+  })();
+</script>
 {% endblock %}

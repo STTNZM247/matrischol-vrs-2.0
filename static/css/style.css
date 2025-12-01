@@ -1038,3 +1038,73 @@ main {
 }
 
 
+/* Panel Acudiente estilos personalizados */
+:root{--shadow:0 4px 16px rgba(0,0,0,0.15)}
+body{margin:0}
+/* Barra de búsqueda */
+.search-wrap{width:min(92vw,560px);margin:clamp(12px,4vw,24px) auto;display:flex;align-items:center;background:#fff;border-radius:999px;padding:clamp(6px,1.5vw,10px) clamp(10px,2vw,14px);box-shadow:var(--shadow);border:1px solid #e0e6e4}
+.search-input{flex:1;min-width:0;border:none;outline:none;font-size:clamp(.9rem,1.8vw,1rem);padding:clamp(6px,1.8vw,10px) clamp(8px,2vw,12px);background:transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.search-btn{width:clamp(34px,6vw,42px);height:clamp(34px,6vw,42px);border:none;border-radius:999px;background:#7b4dff;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;flex:0 0 auto}
+.search-btn:hover{background:#6a3df0}
+.search-btn:focus-visible{outline:3px solid rgba(123,77,255,.35);outline-offset:2px}
+.search-btn svg{width:clamp(16px,2.8vw,20px);height:clamp(16px,2.8vw,20px);fill:currentColor}
+@media (min-width:1024px){.search-wrap{width:min(48vw,640px)}}
+
+/* Carrusel de instituciones sugeridas */
+.testimonial-section{width:min(92vw,1100px);margin:clamp(16px,5vw,48px) auto}
+.testimonial-head{text-align:center;margin-bottom:clamp(18px,4vw,34px)}
+.testimonial-head h2{margin:0;font-size:clamp(1.4rem,4.8vw,2.4rem);font-weight:700;color:#33211D}
+.testimonial-carousel{display:grid;grid-auto-flow:column;grid-auto-columns:calc(min(80vw,340px));gap:clamp(18px,3vw,28px);overflow-x:auto;scroll-behavior:auto;padding:4px 4px 10px;-ms-overflow-style:none;scrollbar-width:none;touch-action:pan-x;-webkit-overflow-scrolling:touch;cursor:grab}
+.testimonial-carousel.dragging{cursor:grabbing}
+.testimonial-carousel,.testimonial-item,.testimonial-item *{-webkit-user-select:none;-ms-user-select:none;user-select:none}
+.testimonial-carousel::-webkit-scrollbar{display:none}
+.testimonial-item{background:#fff;border-radius:24px;padding:18px 20px 22px;box-shadow:0 10px 28px -8px rgba(0,0,0,.12);border:1px solid #e5ecf2;display:flex;flex-direction:column;gap:12px;transition:transform .5s cubic-bezier(.22,.61,.36,1),box-shadow .5s,opacity .5s;opacity:.9}
+.testimonial-item.active{transform:translateY(-4px);box-shadow:0 16px 38px -10px rgba(0,0,0,.16);opacity:1}
+.testimonial-item .ti-top{display:flex;align-items:center;gap:14px}
+.testimonial-item img{width:80px;height:80px;border-radius:20px;object-fit:cover;background:#d0dae3}
+.testimonial-item .ti-texts{display:flex;flex-direction:column;gap:4px}
+.testimonial-item .ti-name{margin:0;font-size:1.05rem;font-weight:700;color:#0f172a}
+.testimonial-item .ti-role{margin:0;font-size:.85rem;color:#64748b}
+.testimonial-item p{margin:0;font-size:.9rem;line-height:1.35;color:#4a5a6b}
+.testimonial-dots{display:flex;justify-content:center;gap:10px;margin-top:22px}
+.testimonial-dots .owl-dot{width:20px;height:20px;border-radius:20px;background:#DA9F5B;border:none;transition:.5s;cursor:pointer}
+.testimonial-dots .owl-dot.active{width:40px;background:#33211D}
+@media (min-width:1100px){.testimonial-carousel{grid-auto-columns:340px}}
+@media (max-width:480px){.testimonial-head h2{font-size:clamp(1.3rem,6vw,1.6rem)}.testimonial-carousel{grid-auto-columns:86vw;gap:12px;padding:2px 2px 8px}.testimonial-item{border-radius:20px;padding:14px 14px 16px}.testimonial-item img{width:64px;height:64px;border-radius:16px}.testimonial-item .ti-name{font-size:1rem}.testimonial-item .ti-role{font-size:.8rem}.testimonial-item p{font-size:.88rem}.testimonial-dots{gap:8px;margin-top:16px}.testimonial-dots .owl-dot{width:14px;height:14px}.testimonial-dots .owl-dot.active{width:28px}}
+
+/* Lista compacta de estudiantes */
+.student-list{width:min(92vw,640px);margin:clamp(12px,4vw,24px) auto;background:#fff;border-radius:20px;box-shadow:var(--shadow);border:1px solid #e9eff5;padding:clamp(10px,3vw,16px)}
+.student-item{display:grid;grid-template-columns:48px 1fr auto auto;align-items:center;gap:12px;padding:12px;border-radius:12px;text-decoration:none;color:inherit}
+.student-item + .student-item{margin-top:6px}
+.student-item:hover{background:#f8fafc}
+.student-item:active{background:#eef2f7}
+.avatar{inline-size:48px;block-size:48px;border-radius:999px;background:#e2e8f0;color:#0f172a;display:flex;align-items:center;justify-content:center;font-weight:700}
+.item-main{display:flex;flex-direction:column;gap:4px}
+.item-line{display:flex;justify-content:space-between;gap:8px}
+.item-name{font-weight:700;color:#0f172a}
+.item-amount{color:#475569}
+.item-sub{color:#64748b;font-size:.92em}
+.item-status{inline-size:28px;block-size:28px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.item-status.ok{background:#eaffef;color:#0a8a3d}
+.item-status.warn{background:#fff5e6;color:#b35a00}
+.item-action{padding:8px 12px;border-radius:999px;background:#0f4d57;color:#fff;text-decoration:none}
+.item-action:hover{background:#0c3f48}
+@media (max-width:420px){.student-item{grid-template-columns:40px 1fr auto;gap:8px}.avatar{inline-size:40px;block-size:40px}.item-action{display:none}}
+
+.enrollment-status{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700;margin-top:4px;font-size:.75rem}
+.enrollment-status.enrolled{background:#e6ffef;color:#0a8a3d}
+.enrollment-status.not-enrolled{background:#fff3e6;color:#b35a00}
+.enrollment-institution{font-size:.7rem;color:#555;margin-top:2px}
+.doc-status{margin-top:4px;font-size:.7rem;font-weight:600}
+.doc-status.doc-ok{color:#0a8a3d}
+.doc-status.doc-pending{color:#b33}
+.missing-list{font-size:.65rem;color:#b33;margin-top:2px}
+
+/* Modal matrícula */
+#mat-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;z-index:13000}
+#mat-modal .modal-box{background:#fff;border-radius:10px;padding:16px;max-width:520px;width:96%;box-shadow:0 12px 40px rgba(0,0,0,0.3)}
+#mat-modal select{width:100%;padding:8px;border-radius:8px;margin-bottom:10px;border:1px solid #d0d7de}
+#mat-modal h3{margin-top:0}
+
+/* Utility */
+.center{text-align:center}

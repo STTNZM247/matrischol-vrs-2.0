@@ -1,49 +1,119 @@
 {% extends 'base_users.html' %}
 {% load static %}
 {% block title %}{% if create %}Crear Institución{% else %}Editar Institución{% endif %}{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Shell y tarjeta principal */
+  .inst-shell { max-width:880px; margin:0 auto; padding:34px 32px 120px; }
+  .inst-card { background:#ffffff; border-radius:26px; padding:42px 48px 52px; position:relative; box-shadow:0 24px 60px -20px rgba(0,0,0,.22), 0 4px 22px -6px rgba(0,0,0,.10); }
+  .inst-card:before { content:""; position:absolute; inset:0; border:1px solid #e5e9ee; border-radius:26px; pointer-events:none; }
+  .inst-header { text-align:center; margin:0 0 6px; font-size:32px; font-weight:800; letter-spacing:-.5px; line-height:1.1; color:#0f172a; }
+  .inst-sub { text-align:center; margin:0 0 30px; font-size:15px; color:#5b6675; }
+
+  /* Grid de formulario */
+  .inst-form-grid { display:grid; gap:24px 34px; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); }
+  .fgroup { display:flex; flex-direction:column; }
+  .fgroup label { font-size:11px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; margin-bottom:6px; color:#2b3a4a; }
+  .fgroup input[type=text], .fgroup input[type=email], .fgroup input[type=number], .fgroup select {
+    border:1px solid #d3dbe3; background:#f9fbfc; border-radius:14px; padding:13px 15px; font-size:15px; outline:none;
+    transition:border-color .16s, background .16s, box-shadow .16s; width:100%; color:#0f172a;
+  }
+  .fgroup input:focus, .fgroup select:focus { background:#fff; border-color:#2b7cff; box-shadow:0 0 0 3px rgba(43,124,255,.20); }
+  .fgroup input::placeholder { color:#94a3b8; }
+  .readonly-input { border:1px solid #d3dbe3; background:#f1f5f9; border-radius:14px; padding:13px 15px; font-size:15px; width:100%; color:#475569; cursor:not-allowed; opacity:.85; }
+  .readonly-input:focus { outline:none; }
+
+  /* Logo / imagen */
+  .logo-section { margin-top:38px; text-align:center; display:flex; flex-wrap:wrap; gap:28px; justify-content:center; }
+  .logo-block { display:inline-flex; flex-direction:column; align-items:center; gap:12px; }
+  .logo-current, .logo-preview { max-width:240px; border-radius:18px; border:1px solid #d9e1e8; box-shadow:0 12px 32px -14px rgba(0,0,0,.22); background:#f1f5f9; }
+  .logo-current.dim { opacity:.35; filter:grayscale(.3); }
+  .logo-label { font-weight:700; font-size:13px; color:#374151; }
+
+  /* Input archivo personalizado */
+  .file-input { border:2px dashed #b6c2cc; border-radius:18px; padding:26px 22px; background:#f8fbfd; cursor:pointer; font-size:14px; font-weight:600; color:#475569; text-align:center; position:relative; transition:background .16s, border-color .16s; }
+  .file-input input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+  .file-input:hover { background:#eef3f6; border-color:#9ba9b4; }
+
+  /* Acciones */
+  .actions-row { margin-top:46px; display:flex; gap:16px; justify-content:flex-end; flex-wrap:wrap; }
+  .primary-btn { background:#0d6efd; color:#ffffff; border:none; padding:16px 30px; font-size:15px; font-weight:600; border-radius:16px; cursor:pointer; box-shadow:0 4px 10px -2px rgba(13,110,253,.50); transition:background .16s, transform .16s, box-shadow .16s; }
+  .primary-btn:hover { background:#0b5ed7; }
+  .primary-btn:active { background:#0a58ca; transform:translateY(1px); box-shadow:0 2px 6px -2px rgba(13,110,253,.50); }
+  .outline-btn { background:#ffffff; color:#0f172a; border:1px solid #d0d7de; padding:16px 26px; font-size:15px; font-weight:600; border-radius:16px; cursor:pointer; transition:background .16s,border-color .16s,color .16s; text-decoration:none; display:inline-flex; align-items:center; }
+  .outline-btn:hover { background:#f1f5f9; border-color:#c4ccd4; }
+
+  .full-span { grid-column:1 / -1; }
+
+  /* Responsivo */
+  @media (max-width:680px){
+    .inst-card { padding:34px 30px 46px; }
+    .inst-form-grid { gap:20px 20px; }
+    .actions-row { justify-content:center; }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-  <div style="max-width:720px;margin:18px auto;padding:24px;background:#fff;border-radius:16px;box-shadow:0 18px 42px -12px rgba(0,0,0,0.08);">
-    <h1 style="margin-top:0;text-align:center;">{% if create %}Crear Institución{% else %}Editar Institución{% endif %}</h1>
+<div class="inst-shell">
+  <div class="inst-card">
+    <h1 class="inst-header">{% if create %}Solicitar nueva institución{% else %}Editar institución{% endif %}</h1>
+    <p class="inst-sub">Completa la información para {% if create %}crear{% else %}actualizar{% endif %} la institución.</p>
     {% if inst %}
-      <p style="text-align:center;margin:-6px 0 16px 0;color:#5b6675;">Institución: <strong>{% if inst.nom_inst %}{{ inst.nom_inst }}{% elif inst.nombre %}{{ inst.nombre }}{% else %}#{{ inst.pk }}{% endif %}</strong></p>
+      <p class="inst-sub" style="margin-top:-12px; font-size:13px;">Institución: <strong>{{ inst.nom_inst|default:'#'|default:inst.pk }}</strong></p>
     {% endif %}
-    <form method="post" enctype="multipart/form-data">{% csrf_token %}
-      <div style="margin-top:8px;">
-        {{ form.as_p }}
-        <div style="margin-top:14px;text-align:center;">
-          {% if inst and inst.img_inst %}
-            <div style="margin:8px 0 12px 0;">
-              <label style="font-weight:600;display:block;margin-bottom:6px;">Logo actual</label>
-              <img id="inst-current-img" src="{{ inst.img_inst.url }}" alt="Logo actual" style="max-width:240px;border-radius:12px;border:1px solid #e6e9ef;box-shadow:0 8px 22px -10px rgba(0,0,0,.18)">
-            </div>
-          {% endif %}
-          <div id="inst-preview-wrap" style="display:none;margin:8px 0 12px 0;">
-            <label style="font-weight:600;display:block;margin-bottom:6px;">Vista previa</label>
-            <img id="inst-preview-img" alt="Vista previa" style="max-width:240px;border-radius:12px;border:1px solid #e6e9ef;box-shadow:0 8px 22px -10px rgba(0,0,0,.18)">
-          </div>
+    <form method="post" enctype="multipart/form-data" autocomplete="off">{% csrf_token %}
+      <div class="inst-form-grid">
+        {# Renderizamos campos manualmente para estilos consistentes #}
+        <div class="fgroup"><label>Nombre</label>{% if form.nom_inst %}{{ form.nom_inst }}{% else %}<input type="text" class="readonly-input" value="{{ inst.nom_inst }}" disabled>{% endif %}</div>
+        <div class="fgroup"><label>Tipo de institución</label>{% if form.tip_inst %}{{ form.tip_inst }}{% else %}<input type="text" class="readonly-input" value="{{ inst.tip_inst }}" disabled>{% endif %}</div>
+        <div class="fgroup"><label>Código DANE</label>{% if form.cod_dane_inst %}{{ form.cod_dane_inst }}{% else %}<input type="text" class="readonly-input" value="{{ inst.cod_dane_inst }}" disabled>{% endif %}</div>
+        <div class="fgroup"><label>Departamento</label>{% if form.dep_inst %}{{ form.dep_inst }}{% else %}<input type="text" class="readonly-input" value="{{ inst.dep_inst }}" disabled>{% endif %}</div>
+        <div class="fgroup"><label>Municipio</label>{% if form.mun_inst %}{{ form.mun_inst }}{% else %}<input type="text" class="readonly-input" value="{{ inst.mun_inst }}" disabled>{% endif %}</div>
+        <div class="fgroup"><label>Dirección</label>{% if form.dire_inst %}{{ form.dire_inst }}{% else %}<input type="text" class="readonly-input" value="{{ inst.dire_inst }}" disabled>{% endif %}</div>
+        <div class="fgroup"><label>Teléfono</label>{% if form.tel_inst %}{{ form.tel_inst }}{% else %}<input type="text" class="readonly-input" value="{{ inst.tel_inst }}" disabled>{% endif %}</div>
+        <div class="fgroup"><label>Correo</label>{% if form.ema_inst %}{{ form.ema_inst }}{% else %}<input type="email" class="readonly-input" value="{{ inst.ema_inst }}" disabled>{% endif %}</div>
+        <div class="fgroup full-span">
+          <label>Logo (opcional)</label>
+          <div class="file-input"><span>Seleccionar imagen</span>{{ form.img_inst }}</div>
         </div>
       </div>
-      <div style="display:flex;gap:10px;justify-content:center;margin-top:12px;">
-        <button class="btn btn-primary">{% if create %}Crear{% else %}Guardar{% endif %}</button>
-        <a href="{% url 'accounts:panel_administrativo' %}" class="btn">Cancelar</a>
+      <div class="logo-section">
+        {% if inst and inst.img_inst %}
+          <div class="logo-block" id="inst-current-wrap">
+            <span class="logo-label">Logo actual</span>
+            <img id="inst-current-img" src="{{ inst.img_inst.url }}" alt="Logo actual" class="logo-current">
+          </div>
+        {% endif %}
+        <div class="logo-block" id="inst-preview-wrap" style="display:none;">
+          <span class="logo-label">Vista previa</span>
+          <img id="inst-preview-img" alt="Vista previa" class="logo-preview">
+        </div>
+      </div>
+      <div class="actions-row">
+        <button class="primary-btn" type="submit">{% if create %}Enviar solicitud{% else %}Guardar cambios{% endif %}</button>
+        <a href="{% url 'accounts:panel_administrativo' %}" class="outline-btn" role="button">Cancelar</a>
       </div>
     </form>
-    <script>
-      (function(){
-        const fileInput = document.querySelector('input[type=file][name$="img_inst"]');
-        const wrap = document.getElementById('inst-preview-wrap');
-        const img = document.getElementById('inst-preview-img');
-        const current = document.getElementById('inst-current-img');
-        if(!fileInput || !wrap || !img) return;
-        fileInput.addEventListener('change', function(){
-          const f = this.files && this.files[0];
-          if(!f){ wrap.style.display='none'; return; }
-          const reader = new FileReader();
-          reader.onload = function(e){ img.src = e.target.result; wrap.style.display = 'block'; };
-          reader.readAsDataURL(f);
-          if(current){ current.style.opacity = 0.35; }
-        });
-      })();
-    </script>
   </div>
+</div>
+<script>
+  (function(){
+    const fileInput = document.querySelector('input[type=file][name$="img_inst"]');
+    const previewWrap = document.getElementById('inst-preview-wrap');
+    const previewImg = document.getElementById('inst-preview-img');
+    const currentImg = document.getElementById('inst-current-img');
+    if(!fileInput) return;
+    fileInput.addEventListener('change', function(){
+      const f = this.files && this.files[0];
+      if(!f){ previewWrap.style.display='none'; if(currentImg){ currentImg.classList.remove('dim'); } return; }
+      if(f.size > 5*1024*1024){ alert('La imagen supera 5MB'); this.value=''; return; }
+      const reader = new FileReader();
+      reader.onload = function(e){ previewImg.src = e.target.result; previewWrap.style.display='inline-flex'; };
+      reader.readAsDataURL(f);
+      if(currentImg){ currentImg.classList.add('dim'); }
+    });
+  })();
+</script>
 {% endblock %}

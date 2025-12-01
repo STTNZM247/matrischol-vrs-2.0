@@ -1,44 +1,86 @@
 {% extends 'base_users.html' %}
-{% block title %}Solicitud de cursos {{ req.id_req }}{% endblock %}
+{% block title %}Solicitud cursos {{ req.id_req }}{% endblock %}
+{% block extra_head %}
+<style>
+  .req-shell{max-width:1180px;margin:0 auto;padding:40px 30px 120px}
+  .req-header{display:flex;flex-direction:column;gap:6px;margin-bottom:26px}
+  .req-header h1{margin:0;font-size:clamp(1.6rem,4.5vw,2.4rem);font-weight:800;letter-spacing:-.5px;color:#0f172a}
+  .status-badge{display:inline-block;margin-left:8px;padding:4px 12px;border-radius:999px;background:#eef2f7;color:#0f172a;font-size:.65rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+  .status-approved{background:#dcfce7;color:#065f46}
+  .status-rejected{background:#fee2e2;color:#991b1b}
+  .status-request_info{background:#fde68a;color:#92400e}
+  .req-layout{display:grid;gap:34px;grid-template-columns:1fr 340px}
+  @media (max-width:1100px){.req-layout{grid-template-columns:1fr}}
+  .req-card{background:#ffffff;border:1px solid #e4e8ec;border-radius:26px;padding:34px 36px 38px;box-shadow:0 22px 56px -22px rgba(0,0,0,.18),0 6px 18px -6px rgba(0,0,0,.08)}
+  .req-main-card dl{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));column-gap:26px;row-gap:14px}
+  .req-main-card dt{font-size:.68rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#334155}
+  .req-main-card dd{margin:2px 0 0;font-size:.9rem;color:#0f172a;font-weight:500}
+  .req-side-card form label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.5px;color:#334155;margin-bottom:6px;text-transform:uppercase}
+  .req-side-card textarea{width:100%;border:1px solid #d0d7de;background:#f9fbfc;border-radius:14px;padding:12px 14px;font-size:.85rem;resize:vertical;font-family:inherit}
+  .req-side-card textarea:focus{outline:none;background:#fff;border-color:#0d63ff;box-shadow:0 0 0 3px rgba(13,99,255,.25)}
+  .req-actions-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+  .req-btn{background:#0d63ff;color:#fff;border:none;padding:10px 16px;border-radius:14px;font-weight:600;font-size:.75rem;cursor:pointer;letter-spacing:.4px;box-shadow:0 4px 18px -6px rgba(13,99,255,.35);transition:background .16s,transform .16s}
+  .req-btn:hover{background:#0a53d6}
+  .req-btn:active{transform:translateY(1px)}
+  .req-btn.info{background:#fb923c}
+  .req-btn.info:hover{background:#f97316}
+  .req-btn.danger{background:#dc2626}
+  .req-btn.danger:hover{background:#b91c1c}
+  .req-alert{background:#f0f9ff;border:1px solid #bae6fd;padding:16px 18px;border-radius:18px;font-size:.78rem;color:#0c4a6e;font-weight:600;margin-bottom:12px}
+  .req-back{display:inline-flex;align-items:center;gap:8px;margin-top:18px;text-decoration:none;font-size:.75rem;font-weight:700;color:#0d63ff;padding:10px 14px;background:#ffffff;border:1px solid #d0d7de;border-radius:14px;transition:background .16s,border-color .16s}
+  .req-back:hover{background:#f1f5f9;border-color:#c3ccd2}
+  .history-card{margin-top:38px}
+  .history-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .history-list li{background:#f8fafc;border:1px solid #e2e8f0;padding:10px 12px;border-radius:14px;font-size:.7rem;color:#475569}
+</style>
+{% endblock %}
 {% block content %}
-  <h1>Solicitud de cursos {{ req.id_req }} — {% if req.id_inst %}{{ req.id_inst.nom_inst }}{% else %}Sin institución{% endif %}</h1>
-  <dl>
-    <dt>Modo</dt><dd>{{ req.mode }}</dd>
-    <dt>Secciones</dt><dd>{{ req.sections }}</dd>
-    <dt>Cupos</dt><dd>{{ req.cupos }}</dd>
-    <dt>Grado inicio / fin</dt><dd>{{ req.start_grade }} / {{ req.end_grade }}</dd>
-    <dt>Solicitante</dt><dd>{% if req.submitted_by %}{{ req.submitted_by.nom_usu }} {{ req.submitted_by.ape_usu }}{% else %}-{% endif %}</dd>
-    <dt>Estado</dt><dd>{{ req.get_status_display }}</dd>
-    <dt>Comentarios del revisor</dt><dd>{{ req.reviewer_comments }}</dd>
-  </dl>
-
-  {% if req.status != 'approved' and req.status != 'rejected' %}
-    <form method="post">
-      {% csrf_token %}
-      <label>Comentarios para el solicitante (si corresponde)</label>
-      <textarea name="reviewer_comments" rows="4" style="width:100%">{{ req.reviewer_comments }}</textarea>
-      <div style="margin-top:12px">
-        <button name="action" value="approve" class="btn btn-primary">Aprobar y crear cursos</button>
-        <button name="action" value="request_info" class="btn btn-primary">Solicitar información</button>
-        <button name="action" value="reject" class="btn btn-primary">Rechazar</button>
-        <a href="{% url 'adminpanel:administracion_curso_requests' %}" class="btn btn-outline">Volver</a>
-      </div>
-    </form>
-  {% else %}
-    <div class="alert alert-info" style="margin-top:12px;">Esta solicitud está finalizada ({{ req.get_status_display }}). No se puede reenviar estado.</div>
-    <a href="{% url 'adminpanel:administracion_curso_requests' %}" class="btn btn-outline">Volver</a>
-  {% endif %}
-
-  <div class="card" style="margin-top:16px; padding:12px;">
-    <h3>Historial de cambios</h3>
+<div class="req-shell">
+  <div class="req-header">
+    <h1>Solicitud de cursos {{ req.id_req }} — {% if req.id_inst %}{{ req.id_inst.nom_inst }}{% else %}Sin institución{% endif %} <span class="status-badge status-{{ req.status }}">{{ req.get_status_display }}</span></h1>
+  </div>
+  <div class="req-layout">
+    <div class="req-card req-main-card">
+      <dl>
+        <dt>Modo</dt><dd>{{ req.mode }}</dd>
+        <dt>Secciones</dt><dd>{{ req.sections }}</dd>
+        <dt>Cupos</dt><dd>{{ req.cupos }}</dd>
+        <dt>Grado inicio / fin</dt><dd>{{ req.start_grade }} / {{ req.end_grade }}</dd>
+        <dt>Solicitante</dt><dd>{% if req.submitted_by %}{{ req.submitted_by.nom_usu }} {{ req.submitted_by.ape_usu }}{% else %}-{% endif %}</dd>
+        <dt>Estado</dt><dd>{{ req.get_status_display }}</dd>
+        <dt>Comentarios del revisor</dt><dd>{{ req.reviewer_comments|default:'–' }}</dd>
+      </dl>
+    </div>
+    <aside class="req-card req-side-card">
+      {% if req.status != 'approved' and req.status != 'rejected' %}
+        <form method="post">
+          {% csrf_token %}
+          <label for="reviewer_comments">Comentarios para el solicitante</label>
+          <textarea id="reviewer_comments" name="reviewer_comments" rows="6">{{ req.reviewer_comments }}</textarea>
+          <div class="req-actions-row">
+            <button name="action" value="approve" class="req-btn" type="submit">Aprobar y crear cursos</button>
+            <button name="action" value="request_info" class="req-btn info" type="submit">Solicitar información</button>
+            <button name="action" value="reject" class="req-btn danger" type="submit">Rechazar</button>
+          </div>
+        </form>
+      {% else %}
+        <div class="req-alert">Esta solicitud está finalizada ({{ req.get_status_display }}). No se puede reenviar estado.</div>
+        <a href="{% url 'adminpanel:notifications' %}" class="req-back">Volver a notificaciones</a>
+      {% endif %}
+      {% if req.status != 'approved' and req.status != 'rejected' %}<a href="{% url 'adminpanel:notifications' %}" class="req-back">Volver a notificaciones</a>{% endif %}
+    </aside>
+  </div>
+  <div class="req-card history-card">
+    <h3 style="margin:0 0 12px;font-weight:800;font-size:1rem;color:#0f172a">Historial de cambios</h3>
     {% if history and history|length %}
-      <ul>
+      <ul class="history-list">
         {% for h in history %}
           <li>{{ h.timestamp|date:'Y-m-d H:i' }} — {{ h.action }} — {{ h.details }}</li>
         {% endfor %}
       </ul>
     {% else %}
-      <p>No hay movimientos registrados aún.</p>
+      <p style="margin:0;color:#64748b;font-size:.8rem">No hay movimientos registrados aún.</p>
     {% endif %}
   </div>
+</div>
 {% endblock %}

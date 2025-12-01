@@ -3,7 +3,7 @@ from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
-from .models import Institucion, Curso, MatriculaRequest, Documento, Matricula, Notificacion
+from .models import Institucion, Curso, MatriculaRequest, Documento, Matricula, Notificacion, Horario
 from django.core.mail import send_mail
 from people.models import Estudiante, Acudiente
 from accounts.models import Registro
@@ -29,7 +29,7 @@ def institutions_search(request):
             Q(tel_inst__icontains=q) |
             Q(ema_inst__icontains=q) |
             Q(dire_inst__icontains=q)
-        )[:30]
+        ).filter(curso__isnull=False).distinct()[:30]
 
         results = []
         for inst in qs:
@@ -46,6 +46,7 @@ def institutions_search(request):
                 'dire_inst': inst.dire_inst,
                 'tel_inst': inst.tel_inst,
                 'ema_inst': inst.ema_inst,
+                'img': inst.img_inst.url if inst.img_inst else None,
                 'cursos': cursos,
             })
 
@@ -57,6 +58,70 @@ def institutions_search(request):
         except Exception:
             pass
         return JsonResponse({'results': [], 'error': 'Error interno', 'detail': str(e)}, status=500)
+
+
+@require_GET
+def course_schedule(request, course_id):
+    """Devuelve el horario (JSON) para un curso específico.
+
+    Respuesta:
+    {
+      inst_name: str | null,
+      grade: str | null,
+      items: [
+        { day: int, day_name: str, asignatura: str, inicio: 'HH:MM', fin: 'HH:MM', aula: str|null, maestro: str|null }
+      ]
+    }
+    """
+    try:
+        # Evitar redirecciones a login en peticiones AJAX
+        if not request.user.is_authenticated and not request.session.get('registro_id'):
+            return JsonResponse({'items': [], 'error': 'No autenticado'}, status=401)
+
+        cur = get_object_or_404(Curso, pk=course_id)
+        qs = (
+            Horario.objects
+            .filter(id_cur=cur)
+            .select_related('id_asig', 'id_mae', 'id_cur__id_inst')
+            .order_by('dia', 'hora_inicio')
+        )
+
+        items = []
+        for h in qs:
+            maestro_name = None
+            try:
+                if getattr(h, 'id_mae', None):
+                    # Maestro tiene nom_mae y ape_mae en modelo people.Maestro
+                    nom = getattr(h.id_mae, 'nom_mae', None)
+                    ape = getattr(h.id_mae, 'ape_mae', None)
+                    if nom or ape:
+                        maestro_name = f"{nom or ''} {ape or ''}".strip()
+            except Exception:
+                maestro_name = None
+            items.append({
+                'day': h.dia,
+                'day_name': h.get_dia_display(),
+                'asignatura': h.id_asig.nombre,
+                'inicio': h.hora_inicio.strftime('%H:%M') if h.hora_inicio else None,
+                'fin': h.hora_fin.strftime('%H:%M') if h.hora_fin else None,
+                'aula': h.aula,
+                'maestro': maestro_name,
+            })
+
+        inst_name = None
+        try:
+            if getattr(cur, 'id_inst', None):
+                inst_name = cur.id_inst.nom_inst
+        except Exception:
+            inst_name = None
+
+        return JsonResponse({
+            'inst_name': inst_name,
+            'grade': cur.grd_cur,
+            'items': items,
+        })
+    except Exception as e:
+        return JsonResponse({'items': [], 'error': 'Error interno', 'detail': str(e)}, status=500)
 
 
 @require_POST

@@ -12,17 +12,17 @@ Este documento explica cómo instalar, ejecutar y demostrar los flujos clave sol
 
 ---
 ## Requisitos previos
-- Windows (PowerShell 5.1).
-- Python 3.10 o superior.
-- Base de datos (configurada en `settings.py`).
+Django>=4.2,<5.0
+Pillow>=9.0,<11.0
+python-dotenv>=1.0
+tzdata>=2023.3; sys_platform == "win32"
+
 
 ---
 ## Instalación y puesta en marcha (PowerShell)
 ```powershell
 # activar el entorno virtual del proyecto
 & .\.venv\Scripts\Activate.ps1
-
-# instalar dependencias (si existe requirements.txt)
 pip install -r requirements.txt
 
 # aplicar migraciones

@@ -1,138 +1,179 @@
 {% extends 'base_users.html' %}
 {% load static %}
 {% block title %}Horario del Curso{% endblock %}
+{% block extra_head %}
+<style>
+  .schedule-shell{max-width:1220px;margin:0 auto;padding:12px 20px 60px}
+  .schedule-head{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+  .schedule-head h1{margin:0;font-size:clamp(1.5rem,4.5vw,2.3rem);font-weight:800;letter-spacing:.5px;color:#0f172a}
+  .schedule-sub{font-size:.8rem;color:#64748b;font-weight:500;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .dup-btn{background:#fff;border:1px solid #d0d7de;color:#0f172a;padding:6px 12px;border-radius:12px;font-size:.65rem;font-weight:700;letter-spacing:.5px;cursor:pointer;box-shadow:0 6px 20px -10px rgba(0,0,0,.18);transition:.15s}
+  .dup-btn:hover{background:#f1f5f9}
+  .schedule-grid{display:grid;grid-template-columns:380px 1fr;gap:26px;align-items:start}
+  @media (max-width:980px){.schedule-grid{grid-template-columns:1fr}}
+  .subjects-card{background:#fff;border:1px solid #e5e9ef;border-radius:24px;padding:18px 18px 20px;box-shadow:0 16px 46px -22px rgba(0,0,0,.25)}
+  .subjects-card h3{margin:0 0 10px;font-size:1rem;font-weight:800;color:#0f172a}
+  .subject-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}
+  .subject-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;font-size:.8rem;font-weight:600;color:#0f172a}
+  .subject-item button{font-size:.6rem}
+  .subject-empty{font-size:.7rem;color:#64748b;padding:8px 4px}
+  .add-subject-form{margin-top:14px;display:flex;flex-direction:column;gap:6px}
+  .add-subject-form label{font-size:.65rem;font-weight:800;letter-spacing:.6px;color:#475569;text-transform:uppercase}
+  .add-subject-form input[type=text]{padding:10px 12px;border:1px solid #d0d7de;border-radius:12px;font-size:.8rem}
+  .add-subject-form .submit-row{margin-top:4px}
+  .add-btn{background:#0d63ff;color:#fff;border:1px solid #0d63ff;padding:8px 14px;border-radius:12px;font-size:.65rem;font-weight:700;letter-spacing:.5px;cursor:pointer;box-shadow:0 8px 26px -16px rgba(13,99,255,.55);transition:.15s}
+  .add-btn:hover{background:#0a53d6}
+  /* Horarios */
+  .slots-card{background:#fff;border:1px solid #e5e9ef;border-radius:24px;padding:18px 18px 30px;box-shadow:0 20px 54px -22px rgba(0,0,0,.25)}
+  .slots-card h3{margin:0 0 12px;font-size:1rem;font-weight:800;color:#0f172a}
+  .schedule-table{width:100%;border-collapse:separate;border-spacing:0 4px}
+  .schedule-table thead th{font-size:.57rem;letter-spacing:.7px;font-weight:800;text-transform:uppercase;color:#475569;padding:10px 12px;border-bottom:1px solid #e5e9ef;background:#f8fafc}
+  .schedule-table tbody td{padding:10px 12px;font-size:.72rem;color:#0f172a;background:#fff;border-top:1px solid #f1f5f9}
+  .schedule-table tbody tr{transition:.18s}
+  .schedule-table tbody tr:hover td{background:#f1f5f9}
+  .day-badge{display:inline-block;padding:4px 10px;border-radius:10px;background:#eef2f7;color:#0f172a;font-size:.6rem;font-weight:800;letter-spacing:.5px}
+  .time-text{font-weight:700;font-size:.7rem;letter-spacing:.4px}
+  .slot-subject{font-weight:700;font-size:.72rem;color:#0f172a}
+  .slot-teacher{font-size:.6rem;color:#475569;font-weight:600}
+  .slot-room{font-size:.6rem;color:#334155;font-weight:600}
+  .del-btn{background:#fff;border:1px solid #d0d7de;color:#0f172a;padding:6px 10px;border-radius:10px;font-size:.55rem;font-weight:700;letter-spacing:.4px;cursor:pointer;transition:.15s}
+  .del-btn:hover{background:#dc2626;color:#fff;border-color:#dc2626}
+  .empty-slots{padding:16px 12px;font-size:.75rem;color:#64748b;font-weight:600}
+  /* Form add slot */
+  .add-slot-title{margin:20px 0 10px;font-size:.75rem;font-weight:800;letter-spacing:.6px;color:#475569;text-transform:uppercase}
+  .slot-form-grid{display:flex;flex-wrap:wrap;gap:12px}
+  .slot-field{flex:1;min-width:140px;display:flex;flex-direction:column;gap:4px}
+  .slot-field label{font-size:.6rem;font-weight:800;letter-spacing:.6px;color:#475569;text-transform:uppercase}
+  .slot-field select,.slot-field input[type=time],.slot-field input[type=text]{padding:8px 10px;border:1px solid #d0d7de;border-radius:10px;font-size:.7rem}
+  .add-slot-actions{margin-top:10px}
+  .save-slot-btn{background:#0d63ff;color:#fff;border:1px solid #0d63ff;padding:8px 16px;border-radius:12px;font-size:.65rem;font-weight:700;letter-spacing:.5px;cursor:pointer;box-shadow:0 8px 26px -16px rgba(13,99,255,.55);transition:.15s}
+  .save-slot-btn:hover{background:#0a53d6}
+  @media (max-width:980px){
+    .slot-field{min-width:120px}
+    .schedule-table thead{display:none}
+    .schedule-table tbody tr{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border:1px solid #e5e9ef;border-radius:14px;margin:0 0 10px}
+    .schedule-table tbody td{background:transparent;border:none;padding:8px 10px}
+    .schedule-table tbody td:nth-child(7){text-align:right}
+  }
+</style>
+{% endblock %}
 {% block content %}
-  <h1>Horario — Curso {{ curso.grd_cur }}</h1>
-  <div style="margin-bottom:12px;color:var(--muted);">Institución: {{ curso.id_inst.nom_inst }}
-    <form method="post" style="display:inline;margin-left:12px;">
-      {% csrf_token %}
-      <input type="hidden" name="action" value="toggle_dup_check">
-      <button class="btn btn-outline" style="padding:4px 8px;">
-        {% if curso.id_inst.allow_duplicate_subject_slots %}
-          Permitir materias duplicadas en diferentes cursos: SI
-        {% else %}
-          Permitir materias duplicadas en diferentes cursos: NO
-        {% endif %}
-      </button>
-    </form>
-  </div>
-
-  <section style="display:flex;gap:18px;align-items:flex-start;">
-    <div style="flex:1;min-width:360px;">
-      <h3>Asignaturas</h3>
-      <ul>
-        {% for a in asignaturas %}
-          <li style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-            <span>{{ a.nombre }}</span>
-            <span style="flex:0 0 auto;">
-              <form method="post" style="display:inline;">
+  <div class="schedule-shell">
+    <div class="schedule-head">
+      <h1>Horario — Curso {{ curso.grd_cur }}</h1>
+      <div class="schedule-sub">Institución: {{ curso.id_inst.nom_inst }}
+        <form method="post" style="display:inline;margin-left:10px">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="toggle_dup_check">
+          <button class="dup-btn" type="submit">
+            {% if curso.id_inst.allow_duplicate_subject_slots %}
+              Duplicados de materias: SI
+            {% else %}
+              Duplicados de materias: NO
+            {% endif %}
+          </button>
+        </form>
+      </div>
+    </div>
+    <div class="schedule-grid">
+      <div class="subjects-card">
+        <h3>Asignaturas</h3>
+        <ul class="subject-list">
+          {% for a in asignaturas %}
+            <li class="subject-item">
+              <span>{{ a.nombre }}</span>
+              <form method="post" style="display:inline">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="delete_asignatura">
                 <input type="hidden" name="asig_id" value="{{ a.id_asig }}">
-                <button class="btn btn-outline" style="padding:4px 8px;">Eliminar</button>
+                <button class="del-btn" type="submit">Eliminar</button>
               </form>
-            </span>
-          </li>
-        {% empty %}
-          <li style="color:var(--muted);">No hay asignaturas. Añade una abajo.</li>
-        {% endfor %}
-      </ul>
-
-      <form method="post" style="margin-top:8px;">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="add_asignatura">
-        <label>Nombre asignatura</label><br>
-        <input type="text" name="nombre" style="width:100%;padding:8px;margin-top:6px;">
-        <div style="margin-top:8px;"><button class="btn btn-primary">Agregar asignatura</button></div>
-      </form>
-    </div>
-
-    <div style="flex:2;min-width:420px;">
-      <h3>Horarios</h3>
-      <table style="width:100%;border-collapse:collapse;">
-        <thead>
-          <tr>
-            <th style="border-bottom:1px solid #eee;padding:8px;text-align:left;">Día</th>
-            <th style="border-bottom:1px solid #eee;padding:8px;text-align:left;">Hora inicio</th>
-            <th style="border-bottom:1px solid #eee;padding:8px;text-align:left;">Hora fin</th>
-            <th style="border-bottom:1px solid #eee;padding:8px;text-align:left;">Asignatura</th>
-            <th style="border-bottom:1px solid #eee;padding:8px;text-align:left;">Aula</th>
-            <th style="border-bottom:1px solid #eee;padding:8px;text-align:left;">Maestro</th>
-            <th style="border-bottom:1px solid #eee;padding:8px;text-align:left;">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for h in horarios %}
-            <tr>
-              <td style="padding:8px;border-top:1px solid #f3f3f3;">{{ h.dia_display }}</td>
-              <td style="padding:8px;border-top:1px solid #f3f3f3;">{{ h.hora_inicio|default:'-' }}</td>
-              <td style="padding:8px;border-top:1px solid #f3f3f3;">{{ h.hora_fin|default:'-' }}</td>
-              <td style="padding:8px;border-top:1px solid #f3f3f3;">{{ h.id_asig.nombre }}</td>
-              <td style="padding:8px;border-top:1px solid #f3f3f3;">{{ h.aula|default:'-' }}</td>
-              <td style="padding:8px;border-top:1px solid #f3f3f3;">{% if h.id_mae %}{{ h.id_mae.id_usu.nom_usu }} {{ h.id_mae.id_usu.ape_usu }}{% else %}-{% endif %}</td>
-              <td style="padding:8px;border-top:1px solid #f3f3f3;">
-                <form method="post" style="display:inline;">
-                  {% csrf_token %}
-                  <input type="hidden" name="action" value="delete_slot">
-                  <input type="hidden" name="hor_id" value="{{ h.id_hor }}">
-                  <button class="btn btn-outline" style="padding:4px 8px;">Eliminar</button>
-                </form>
-              </td>
-            </tr>
+            </li>
           {% empty %}
-            <tr><td colspan="7" style="padding:8px;color:var(--muted);">No hay horarios definidos.</td></tr>
+            <li class="subject-empty">No hay asignaturas. Añade una abajo.</li>
           {% endfor %}
-        </tbody>
-      </table>
-
-      <h4 style="margin-top:12px;">Agregar franja horaria</h4>
-      <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="add_slot">
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <div style="flex:1;min-width:140px;">
-            <label>Asignatura</label>
-            <select name="asignatura" style="width:100%;padding:6px;margin-top:6px;">
-              {% for a in asignaturas %}
-                <option value="{{ a.id_asig }}">{{ a.nombre }}</option>
-              {% endfor %}
-            </select>
+        </ul>
+        <form method="post" class="add-subject-form">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="add_asignatura">
+          <label>Nombre asignatura</label>
+          <input type="text" name="nombre" placeholder="Ej: Matemáticas" required>
+          <div class="submit-row"><button class="add-btn" type="submit">Agregar asignatura</button></div>
+        </form>
+      </div>
+      <div class="slots-card">
+        <h3>Horarios</h3>
+        <table class="schedule-table">
+          <thead>
+            <tr><th>Día</th><th>Inicio</th><th>Fin</th><th>Asignatura</th><th>Aula</th><th>Maestro</th><th>Acciones</th></tr>
+          </thead>
+          <tbody>
+            {% for h in horarios %}
+              <tr>
+                <td><span class="day-badge">{{ h.dia_display }}</span></td>
+                <td><span class="time-text">{{ h.hora_inicio|default:'-' }}</span></td>
+                <td><span class="time-text">{{ h.hora_fin|default:'-' }}</span></td>
+                <td><span class="slot-subject">{{ h.id_asig.nombre }}</span></td>
+                <td><span class="slot-room">{{ h.aula|default:'-' }}</span></td>
+                <td><span class="slot-teacher">{% if h.id_mae %}{{ h.id_mae.id_usu.nom_usu }} {{ h.id_mae.id_usu.ape_usu }}{% else %}-{% endif %}</span></td>
+                <td>
+                  <form method="post" style="display:inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_slot">
+                    <input type="hidden" name="hor_id" value="{{ h.id_hor }}">
+                    <button class="del-btn" type="submit">Eliminar</button>
+                  </form>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="7" class="empty-slots">No hay horarios definidos.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="add-slot-title">Agregar franja horaria</div>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="add_slot">
+          <div class="slot-form-grid">
+            <div class="slot-field">
+              <label>Asignatura</label>
+              <select name="asignatura">
+                {% for a in asignaturas %}<option value="{{ a.id_asig }}">{{ a.nombre }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="slot-field">
+              <label>Maestro</label>
+              <select name="maestro">
+                <option value="">-- Ninguno --</option>
+                {% for m in maestros %}<option value="{{ m.id_mae }}">{{ m.id_usu.nom_usu }} {{ m.id_usu.ape_usu }} — {{ m.especialidad|default:'-' }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="slot-field" style="max-width:120px">
+              <label>Día</label>
+              <select name="dia">
+                <option value="0">Lunes</option>
+                <option value="1">Martes</option>
+                <option value="2">Miércoles</option>
+                <option value="3">Jueves</option>
+                <option value="4">Viernes</option>
+              </select>
+            </div>
+            <div class="slot-field" style="max-width:120px">
+              <label>Inicio</label>
+              <input type="time" name="hora_inicio" required>
+            </div>
+            <div class="slot-field" style="max-width:120px">
+              <label>Fin</label>
+              <input type="time" name="hora_fin" required>
+            </div>
+            <div class="slot-field" style="max-width:120px">
+              <label>Aula</label>
+              <input type="text" name="aula" placeholder="7-02">
+            </div>
           </div>
-          <div style="flex:1;min-width:160px;">
-            <label>Maestro</label>
-            <select name="maestro" style="width:100%;padding:6px;margin-top:6px;">
-              <option value="">-- Ninguno --</option>
-              {% for m in maestros %}
-                <option value="{{ m.id_mae }}">{{ m.id_usu.nom_usu }} {{ m.id_usu.ape_usu }} — {{ m.especialidad|default:'-' }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div style="width:120px;">
-            <label>Día</label>
-            <select name="dia" style="width:100%;padding:6px;margin-top:6px;">
-              <option value="0">Lunes</option>
-              <option value="1">Martes</option>
-              <option value="2">Miércoles</option>
-              <option value="3">Jueves</option>
-              <option value="4">Viernes</option>
-            </select>
-          </div>
-          <div style="width:120px;">
-            <label>Hora inicio</label>
-            <input type="time" name="hora_inicio" style="width:100%;padding:6px;margin-top:6px;">
-          </div>
-          <div style="width:120px;">
-            <label>Hora fin</label>
-            <input type="time" name="hora_fin" style="width:100%;padding:6px;margin-top:6px;">
-          </div>
-          <div style="width:120px;">
-            <label>Aula</label>
-            <input type="text" name="aula" style="width:100%;padding:6px;margin-top:6px;">
-          </div>
-        </div>
-        <div style="margin-top:8px;"><button class="btn btn-primary">Agregar horario</button></div>
-      </form>
+          <div class="add-slot-actions"><button class="save-slot-btn" type="submit">Agregar horario</button></div>
+        </form>
+      </div>
     </div>
-  </section>
-
+  </div>
 {% endblock %}

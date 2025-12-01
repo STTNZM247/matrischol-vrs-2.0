@@ -3,39 +3,49 @@
 {% block title %}{% if create %}Crear Registro{% else %}Editar Registro{% endif %}{% endblock %}
 {% block content %}
   <style>
-    /* Estilos modernos para formulario de registro */
-    .form-container { max-width: 720px; margin: 0 auto; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-    .form-container h1 { text-align: center; margin-bottom: 24px; font-size: 1.8rem; color: #111; }
-    .form-container h3 { margin: 24px 0 16px 0; font-size: 1.2rem; color: #333; border-bottom: 2px solid #e6e6e6; padding-bottom: 8px; }
-    .form-group { margin-bottom: 18px; }
-    .form-group label { display: block; margin-bottom: 6px; font-weight: 500; color: #333; font-size: 0.95rem; }
-    .form-group input[type="text"],
-    .form-group input[type="email"],
-    .form-group input[type="password"],
-    .form-group select,
-    .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #d0d7de; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
-    .form-group input[type="file"] { padding: 8px; border: 1px solid #d0d7de; border-radius: 8px; width: 100%; }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: 2px solid #0d6efd; border-color: #0d6efd; }
-    .password-wrapper { position: relative; display: block; }
-    .password-wrapper input { padding-right: 40px !important; width: 100%; box-sizing: border-box; }
-    .password-wrapper .eye-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666; font-size: 1.1rem; z-index: 10; user-select: none; }
-    .password-wrapper .eye-icon:hover { color: #0d6efd; }
-    .form-actions { display: flex; gap: 12px; justify-content: center; margin-top: 24px; }
-    .form-actions .btn { padding: 10px 24px; border-radius: 8px; font-size: 0.95rem; }
-    .extra-actions { text-align: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e6e6e6; }
-    .extra-actions a { color: #0d6efd; text-decoration: none; }
-    .extra-actions a:hover { text-decoration: underline; }
-    @media (max-width: 768px) {
-      .form-container { padding: 16px; }
-      .form-container h1 { font-size: 1.5rem; }
-    }
+    /* Modernización visual formulario registro */
+    .reg-shell{max-width:1040px;margin:0 auto;padding:42px 34px 120px}
+    .form-container{background:#ffffff;border:1px solid #e4e8ec;border-radius:30px;padding:54px 58px 64px;box-shadow:0 28px 70px -24px rgba(0,0,0,.22),0 8px 26px -8px rgba(0,0,0,.10);position:relative}
+    .form-container:before{content:"";position:absolute;inset:0;border:1px solid #eef2f7;border-radius:30px;pointer-events:none}
+    .form-container h1{text-align:center;margin:0 0 34px;font-size:clamp(1.6rem,4.4vw,2.4rem);font-weight:800;letter-spacing:-.5px;color:#0f172a}
+    .form-section-title{margin:42px 0 20px;font-size:1.05rem;font-weight:800;letter-spacing:.3px;color:#0f172a;display:flex;align-items:center;gap:10px}
+    .form-section-title:before{content:"";width:34px;height:4px;border-radius:2px;background:#0d63ff;display:inline-block}
+    .fields-grid{display:grid;gap:22px 30px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+    .form-group{display:flex;flex-direction:column;gap:6px}
+    .form-group label{font-size:.68rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#334155}
+    .form-group input[type=text],.form-group input[type=email],.form-group input[type=password],.form-group select,.form-group textarea{width:100%;padding:14px 16px;border:1px solid #d0d7de;background:#f9fbfc;border-radius:16px;font-size:.9rem;font-weight:500;color:#0f172a;transition:border-color .16s,background .16s,box-shadow .16s}
+    .form-group input[type=file]{padding:12px;border:1px solid #d0d7de;background:#f8fafc;border-radius:16px;font-size:.8rem}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;background:#fff;border-color:#0d63ff;box-shadow:0 0 0 3px rgba(13,99,255,.25)}
+    .password-wrapper{position:relative;width:100%;display:block}
+    .password-wrapper input{width:100%;box-sizing:border-box;padding-right:56px !important;transition:padding .16s}
+    .password-wrapper .pw-eye-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);border:none;background:#ffffff;border-radius:14px;padding:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px -6px rgba(0,0,0,.25);transition:background .16s,box-shadow .16s}
+    .password-wrapper .pw-eye-btn:hover{background:#f1f5f9;box-shadow:0 6px 18px -6px rgba(0,0,0,.28)}
+    .password-wrapper .pw-eye-btn:active{transform:translateY(-50%)}
+    .password-wrapper .pw-eye-btn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(13,110,253,.45)}
+    .password-wrapper .pw-eye-btn svg{width:19px;height:19px;stroke:#0f172a;stroke-width:1.8}
+    .error-text{color:#dc2626;font-size:.7rem;font-weight:600;letter-spacing:.4px;margin-top:2px}
+    .helper-text{color:#64748b;font-size:.7rem;margin-top:2px}
+    .form-actions{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:46px}
+    .primary-btn{background:#0d63ff;color:#fff;border:none;padding:16px 32px;font-size:.85rem;font-weight:700;border-radius:18px;cursor:pointer;letter-spacing:.4px;box-shadow:0 6px 22px -8px rgba(13,99,255,.55);transition:background .16s,transform .16s}
+    .primary-btn:hover{background:#0a53d6}
+    .primary-btn:active{transform:translateY(2px)}
+    .outline-btn{background:#ffffff;color:#0f172a;border:1px solid #d0d7de;padding:16px 30px;font-size:.85rem;font-weight:700;border-radius:18px;cursor:pointer;letter-spacing:.4px;transition:background .16s,border-color .16s}
+    .outline-btn:hover{background:#f1f5f9;border-color:#c3ccd2}
+    .extra-actions{margin-top:40px;text-align:center;padding-top:22px;border-top:1px solid #e5e9ef}
+    .extra-actions a{color:#0d63ff;font-size:.75rem;font-weight:700;text-decoration:none}
+    .extra-actions a:hover{text-decoration:underline}
+    @media (max-width:840px){.form-container{padding:42px 34px 58px}.fields-grid{gap:18px 20px}}
+    @media (max-width:560px){.form-container{padding:34px 24px 52px;border-radius:26px}}
+    body:has(.form-container){background:radial-gradient(circle at 20% 20%,#ffffff 0%,#f5f9ff 55%,#f1f7ff 100%)}
   </style>
 
-  <div class="form-container">
-    <h1>{% if create %}Crear Registro{% else %}Editar Registro{% endif %}</h1>
-    <form method="post" enctype="multipart/form-data">
+  <div class="reg-shell">
+    <div class="form-container">
+      <h1>{% if create %}Crear Registro{% else %}Editar Registro{% endif %}</h1>
+      <form method="post" enctype="multipart/form-data" autocomplete="off">
       {% csrf_token %}
       {% with extra_fields="num_doc_adm tel_adm dir_adm tip_carg_adm cedula_img foto_perfil acu_num_doc acu_tel acu_dir acu_cedula_img acu_foto_perfil" %}
+        <div class="fields-grid">
         {% for field in form.visible_fields %}
           {% if field.name not in extra_fields %}
             {% if not create %}
@@ -44,41 +54,46 @@
               {% else %}
                 <div class="form-group">
                   {{ field.label_tag }}
-                  {% if field.name == 'con_usu' %}
+                   {% if field.field.widget.input_type == 'password' %}
                     <div class="password-wrapper">
                       {{ field }}
-                      <i class="fa-solid fa-eye eye-icon" id="eye-icon-registro" onclick="togglePasswordRegistro()"></i>
+                       <button type="button" class="pw-eye-btn" aria-label="Mostrar u ocultar contraseña" onclick="toggleDynamicPassword(this)">
+                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="eye-open"><path d="M1.5 12C3.6 6.9 7.8 4 12 4s8.4 2.9 10.5 8c-2.1 5.1-6.3 8-10.5 8s-8.4-2.9-10.5-8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="2"/></svg>
+                       </button>
                     </div>
                   {% else %}
                     {{ field }}
                   {% endif %}
                   {% if field.errors %}
-                    <div style="color:#dc3545;font-size:0.85rem;margin-top:4px;">{{ field.errors|striptags }}</div>
+                    <div class="error-text">{{ field.errors|striptags }}</div>
                   {% endif %}
                 </div>
               {% endif %}
             {% else %}
               <div class="form-group">
                 {{ field.label_tag }}
-                {% if field.name == 'con_usu' %}
+                {% if field.field.widget.input_type == 'password' %}
                   <div class="password-wrapper">
                     {{ field }}
-                    <i class="fa-solid fa-eye eye-icon" id="eye-icon-registro" onclick="togglePasswordRegistro()"></i>
+                    <button type="button" class="pw-eye-btn" aria-label="Mostrar u ocultar contraseña" onclick="toggleDynamicPassword(this)">
+                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="eye-open"><path d="M1.5 12C3.6 6.9 7.8 4 12 4s8.4 2.9 10.5 8c-2.1 5.1-6.3 8-10.5 8s-8.4-2.9-10.5-8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="2"/></svg>
+                    </button>
                   </div>
                 {% else %}
                   {{ field }}
                 {% endif %}
                 {% if field.errors %}
-                  <div style="color:#dc3545;font-size:0.85rem;margin-top:4px;">{{ field.errors|striptags }}</div>
+                  <div class="error-text">{{ field.errors|striptags }}</div>
                 {% endif %}
               </div>
             {% endif %}
           {% endif %}
         {% endfor %}
+        </div>
       {% endwith %}
 
       {% if form.num_doc_adm %}
-        <h3>Documentos administrativos (opcional)</h3>
+        <div class="form-section-title">Documentos administrativos (opcional)</div>
         <div class="form-group">
           {{ form.num_doc_adm.label_tag }}
           {{ form.num_doc_adm }}
@@ -106,11 +121,11 @@
       {% endif %}
 
       {% if form.acu_num_doc %}
-        <h3>Datos de acudiente</h3>
+        <div class="form-section-title">Datos de acudiente</div>
         <div class="form-group">
           {{ form.acu_num_doc.label_tag }}
           {{ form.acu_num_doc }}
-          <div style="color:#6c757d;font-size:0.85rem;margin-top:4px;">Obligatorio si el rol es "acudiente"</div>
+          <div class="helper-text">Obligatorio si el rol es "acudiente"</div>
         </div>
         <div class="form-group">
           {{ form.acu_tel.label_tag }}
@@ -131,31 +146,32 @@
       {% endif %}
 
       <div class="form-actions">
-        <button class="btn btn-primary" type="submit">Guardar</button>
-        <a href="{% url 'adminpanel:registro_list' %}" class="btn btn-primary">Cancelar</a>
+        <button class="primary-btn" type="submit">Guardar</button>
+        <a href="{% url 'adminpanel:registro_list' %}" class="outline-btn" role="button">Cancelar</a>
       </div>
     </form>
-
     {% if not create %}
       <div class="extra-actions">
         <a href="{% url 'adminpanel:registro_change_password' reg.id_usu %}">Cambiar contraseña</a>
       </div>
     {% endif %}
+    </div>
   </div>
 
   <script>
-    function togglePasswordRegistro() {
-      const passwordInput = document.getElementById('id_con_usu');
-      const eyeIcon = document.getElementById('eye-icon-registro');
-      if (!passwordInput || !eyeIcon) return;
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        eyeIcon.classList.remove('fa-eye');
-        eyeIcon.classList.add('fa-eye-slash');
+    function toggleDynamicPassword(btn){
+      if(!btn) return;
+      const wrapper = btn.closest('.password-wrapper');
+      if(!wrapper) return;
+      const input = wrapper.querySelector('input');
+      const svg = btn.querySelector('svg');
+      if(!input || !svg) return;
+      const isHidden = input.type === 'password';
+      input.type = isHidden ? 'text' : 'password';
+      if(isHidden){
+        svg.innerHTML = '<path d="M1.5 12C3.6 6.9 7.8 4 12 4s8.4 2.9 10.5 8c-2.1 5.1-6.3 8-10.5 8s-8.4-2.9-10.5-8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 4l16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
       } else {
-        passwordInput.type = 'password';
-        eyeIcon.classList.remove('fa-eye-slash');
-        eyeIcon.classList.add('fa-eye');
+        svg.innerHTML = '<path d="M1.5 12C3.6 6.9 7.8 4 12 4s8.4 2.9 10.5 8c-2.1 5.1-6.3 8-10.5 8s-8.4-2.9-10.5-8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="2"/>';
       }
     }
   </script>

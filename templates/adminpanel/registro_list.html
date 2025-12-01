@@ -1,42 +1,85 @@
 {% extends 'base_users.html' %}
 {% load static %}
 {% block title %}Registros{% endblock %}
+{% block extra_head %}
+<style>
+  .reg-shell{max-width:1250px;margin:0 auto;padding:40px 34px 120px}
+  .reg-header{display:flex;flex-direction:column;gap:6px;margin:0 0 24px}
+  .reg-header h1{margin:0;font-size:clamp(1.6rem,4.5vw,2.3rem);font-weight:800;letter-spacing:-.5px;color:#0f172a}
+  .reg-actions{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:18px}
+  .reg-btn{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:.8rem;border-radius:14px;padding:12px 18px;text-decoration:none;cursor:pointer;transition:background .16s,border-color .16s,color .16s}
+  .reg-btn.primary{background:#0d6efd;color:#fff;box-shadow:0 4px 16px -6px rgba(13,110,253,.45)}
+  .reg-btn.primary:hover{background:#0b5ed7}
+  .reg-btn.outline{background:#ffffff;color:#0f172a;border:1px solid #d0d7de}
+  .reg-btn.outline:hover{background:#f1f5f9;border-color:#c3ccd2}
+  .reg-search{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:20px;background:#ffffff;border:1px solid #e2e8f0;padding:16px 18px;border-radius:20px}
+  .reg-search input{flex:1;min-width:200px;border:1px solid #d0d7de;background:#f9fbfc;border-radius:12px;padding:10px 12px;font-size:.85rem}
+  .reg-search input:focus{outline:none;background:#fff;border-color:#0d63ff;box-shadow:0 0 0 3px rgba(13,99,255,.25)}
+  .reg-search button{border:none;background:#0d63ff;color:#fff;font-weight:600;padding:10px 16px;border-radius:12px;font-size:.75rem;cursor:pointer;box-shadow:0 4px 14px -6px rgba(13,99,255,.4);transition:background .16s}
+  .reg-search button:hover{background:#0a53d6}
+  .reg-table-wrap{overflow:auto;border:1px solid #e2e8f0;border-radius:24px;background:#ffffff;box-shadow:0 16px 48px -18px rgba(0,0,0,.18),0 6px 18px -6px rgba(0,0,0,.08)}
+  table.reg-table{width:100%;border-collapse:separate;border-spacing:0;min-width:900px}
+  table.reg-table thead th{background:#f8fafc;padding:14px 16px;font-size:.62rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#475569;border-bottom:1px solid #e2e8f0;text-align:left}
+  table.reg-table tbody td{padding:14px 16px;font-size:.8rem;color:#0f172a;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+  table.reg-table tbody tr:last-child td{border-bottom:none}
+  table.reg-table tbody tr:hover{background:#f8fbff}
+  .role-badge{display:inline-block;padding:4px 10px;border-radius:10px;font-size:.6rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;background:#eef2f7;color:#334155}
+  .role-admin{background:#dcfce7;color:#065f46}
+  .role-administrativo{background:#fde68a;color:#92400e}
+  .role-estudiante{background:#bfdbfe;color:#1e3a8a}
+  .role-acudiente{background:#ddd6fe;color:#6d28d9}
+  .reg-actions-links a{font-size:.65rem;font-weight:600;letter-spacing:.4px;color:#0d63ff;text-decoration:none;margin-right:8px}
+  .reg-actions-links a:hover{text-decoration:underline}
+  .pagination{margin-top:20px;display:flex;align-items:center;gap:12px;font-size:.7rem;font-weight:600;color:#475569}
+  .pagination a{padding:8px 12px;border-radius:10px;border:1px solid #d0d7de;background:#ffffff;color:#0f172a;text-decoration:none;font-size:.65rem;font-weight:600}
+  .pagination a:hover{background:#f1f5f9}
+  @media (max-width:760px){.reg-shell{padding:34px 20px 100px}.reg-table-wrap{border-radius:18px}}
+</style>
+{% endblock %}
 {% block content %}
-  <h1>Usuarios registrados</h1>
-  <p>
-    <a href="{% url 'adminpanel:registro_create' %}" class="btn btn-primary">Crear nuevo</a>
-    <a href="{% url 'adminpanel:registro_export_csv' %}" class="btn btn-outline">Exportar CSV</a>
-  </p>
-  <form method="get" class="search-form" style="margin-bottom:12px;">
+<div class="reg-shell">
+  <div class="reg-header">
+    <h1>Usuarios registrados</h1>
+  </div>
+  <div class="reg-actions">
+    <a href="{% url 'adminpanel:registro_create' %}" class="reg-btn primary">Crear nuevo</a>
+    <a href="{% url 'adminpanel:registro_export_csv' %}" class="reg-btn outline">Exportar CSV</a>
+  </div>
+  <form method="get" class="reg-search" autocomplete="off">
     <input name="q" placeholder="Buscar nombre o email" value="{{ q }}" />
-    <button class="btn btn-primary">Buscar</button>
+    <button type="submit">Buscar</button>
   </form>
-  <table class="table">
-    <thead>
-      <tr><th>ID</th><th>Nombre</th><th>Email</th><th>Rol</th><th></th></tr>
-    </thead>
-    <tbody>
-      {% for r in registros %}
-        <tr>
-          <td>{{ r.id_usu }}</td>
-          <td>{{ r.nom_usu }} {{ r.ape_usu }}</td>
-          <td>{{ r.ema_usu }}</td>
-          <td>{{ r.id_rol.nom_rol }}</td>
-          <td>
-            <a href="{% url 'adminpanel:registro_edit' r.id_usu %}">Editar</a> |
-            <a href="{% url 'adminpanel:registro_change_password' r.id_usu %}">Cambiar contraseña</a> |
-            <a href="{% url 'adminpanel:registro_delete' r.id_usu %}">Eliminar</a> |
-            <a href="{% url 'adminpanel:admin_logs' %}?model=Registro&q={{ r.nom_usu }} {{ r.ape_usu }}">Historial</a>
-          </td>
-        </tr>
-      {% empty %}
-        <tr><td colspan="5">No hay registros.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="reg-table-wrap">
+    <table class="reg-table">
+      <thead>
+        <tr><th>ID</th><th>Nombre</th><th>Email</th><th>Rol</th><th>Acciones</th></tr>
+      </thead>
+      <tbody>
+        {% for r in registros %}
+          <tr>
+            <td>{{ r.id_usu }}</td>
+            <td>{{ r.nom_usu }} {{ r.ape_usu }}</td>
+            <td>{{ r.ema_usu }}</td>
+            <td>
+              <span class="role-badge role-{{ r.id_rol.nom_rol|lower }}">{{ r.id_rol.nom_rol }}</span>
+            </td>
+            <td class="reg-actions-links">
+              <a href="{% url 'adminpanel:registro_edit' r.id_usu %}">Editar</a>
+              <a href="{% url 'adminpanel:registro_change_password' r.id_usu %}">Cambiar contraseña</a>
+              <a href="{% url 'adminpanel:registro_delete' r.id_usu %}">Eliminar</a>
+              <a href="{% url 'adminpanel:admin_logs' %}?model=Registro&q={{ r.nom_usu }} {{ r.ape_usu }}">Historial</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" style="text-align:center;color:#64748b;font-size:.75rem;padding:38px 16px">No hay registros.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
   <div class="pagination">
     {% if registros.has_previous %}<a href="?page={{ registros.previous_page_number }}&q={{ q }}">Anterior</a>{% endif %}
-    <span>Page {{ registros.number }} / {{ registros.paginator.num_pages }}</span>
+    <span>Página {{ registros.number }} / {{ registros.paginator.num_pages }}</span>
     {% if registros.has_next %}<a href="?page={{ registros.next_page_number }}&q={{ q }}">Siguiente</a>{% endif %}
   </div>
+</div>
 {% endblock %}

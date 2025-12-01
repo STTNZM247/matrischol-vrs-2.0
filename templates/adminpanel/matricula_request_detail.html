@@ -1,85 +1,136 @@
 {% extends 'base_users.html' %}
 {% load doc_labels %}
 {% block title %}Solicitud de Matrícula{% endblock %}
+{% block extra_head %}
+<style>
+  .req-shell{max-width:1040px;margin:0 auto;padding:4px 18px 32px}
+  .req-header{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+  .req-header h1{margin:0;font-size:clamp(1.4rem,4.5vw,2.2rem);font-weight:800;letter-spacing:.5px;color:#0f172a}
+  .back-btn{display:inline-flex;align-items:center;gap:6px;background:#0d63ff;color:#fff;font-weight:600;padding:8px 14px;border-radius:12px;text-decoration:none;font-size:.9rem;box-shadow:0 4px 18px -6px rgba(13,99,255,.35);transition:background .15s}
+  .back-btn:hover{background:#0a53d6}
+  .req-grid{display:grid;gap:22px}
+  .req-card{background:#fff;border:1px solid #e5e9ef;border-radius:20px;padding:20px 18px;box-shadow:0 18px 50px -24px rgba(0,0,0,.25);position:relative}
+  .req-card h3{margin:0 0 10px;font-size:1rem;font-weight:800;letter-spacing:.4px;color:#0f172a;display:flex;align-items:center;gap:6px}
+  .req-meta p{margin:2px 0;color:#334155;font-size:.9rem}
+  .status-badge{display:inline-block;padding:4px 12px;border-radius:999px;font-size:.7rem;font-weight:800;letter-spacing:.8px;text-transform:uppercase;background:#94a3b8;color:#0f172a}
+  .status-pending{background:#fef9c3;color:#713f12}
+  .status-accepted{background:#dcfce7;color:#065f46}
+  .status-rejected{background:#fee2e2;color:#991b1b}
+  .status-needs_docs{background:#fde68a;color:#92400e}
+  .req-form textarea{width:100%;border:1px solid #d0d7de;border-radius:12px;padding:10px;resize:vertical;font-family:inherit;font-size:.9rem}
+  .req-form-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;margin-top:12px}
+  .req-btn{background:#0d63ff;color:#fff;border:none;padding:8px 14px;border-radius:12px;font-weight:600;font-size:.85rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 4px 16px -6px rgba(13,99,255,.35);transition:background .15s}
+  .req-btn:hover{background:#0a53d6}
+  .req-btn.warn{background:#fb923c;color:#fff;box-shadow:0 4px 16px -6px rgba(251,146,60,.45)}
+  .req-btn.warn:hover{background:#f97316}
+  .req-btn.danger{background:#dc2626;color:#fff;box-shadow:0 4px 16px -6px rgba(220,38,38,.45)}
+  .req-btn.danger:hover{background:#b91c1c}
+  /* Documentos */
+  #docs-registered-card .doc-block{border:1px solid #e2e8f0;padding:12px 12px 14px;margin-bottom:14px;border-radius:14px;background:#f8fafc}
+  #docs-registered-card .doc-block strong{font-size:.85rem;letter-spacing:.6px;color:#0f172a}
+  .doc-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:14px}
+  .doc-item-label{font-weight:600;font-size:.75rem;letter-spacing:.5px;color:#1e293b;margin-bottom:4px;text-transform:uppercase}
+  .doc-item-box{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:6px}
+  .doc-item-box a{word-break:break-all;font-size:.75rem;color:#0d63ff;text-decoration:none}
+  .doc-item-box a:hover{text-decoration:underline}
+  .doc-item-box img{max-width:100%;max-height:150px;object-fit:cover;border-radius:8px;border:1px solid #cbd5e1}
+  /* History */
+  .history-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}
+  .history-list li{background:#f8fafc;border:1px solid #e2e8f0;padding:8px 10px;border-radius:10px;font-size:.75rem;color:#475569}
+  .alert-info{background:#f0f9ff;border:1px solid #bae6fd;padding:10px 12px;border-radius:12px;font-size:.8rem;color:#0c4a6e}
+  @media (min-width:860px){ .req-grid{grid-template-columns:1fr 1fr} #docs-registered-card{grid-column:1 / -1} }
+</style>
+{% endblock %}
 {% block content %}
-  <h1>Solicitud de Matrícula - ID {{ req.id_req }}</h1>
-  <p><a class="btn btn-primary" href="{% url 'adminpanel:notifications' %}">Volver a notificaciones</a></p>
-
-  <div class="card" style="padding:12px;">
-    <h3>Información de la institución</h3>
-    <p><strong>{{ req.id_inst.nom_inst }}</strong> - {{ req.id_inst.dire_inst }}</p>
-
-    <h3>Estudiante</h3>
-    <p><strong>{{ req.id_est.id_usu.nom_usu }} {{ req.id_est.id_usu.ape_usu }}</strong></p>
-    <p>Documento: {{ req.id_est.num_doc_est }}</p>
-    <p>Fecha nacimiento: {{ req.id_est.fch_nac_est }}</p>
-
-    <h3>Acudiente</h3>
-    <p><strong>{{ req.id_acu.id_usu.nom_usu }} {{ req.id_acu.id_usu.ape_usu }}</strong></p>
-    <p>Tel: {{ req.id_acu.tel_acu }}</p>
-    <p>Dirección: {{ req.id_acu.dir_acu }}</p>
-
-    <h3>Detalles de la solicitud</h3>
-    <p>Grado solicitado: {{ req.grado_solicitado }}</p>
-    <p>Estado: <span class="badge">{{ req.estado }}</span></p>
-    <p>Creada: {{ req.created_at }}</p>
-
-    {% if can_manage %}
-      {% if estado != 'accepted' and estado != 'rejected' %}
-        <form method="post" style="margin-top:12px;">
-          {% csrf_token %}
-          <label>Observaciones administrativas (se guardan en la matrícula si acepta):</label>
-          <textarea name="comment" rows="4" style="width:100%;"></textarea>
-          <div style="display:flex;gap:8px;margin-top:8px;justify-content:flex-end">
-            <button name="action" value="accept" class="btn btn-primary">Aceptar</button>
-            {% if estado != 'pending' %}
-              <button name="action" value="hold" class="btn btn-primary">Poner en espera</button>
-            {% endif %}
-            <button name="action" value="reject" class="btn btn-primary">Rechazar</button>
-          </div>
-        </form>
-      {% else %}
-        <div class="alert alert-info" style="margin-top:12px;">Esta solicitud ya está finalizada ({{ estado }}). No se puede reenviar estado.</div>
-      {% endif %}
-    {% endif %}
-  </div>
-  
-  <div id="docs-registered-card" class="card" style="padding:12px;margin-top:12px">
-    <h3>Documentos registrados del estudiante</h3>
-    {% if docs_list %}
-      {% for row in docs_list %}
-        <div style="border:1px solid #eee;padding:10px;margin-bottom:10px;border-radius:6px;">
-          <strong>Registro documento #{{ row.doc.id_doc }}</strong>
-          <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px">
-            {% for it in row.items %}
-              <div style="min-width:200px;max-width:320px;">
-                <div style="font-weight:600">{{ it.field|doc_label }}</div>
-                {% if it.is_image %}
-                  <a href="{{ MEDIA_URL }}{{ it.value }}" target="_blank"><img src="{{ MEDIA_URL }}{{ it.value }}" style="max-width:220px;max-height:160px;border:1px solid #ccc;padding:4px;border-radius:4px" alt="{{ it.field }}"></a>
-                {% else %}
-                  <div style="word-break:break-all;"><a href="{{ MEDIA_URL }}{{ it.value }}" target="_blank">{{ it.value }}</a></div>
-                {% endif %}
-              </div>
-            {% endfor %}
-          </div>
+  <div class="req-shell">
+    <div class="req-header">
+      <h1>Solicitud de Matrícula <span style="font-weight:600;opacity:.55">#{{ req.id_req }}</span></h1>
+      <a class="back-btn" href="{% url 'adminpanel:notifications' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver a notificaciones
+      </a>
+    </div>
+    <div class="req-grid">
+      <div class="req-card">
+        <h3>Información de la institución</h3>
+        <div class="req-meta">
+          <p><strong>{{ req.id_inst.nom_inst }}</strong></p>
+          <p>{{ req.id_inst.dire_inst }}</p>
         </div>
-      {% endfor %}
-    {% else %}
-      <p>No hay documentos registrados para este estudiante.</p>
-    {% endif %}
-  </div>
-
-  <div class="card" style="padding:12px;margin-top:12px">
-    <h3>Historial de cambios</h3>
-    {% if history and history|length %}
-      <ul>
-        {% for h in history %}
-          <li>{{ h.timestamp|date:'Y-m-d H:i' }} — {{ h.action }} — {{ h.details }}</li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p>No hay movimientos registrados aún.</p>
-    {% endif %}
+        <h3>Estudiante</h3>
+        <div class="req-meta">
+          <p><strong>{{ req.id_est.id_usu.nom_usu }} {{ req.id_est.id_usu.ape_usu }}</strong></p>
+          <p>Documento: {{ req.id_est.num_doc_est }}</p>
+          <p>Fecha nacimiento: {{ req.id_est.fch_nac_est }}</p>
+        </div>
+        <h3>Acudiente</h3>
+        <div class="req-meta">
+          <p><strong>{{ req.id_acu.id_usu.nom_usu }} {{ req.id_acu.id_usu.ape_usu }}</strong></p>
+          <p>Tel: {{ req.id_acu.tel_acu|default:'-' }}</p>
+          <p>Dirección: {{ req.id_acu.dir_acu|default:'-' }}</p>
+        </div>
+        <h3>Detalles de la solicitud</h3>
+        <div class="req-meta">
+          <p>Grado solicitado: {{ req.grado_solicitado|default:'-' }}</p>
+          <p>Estado: <span class="status-badge status-{{ req.estado }}">{{ req.estado }}</span></p>
+          <p>Creada: {{ req.created_at|date:'Y-m-d H:i' }}</p>
+        </div>
+        {% if can_manage %}
+          {% if estado != 'accepted' and estado != 'rejected' %}
+            <form method="post" class="req-form" style="margin-top:14px">
+              {% csrf_token %}
+              <label style="font-weight:600;font-size:.8rem;letter-spacing:.5px;color:#0f172a">Observaciones administrativas</label>
+              <textarea name="comment" rows="4" placeholder="Notas internas para esta solicitud..."></textarea>
+              <div class="req-form-actions">
+                <button name="action" value="accept" class="req-btn" type="submit">Aceptar</button>
+                {% if estado != 'pending' %}
+                  <button name="action" value="hold" class="req-btn warn" type="submit">Poner en espera</button>
+                {% endif %}
+                <button name="action" value="reject" class="req-btn danger" type="submit">Rechazar</button>
+              </div>
+            </form>
+          {% else %}
+            <div class="alert-info" style="margin-top:16px">Esta solicitud ya está finalizada ({{ estado }}). No se puede reenviar estado.</div>
+          {% endif %}
+        {% endif %}
+      </div>
+      <div id="docs-registered-card" class="req-card">
+        <h3>Documentos registrados del estudiante</h3>
+        {% if docs_list %}
+          {% for row in docs_list %}
+            <div class="doc-block">
+              <strong>Registro documento #{{ row.doc.id_doc }}</strong>
+              <div class="doc-items">
+                {% for it in row.items %}
+                  <div class="doc-item-box">
+                    <div class="doc-item-label">{{ it.field|doc_label }}</div>
+                    {% if it.is_image %}
+                      <a href="{{ MEDIA_URL }}{{ it.value }}" target="_blank"><img src="{{ MEDIA_URL }}{{ it.value }}" alt="{{ it.field }}"></a>
+                    {% else %}
+                      <a href="{{ MEDIA_URL }}{{ it.value }}" target="_blank">{{ it.value }}</a>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p style="margin:6px 0 0;color:#64748b;font-size:.85rem">No hay documentos registrados para este estudiante.</p>
+        {% endif %}
+      </div>
+      <div class="req-card" style="grid-column:1 / -1">
+        <h3>Historial de cambios</h3>
+        {% if history and history|length %}
+          <ul class="history-list">
+            {% for h in history %}
+              <li>{{ h.timestamp|date:'Y-m-d H:i' }} — {{ h.action }} — {{ h.details }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p style="margin:6px 0 0;color:#64748b;font-size:.85rem">No hay movimientos registrados aún.</p>
+        {% endif %}
+      </div>
+    </div>
   </div>
 {% endblock %}
 

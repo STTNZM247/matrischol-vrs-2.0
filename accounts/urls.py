@@ -18,6 +18,7 @@ urlpatterns = [
     path('panel/acudiente/estudiante/<int:pk>/', views.estudiante_detail, name='estudiante_detail'),
     path('panel/acudiente/documentos/<int:pk>/', views.documentos_panel, name='documentos_panel'),
     path('panel/acudiente/upload_foto/', views.upload_profile_photo, name='upload_profile_photo'),
+    path('panel/update_profile_details/', views.update_profile_details, name='update_profile_details'),
     path('panel/estudiante/', views.panel_estudiante, name='panel_estudiante'),
     path('panel/administrativo/', views.panel_administrativo, name='panel_administrativo'),
     path('panel/admin/', views.panel_admin, name='panel_admin'),

@@ -1,41 +1,257 @@
 {% extends 'base_users.html' %}
 {% load static %}
 {% block title %}Estudiante{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/panel_acudiente.css' %}?v=7">
+<style>
+.student-detail{width:min(92vw, 720px);margin:clamp(12px,4vw,20px) auto}
+.profile-card{background:linear-gradient(180deg,#103a63,#0f4d57);border-radius:16px;color:#fff;padding:12px;box-shadow:0 8px 26px -12px rgba(0,0,0,.35);overflow:hidden}
+.profile-card .top{display:grid;grid-template-columns:72px 1fr;gap:10px;align-items:center}
+.profile-card .top > :last-child{min-width:0}
+.profile-card .avatar-cover{width:72px;height:72px;border-radius:12px;overflow:hidden;background:#0b2c4a}
+.profile-card .avatar-cover img{width:100%;height:100%;object-fit:cover}
+.profile-card .name{margin:0;font-size:1.1rem;font-weight:800}
+.profile-card .role{margin:2px 0 0;color:#cfe3f3;font-size:.82rem}
+.profile-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.btn-blue{background:#2b6cb0;color:#fff}
+.btn-blue:hover{background:#245da0}
+/* Marco blanco simple alrededor del botón */
+.link-icon.btn-blue{position:relative;overflow:visible;border:2px solid #fff;border-radius:12px}
+.btn-gray{background:#64748b;color:#fff;border-radius:999px;padding:10px 16px;box-shadow:0 4px 12px rgba(0,0,0,.12);border:none;cursor:pointer}
+.btn-gray:hover{background:#4b5a66}
+/* Botón cerrar del modal */
+.btn-close{background:#0f4d57;color:#fff;border-radius:999px;padding:10px 18px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.12);border:none;cursor:pointer}
+.btn-close:hover{background:#0c3f48}
+.btn-close:focus-visible{outline:3px solid rgba(15,77,87,.35);outline-offset:2px}
+.btn-disabled{background:#d1d5db;color:#6b7280;cursor:not-allowed;pointer-events:none;border:2px solid #fff}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;max-width:100%}
+.chip{display:inline-block;padding:5px 10px;border-radius:999px;background:#f1f5f9;color:#0f172a;font-size:.75rem;font-weight:700;max-width:100%;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+.stats{display:flex;gap:14px;margin-top:10px}
+.stat{display:flex;flex-direction:column;align-items:center}
+.stat .num{font-weight:800;font-size:.95rem}
+.stat .label{font-size:.72rem;color:#cfe3f3}
+.detail-card{display:grid;grid-template-columns:64px 1fr;gap:10px;background:#fff;border-radius:16px;padding:12px;box-shadow:var(--shadow);border:1px solid #e5ecf2;align-items:start}
+.detail-avatar .avatar-large{width:100%;aspect-ratio:1/1;border-radius:12px;object-fit:cover;background:#d0dae3}
+.avatar-fallback{display:flex;align-items:center;justify-content:center;font-weight:800;color:#0f172a;background:linear-gradient(180deg,#cfe3f3,#b7d2e7)}
+.detail-info{display:flex;flex-direction:column;gap:6px}
+.student-name{margin:0;font-size:1rem;font-weight:800;color:#0f172a}
+.student-doc{margin:0;color:#0f172a;font-size:.9rem}
+.muted{color:#64748b;font-size:.9rem}
+.documents-section{display:flex;flex-direction:column;gap:6px}
+.doc-ok{display:inline-block;padding:6px 10px;border-radius:999px;background:#e6ffef;color:#0a8a3d;font-weight:700}
+.doc-missing{display:inline-block;padding:6px 10px;border-radius:999px;background:#fff3e6;color:#b35a00;font-weight:700}
+.missing-expanded{margin:0 0 6px 18px}
+.link-icon{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;background:#0f4d57;color:#fff;text-decoration:none;font-size:.85rem}
+.link-icon:hover{background:#0c3f48}
+svg.plus{width:18px;height:18px}
+.siblings{margin-top:14px; max-inline-size:720px; margin-inline:auto; padding-inline:8px}
+.siblings .student-list{width:100%; margin:0; padding:0; background:transparent; box-shadow:none; border:none}
+/* Compactar items de hermanos */
+.siblings .student-item{grid-template-columns:32px 1fr auto;gap:6px;padding:6px 8px;border-radius:10px;align-items:center;line-height:1.2}
+.siblings .avatar{inline-size:32px;block-size:32px}
+.siblings .item-name{font-size:.9rem}
+.siblings .item-sub{font-size:.78rem;color:#6b7280;margin-top:2px}
+.siblings .item-amount{font-size:.78rem;color:#475569}
+.siblings .item-action{padding:4px 10px;font-size:.75rem}
+@media (max-width:640px){.detail-card{grid-template-columns:56px 1fr}.documents-section{grid-column:1/-1}}
+
+/* Modal Horario (reutiliza estilo del modal de matrícula) */
+#sch-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(2px);align-items:center;justify-content:center;z-index:13000}
+#sch-modal .modal-box{background:#fff;border-radius:16px;padding:20px 18px;max-width:980px;width:96%;box-shadow:0 16px 48px rgba(0,0,0,0.30);border:1px solid #e6e8eb}
+#sch-modal.open .modal-box{animation:modalIn .18s ease-out}
+#sch-modal h3{margin:0 0 8px 0;font-size:18px;font-weight:700;color:#0f172a}
+#sch-modal p{margin:0 0 10px 0;color:#475569}
+#sch-modal .modal-actions{display:flex;gap:10px;justify-content:center;margin-top:12px}
+#sch-content{max-height:70vh;overflow-y:auto;overflow-x:auto;border:1px solid #e6e8eb;border-radius:12px;padding:10px}
+/* Tabla tipo horario escolar */
+.sch-table{display:grid;grid-template-columns:140px repeat(5, minmax(140px, 1fr));gap:10px;align-items:center}
+.sch-head{background:#e8f0ff;color:#0b4bc7;border-radius:14px;padding:12px;font-weight:800;text-align:center;border:1px solid #dfe6ff}
+.sch-time-col{background:#d7e5ff;color:#0b4bc7;border-radius:14px;padding:12px;font-weight:800;text-align:center;border:1px solid #cfe0ff}
+.sch-cell{background:#f4f6fb;border:1px solid #e9edf5;border-radius:14px;padding:12px;min-height:64px}
+.sch-subj{font-weight:700;color:#0f172a}
+.sch-extra{color:#64748b;font-size:.82rem;margin-top:2px}
+.sch-empty{color:#9aa5b1;font-size:.82rem}
+</style>
+{% endblock %}
 {% block content %}
   <div class="student-detail student-profile">
-    <div class="detail-card">
-      <div class="detail-avatar">
-        {% if est.foto_perfil %}
-          <img src="{{ est.foto_perfil.url }}" alt="Foto {{ est.id_usu.nom_usu }}" class="avatar-large">
-        {% else %}
-          <div class="avatar-large avatar-fallback">{{ est.id_usu.nom_usu|first }}{{ est.id_usu.ape_usu|first }}</div>
-        {% endif %}
-      </div>
-      <div class="detail-info">
-        <h2 class="student-name">{{ est.id_usu.nom_usu }} {{ est.id_usu.ape_usu }}</h2>
-        <p class="student-doc">Documento: <strong>{{ est.num_doc_est }}</strong></p>
-        <p class="muted">Fecha de nacimiento: {{ est.fch_nac_estu|default:'No informado' }}</p>
-        <p class="muted">Teléfono: {{ est.tel_estu|default:'No informado' }}</p>
-        <p class="muted">Correo: {{ est.id_usu.ema_usu|default:'No informado' }}</p>
-      </div>
-      <div class="documents-section">
-        {% load doc_labels %}
-        {% if major_complete %}
-          <p class="doc-ok">Al día</p>
-          <p style="margin-top:8px"><a class="btn btn-sm btn-success" href="{% url 'accounts:documentos_panel' est.id_est %}">Subir / Ver documentos</a></p>
-        {% else %}
-          <p class="doc-missing">Faltan documentos</p>
-          {% if missing_docs %}
-            <ul class="missing-expanded" style="color:#b33;margin-top:6px;">
-              {% for m in missing_docs %}
-                <li>{{ m|doc_label }}</li>
-              {% endfor %}
-            </ul>
+    <div class="profile-card">
+      <div class="top">
+        <div class="avatar-cover">
+          {% if est.foto_perfil %}
+            <img src="{{ est.foto_perfil.url }}" alt="Foto {{ est.id_usu.nom_usu }}">
+          {% else %}
+            <svg viewBox="0 0 24 24" fill="#cfe3f3" aria-hidden="true" width="96" height="96"><path d="M12 12c2.761 0 5-2.686 5-6s-2.239-6-5-6-5 2.686-5 6 2.239 6 5 6zm0 2c-3.313 0-10 1.657-10 5v3h20v-3c0-3.343-6.687-5-10-5z"/></svg>
           {% endif %}
-          <p style="margin-top:8px"><a class="btn btn-sm btn-danger" href="{% url 'accounts:documentos_panel' est.id_est %}">Subir documentos</a></p>
+        </div>
+        <div>
+          <h2 class="name">{{ est.id_usu.nom_usu }} {{ est.id_usu.ape_usu }}</h2>
+          <p class="role">Estudiante</p>
+          <div class="chips">
+            <span class="chip">Documento: {{ est.num_doc_est }}</span>
+            <span class="chip">Correo: {{ est.id_usu.ema_usu|default:'Sin correo' }}</span>
+            <span class="chip">Institución inscrita: {% if matricula and matricula.id_cur and matricula.id_cur.id_inst %}{{ matricula.id_cur.id_inst.nom_inst }}{% else %}Sin matrícula{% endif %}</span>
+            <span class="chip">Formación: {% if curso and curso.grd_cur %}Grado {{ curso.grd_cur }}{% elif matricula and matricula.grado_solicitado %}Solicitado {{ matricula.grado_solicitado }}{% else %}Sin asignar{% endif %}</span>
+          </div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="num">{% if matricula %}Activa{% else %}No activa{% endif %}</div><div class="label">Matrícula</div></div>
+        <div class="stat"><div class="num">{% if major_complete %}Completos{% else %}Pendientes{% endif %}</div><div class="label">Documentos</div></div>
+      </div>
+      <div class="profile-actions">
+        <a class="link-icon btn-blue" href="{% url 'accounts:documentos_panel' est.id_est %}">
+          <svg class="plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          Ver / Subir documentos
+        </a>
+        {% if matricula and matricula.id_cur %}
+        <button id="sch-open" class="link-icon btn-gray" type="button"
+                data-url="{% url 'school:course_schedule' matricula.id_cur.id_cur %}">
+          <svg class="plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h18M8 8h8M6 12h12M10 16h8"/></svg>
+          Ver horario
+        </button>
+        {% else %}
+        <button class="link-icon btn-disabled" type="button" title="Sin curso asignado" disabled>
+          Ver horario
+        </button>
         {% endif %}
-        <p class="help-text">Al subir, debes subir al menos 5 documentos importantes.</p>
       </div>
     </div>
+    
+      </div>
+    </div>
+    {% if siblings %}
+    <div class="siblings" style="margin-top:12px;">
+      <h4 style="margin:0 0 8px;color:#0f172a">Tus otros hij@s</h4>
+      <section class="student-list" aria-label="Otros estudiantes">
+        {% for item in siblings_info %}
+          <a class="student-item" href="{% url 'accounts:estudiante_detail' item.s.id_est %}" aria-label="Detalle de {{ item.s.id_usu.nom_usu }} {{ item.s.id_usu.ape_usu }}">
+            <div class="avatar" aria-hidden="true">
+              {% if item.s.foto_perfil %}<img src="{{ item.s.foto_perfil.url }}" alt="Foto" style="width:100%;height:100%;object-fit:cover;border-radius:999px;">{% else %}{{ item.s.id_usu.nom_usu|first }}{{ item.s.id_usu.ape_usu|first }}{% endif %}
+            </div>
+            <div class="item-main">
+              <div class="item-line">
+                <span class="item-name">{{ item.s.id_usu.nom_usu }} {{ item.s.id_usu.ape_usu }}</span>
+                <span class="item-amount">{% if item.inst %}{{ item.inst }}{% else %}Sin institución{% endif %} · {% if item.grado %}Grado {{ item.grado }}{% else %}Sin grado{% endif %}</span>
+              </div>
+              <div class="item-sub">Documento: {{ item.s.num_doc_est }}</div>
+            </div>
+            <span class="item-action" aria-hidden="true">Ver</span>
+          </a>
+        {% endfor %}
+      </section>
+    </div>
+    {% endif %}
   </div>
+  <!-- Modal Horario -->
+  <div id="sch-modal" role="dialog" aria-modal="true" aria-labelledby="sch-title">
+    <div class="modal-box">
+      <h3 id="sch-title">Horario de tu hij@</h3>
+      <div id="sch-meta" class="muted" style="margin-bottom:8px"></div>
+      <div id="sch-content"><p class="muted">Cargando horario…</p></div>
+      <div class="modal-actions"><button id="sch-close" class="btn-close" type="button">Cerrar</button></div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    const openBtn = document.getElementById('sch-open');
+    const modal = document.getElementById('sch-modal');
+    const closeBtn = document.getElementById('sch-close');
+    const content = document.getElementById('sch-content');
+    const meta = document.getElementById('sch-meta');
+    const dayOrder = [0,1,2,3,4];
+
+    function openModal(){ modal.style.display = 'flex'; setTimeout(()=>modal.classList.add('open'), 10); closeBtn && closeBtn.focus(); }
+    function closeModal(){ modal.classList.remove('open'); setTimeout(()=>{ modal.style.display='none'; }, 120); }
+    function renderSchedule(data){
+      meta.textContent = (data.inst_name ? data.inst_name+' · ' : '') + (data.grade ? ('Grado '+data.grade) : '');
+      if(!data.items || !data.items.length){ content.innerHTML = '<p class="muted">Aún no hay horario registrado para este curso.</p>'; return; }
+      const byDay = {};
+      for(const it of data.items){ (byDay[it.day] ||= []).push(it); }
+      let html = '';
+      for(const d of dayOrder){ if(!byDay[d]) continue; const items = byDay[d];
+        const dayName = items[0].day_name;
+        html += `<div class="sch-day"><h4>${dayName}</h4>`;
+        for(const it of items){ const t = [it.inicio || '', it.fin || ''].filter(Boolean).join(' – ');
+          const extra = [it.aula ? ('Aula '+it.aula) : null, it.maestro].filter(Boolean).join(' · ');
+          html += `<div class="sch-item"><span class="sch-time">${t}</span><span class="sch-subj">${it.asignatura}</span>${extra?`<span class="sch-extra">${extra}</span>`:''}</div>`;
+        }
+        html += `</div>`;
+      }
+      content.innerHTML = html || '<p class="muted">No se encontraron asignaciones.</p>';
+      }
+      function parseMin(hm){ if(!hm) return null; const parts = hm.split(':'), H = Number(parts[0]); const M = Number(parts[1]||'0'); if(Number.isNaN(H)) return null; return H*60 + (Number.isNaN(M)?0:M); }
+      function fmt(mins){ if(mins==null) return ''; const H = Math.floor(mins/60); const M = mins%60; return String(H).padStart(2,'0')+':'+String(M).padStart(2,'0'); }
+
+      function renderSchedule(data){
+        meta.textContent = (data.inst_name ? data.inst_name+' · ' : '') + (data.grade ? ('Grado '+data.grade) : '');
+        const items = Array.isArray(data.items)?data.items:[];
+        if(!items.length){ content.innerHTML = '<p class="muted">Aún no hay horario registrado para este curso.</p>'; return; }
+
+        // Agrupar por día
+        const byDay = {}; for(const it of items){ (byDay[it.day] ||= []).push(it); }
+
+        // Determinar rango horario y si hay horas definidas
+        let minStart = Infinity, maxEnd = -Infinity, hasTimes = false;
+        for(const it of items){ const s = parseMin(it.inicio), e = parseMin(it.fin); if(s!=null && e!=null){ hasTimes = true; minStart = Math.min(minStart, s); maxEnd = Math.max(maxEnd, e); } }
+        if(!hasTimes){
+          // Fallback: listado simple por día
+          let html = '';
+          for(const d of dayOrder){ const list = byDay[d]; if(!list) continue; const dayName = (list[0] && list[0].day_name) || '';
+            html += `<div class="sch-day"><h4>${dayName}</h4>`;
+            for(const it of list){ const extra = [it.aula ? ('Aula '+it.aula) : null, it.maestro].filter(Boolean).join(' · ');
+              html += `<div class="sch-item"><span class="sch-subj">${it.asignatura}</span>${extra?`<span class="sch-extra">${extra}</span>`:''}</div>`;
+            }
+            html += `</div>`;
+          }
+          content.innerHTML = html || '<p class="muted">No se encontraron asignaciones.</p>';
+          return;
+        }
+
+        // Redondear a horas enteras y construir slots de 60 minutos
+        minStart = Math.floor(minStart/60)*60; maxEnd = Math.ceil(maxEnd/60)*60;
+        const slots = []; for(let t=minStart; t<maxEnd; t+=60){ slots.push([t, t+60]); }
+
+        // Encabezados
+        let html = '<div class="sch-table">';
+        html += '<div class="sch-head">Hora</div>';
+        const dayNames = ['Lunes','Martes','Miércoles','Jueves','Viernes'];
+        for(let i=0;i<5;i++){ html += `<div class="sch-head">${dayNames[i]}</div>`; }
+
+        function findForSlot(day, start){ const list = byDay[day] || []; for(const it of list){ const s = parseMin(it.inicio), e = parseMin(it.fin); if(s==null||e==null) continue; if(s <= start && e > start){ return it; } } return null; }
+
+        // Filas por cada hora
+        for(const [s,e] of slots){
+          html += `<div class="sch-time-col">${fmt(s)} – ${fmt(e)}</div>`;
+          for(const d of dayOrder){
+            const it = findForSlot(d, s);
+            if(!it){ html += '<div class="sch-cell"><div class="sch-empty">&nbsp;</div></div>'; }
+            else {
+              const extra = [it.aula ? ('Aula '+it.aula) : null, it.maestro].filter(Boolean).join(' · ');
+              html += `<div class="sch-cell"><div class="sch-subj">${it.asignatura}</div>${extra?`<div class="sch-extra">${extra}</div>`:''}</div>`;
+            }
+          }
+        }
+        html += '</div>'; // .sch-table
+        content.innerHTML = html;
+      }
+
+    function fetchSchedule(){
+      if(!openBtn) return;
+      const url = openBtn.getAttribute('data-url');
+      if(!url){ content.innerHTML = '<p class="muted">Este estudiante no tiene curso asignado.</p>'; return; }
+      content.innerHTML = '<p class="muted">Cargando horario…</p>';
+      fetch(url, { credentials: 'same-origin' })
+        .then(r => r.json())
+        .then(data => { renderSchedule(data); })
+        .catch(() => { content.innerHTML = '<p class="muted">No se pudo cargar el horario.</p>'; });
+    }
+
+    openBtn && openBtn.addEventListener('click', () => { openModal(); fetchSchedule(); });
+    closeBtn && closeBtn.addEventListener('click', closeModal);
+    modal && modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
+    document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
+  })();
+  </script>
 {% endblock %}

@@ -1,16 +1,121 @@
 {% extends 'base_users.html' %}
 {% load static %}
 {% block title %}{% if create %}Crear Administrativo{% else %}Editar Administrativo{% endif %}{% endblock %}
+{% block extra_head %}
+<style>
+  .adm-form-shell{max-width:980px;margin:0 auto;padding:46px 38px 120px}
+  .adm-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:32px;padding:46px 50px;box-shadow:0 18px 54px -20px rgba(0,0,0,.18),0 8px 24px -8px rgba(0,0,0,.08);display:flex;flex-direction:column;gap:34px}
+  .adm-card h1{margin:0;font-size:clamp(1.55rem,4.5vw,2.3rem);font-weight:800;letter-spacing:-.6px;color:#0f172a}
+  .adm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px}
+  .adm-field{display:flex;flex-direction:column;gap:8px}
+  .adm-field label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#475569}
+  .adm-field select,.adm-field input[type=text],.adm-field input[type=file]{border:1px solid #d0d7de;background:#f9fbfc;border-radius:16px;padding:12px 14px;font-size:.85rem;transition:border-color .15s,background .15s,box-shadow .15s;width:100%}
+  .adm-field select:focus,.adm-field input[type=text]:focus,.adm-field input[type=file]:focus{outline:none;background:#fff;border-color:#0d63ff;box-shadow:0 0 0 3px rgba(13,99,255,.25)}
+  .adm-field input[type=file]{padding:10px 14px}
+  .adm-inline-note{font-size:.62rem;font-weight:600;letter-spacing:.5px;color:#475569;margin-top:-4px}
+  .adm-preview-group{display:flex;flex-wrap:wrap;gap:28px;margin-top:6px}
+  .adm-preview{flex:0 0 160px;display:flex;flex-direction:column;gap:10px;align-items:center}
+  .adm-preview figure{margin:0;width:160px;height:160px;border:1px solid #e2e8f0;border-radius:22px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#f8fafc}
+  .adm-preview img{width:100%;height:100%;object-fit:cover}
+  .adm-preview figcaption{font-size:.6rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#64748b;text-align:center}
+  .adm-errors{background:#fee2e2;color:#7f1d1d;font-size:.68rem;font-weight:600;padding:10px 14px;border-radius:14px;margin-top:4px}
+  .adm-actions{display:flex;flex-wrap:wrap;gap:16px;margin-top:12px}
+  .adm-btn{display:inline-flex;align-items:center;justify-content:center;font-weight:600;font-size:.8rem;border-radius:18px;padding:14px 24px;cursor:pointer;text-decoration:none;transition:background .16s,border-color .16s,color .16s}
+  .adm-btn.primary{background:#0d6efd;color:#ffffff;box-shadow:0 4px 16px -6px rgba(13,110,253,.45)}
+  .adm-btn.primary:hover{background:#0b5ed7}
+  .adm-btn.outline{background:#ffffff;color:#0f172a;border:1px solid #d0d7de}
+  .adm-btn.outline:hover{background:#f1f5f9;border-color:#c3ccd2}
+  .adm-file-current{font-size:.65rem;color:#334155;margin-top:4px;line-height:1.3}
+  .adm-file-current a{color:#0d63ff;text-decoration:none;font-weight:600}
+  .adm-file-current a:hover{text-decoration:underline}
+  @media (max-width:780px){.adm-form-shell{padding:36px 24px 100px}.adm-card{padding:38px 34px;border-radius:28px}.adm-preview{flex:1 1 140px}.adm-preview figure{width:140px;height:140px}}
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded',()=>{
+    const cedulaInput=document.querySelector('input[name="cedula_img_adm"], input[name="cedula_img"]');
+    const fotoInput=document.querySelector('input[name="foto_perfil_adm"], input[name="foto_perfil"]');
+    function attachPreview(input, targetId){
+      if(!input) return;
+      input.addEventListener('change',()=>{
+        const file=input.files && input.files[0];
+        if(!file) return;
+        const url=URL.createObjectURL(file);
+        const img=document.getElementById(targetId);
+        if(img){img.src=url;img.alt=file.name;}
+      });
+    }
+    attachPreview(cedulaInput,'preview-cedula');
+    attachPreview(fotoInput,'preview-foto');
+  });
+</script>
+{% endblock %}
 {% block content %}
-  <h1>{% if create %}Crear Administrativo{% else %}Editar Administrativo{% endif %}</h1>
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <table>
-      {{ form.as_table }}
-    </table>
-    <div style="margin-top:12px;">
-      <button class="btn btn-primary" type="submit">Guardar</button>
-      <a href="{% url 'adminpanel:administrativo_list' %}" class="btn btn-primary">Cancelar</a>
-    </div>
-  </form>
+<div class="adm-form-shell">
+  <div class="adm-card" role="group" aria-labelledby="adm-form-title">
+    <h1 id="adm-form-title">{% if create %}Crear Administrativo{% else %}Editar Administrativo{% endif %}</h1>
+    <form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
+      <div class="adm-grid">
+        <div class="adm-field">
+          {{ form.id_usu.label_tag }}
+          {{ form.id_usu }}
+          {% if form.id_usu.errors %}<div class="adm-errors">{{ form.id_usu.errors }}</div>{% endif %}
+        </div>
+        <div class="adm-field">
+          {{ form.num_doc_adm.label_tag }}
+          {{ form.num_doc_adm }}
+          {% if form.num_doc_adm.errors %}<div class="adm-errors">{{ form.num_doc_adm.errors }}</div>{% endif %}
+        </div>
+        <div class="adm-field">
+          {{ form.tel_adm.label_tag }}
+          {{ form.tel_adm }}
+          {% if form.tel_adm.errors %}<div class="adm-errors">{{ form.tel_adm.errors }}</div>{% endif %}
+        </div>
+        <div class="adm-field">
+          {{ form.dir_adm.label_tag }}
+          {{ form.dir_adm }}
+          {% if form.dir_adm.errors %}<div class="adm-errors">{{ form.dir_adm.errors }}</div>{% endif %}
+        </div>
+        <div class="adm-field">
+          {{ form.car_tip_adm.label_tag }}
+          {{ form.car_tip_adm }}
+          {% if form.car_tip_adm.errors %}<div class="adm-errors">{{ form.car_tip_adm.errors }}</div>{% endif %}
+        </div>
+        <div class="adm-field">
+          {{ form.cedula_img_adm.label_tag|default:form.cedula_img.label_tag }}
+          {{ form.cedula_img_adm|default:form.cedula_img }}
+          {% if form.cedula_img_adm.errors %}<div class="adm-errors">{{ form.cedula_img_adm.errors }}</div>{% endif %}
+          {% if not create and form.instance.cedula_img_adm %}
+            <div class="adm-file-current">Actual: <a href="{{ form.instance.cedula_img_adm.url }}" target="_blank">{{ form.instance.cedula_img_adm.name }}</a></div>
+          {% endif %}
+        </div>
+        <div class="adm-field">
+          {{ form.foto_perfil_adm.label_tag|default:form.foto_perfil.label_tag }}
+          {{ form.foto_perfil_adm|default:form.foto_perfil }}
+          {% if form.foto_perfil_adm.errors %}<div class="adm-errors">{{ form.foto_perfil_adm.errors }}</div>{% endif %}
+          {% if not create and form.instance.foto_perfil_adm %}
+            <div class="adm-file-current">Actual: <a href="{{ form.instance.foto_perfil_adm.url }}" target="_blank">{{ form.instance.foto_perfil_adm.name }}</a></div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="adm-preview-group">
+        <div class="adm-preview">
+          <figure>
+            <img id="preview-cedula" src="{% if not create and form.instance.cedula_img_adm %}{{ form.instance.cedula_img_adm.url }}{% endif %}" alt="Cedula preview" />
+          </figure>
+          <figcaption>Cédula</figcaption>
+        </div>
+        <div class="adm-preview">
+          <figure>
+            <img id="preview-foto" src="{% if not create and form.instance.foto_perfil_adm %}{{ form.instance.foto_perfil_adm.url }}{% endif %}" alt="Foto perfil preview" />
+          </figure>
+          <figcaption>Foto perfil</figcaption>
+        </div>
+      </div>
+      <div class="adm-actions">
+        <button class="adm-btn primary" type="submit">{% if create %}Guardar{% else %}Actualizar{% endif %}</button>
+        <a href="{% url 'adminpanel:administrativo_list' %}" class="adm-btn outline">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}

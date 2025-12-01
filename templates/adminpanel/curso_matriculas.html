@@ -1,35 +1,76 @@
 {% extends 'base_users.html' %}
-{% block title %}Matriculas - Curso{% endblock %}
+{% block title %}Matrículas - Curso{% endblock %}
+{% block extra_head %}
+<style>
+  .enroll-shell{max-width:1050px;margin:0 auto;padding:12px 20px 54px}
+  .enroll-header{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+  .enroll-header h1{margin:0;font-size:clamp(1.4rem,4.5vw,2.1rem);font-weight:800;letter-spacing:.5px;color:#0f172a}
+  .enroll-sub{font-size:.8rem;color:#64748b;font-weight:500}
+  .enroll-stats{display:flex;flex-wrap:wrap;gap:12px;margin:10px 0 20px}
+  .stat-box{background:#fff;border:1px solid #e5e9ef;border-radius:18px;padding:10px 16px;min-width:160px;display:flex;flex-direction:column;gap:2px;box-shadow:0 12px 40px -20px rgba(0,0,0,.25)}
+  .stat-label{font-size:.6rem;font-weight:800;letter-spacing:.7px;color:#475569;text-transform:uppercase}
+  .stat-value{font-size:1rem;font-weight:700;color:#0f172a}
+  .enroll-table-wrap{background:#fff;border:1px solid #e5e9ef;border-radius:24px;padding:12px 0 10px;box-shadow:0 20px 54px -22px rgba(0,0,0,.25);overflow:hidden;margin-top:4px}
+  table.enroll-table{width:100%;border-collapse:separate;border-spacing:0 4px}
+  .enroll-table thead th{font-size:.58rem;letter-spacing:.7px;font-weight:800;text-transform:uppercase;color:#475569;padding:10px 14px;border-bottom:1px solid #e5e9ef;background:#f8fafc;position:sticky;top:0;z-index:2}
+  .enroll-table tbody td{padding:10px 14px;font-size:.75rem;color:#0f172a;vertical-align:middle;background:#fff}
+  .enroll-table tbody tr{transition:.18s}
+  .enroll-table tbody tr:hover td{background:#f1f5f9}
+  .stud-name{font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
+  .stud-email{font-size:.65rem;color:#334155}
+  .doc-badge{display:inline-block;padding:4px 8px;border-radius:8px;background:#eef2f7;color:#0f172a;font-size:.6rem;font-weight:700;letter-spacing:.5px}
+  .date-cell{font-size:.65rem;color:#475569;font-weight:600}
+  .empty-box{background:#f0f9ff;border:1px solid #bae6fd;border-radius:20px;padding:26px 18px;text-align:center;font-size:.8rem;color:#0c4a6e;font-weight:600;margin:12px 0 18px}
+  .back-bar{margin-top:24px;display:flex;justify-content:flex-start}
+  .back-btn{background:#fff;border:1px solid #d0d7de;color:#0f172a;padding:10px 16px;border-radius:12px;text-decoration:none;font-size:.75rem;font-weight:700;letter-spacing:.5px;box-shadow:0 6px 20px -10px rgba(0,0,0,.18);transition:.15s}
+  .back-btn:hover{background:#f1f5f9}
+  @media (max-width:800px){
+    .enroll-table thead{display:none}
+    .enroll-table tbody tr{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #e5e9ef;border-radius:16px;margin:0 12px 10px}
+    .enroll-table tbody td{background:transparent;padding:8px 10px;border-bottom:1px solid #e5e9ef}
+    .enroll-table tbody td:last-child{border:none}
+    .stud-email{font-size:.6rem}
+  }
+</style>
+{% endblock %}
 {% block content %}
-  <h1>Matriculas — {{ curso.grd_cur }} (ID {{ curso.id_cur }})</h1>
-  <p>Institución: {{ curso.id_inst.nom_inst }}</p>
-  <p>Total matriculados: <strong>{{ total }}</strong></p>
-
-  {% if matriculas and matriculas.count %}
-    <table class="table">
-      <thead>
-        <tr><th>Estudiante</th><th>Email</th><th>Documento</th><th>Fecha matriculado</th></tr>
-      </thead>
-      <tbody>
-        {% for m in matriculas %}
-          <tr>
-            <td>{{ m.id_est.id_usu.nom_usu }} {{ m.id_est.id_usu.ape_usu }}</td>
-            <td>{{ m.id_est.id_usu.ema_usu }}</td>
-            <td>{{ m.id_est.num_doc_est|default:'-' }}</td>
-            <td>{{ m.fch_reg_mat }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <div class="alert alert-info">No hay estudiantes matriculados en este curso.</div>
-  {% endif %}
-
-  <p>
-    {% if curso.id_inst %}
-      <a class="btn btn-outline" href="{% url 'adminpanel:institucion_curso_list' curso.id_inst.pk %}">Volver a cursos</a>
+  <div class="enroll-shell">
+    <div class="enroll-header">
+      <h1>Matrículas — {{ curso.grd_cur }} <span style="font-weight:600;opacity:.55">(ID {{ curso.id_cur }})</span></h1>
+      <div class="enroll-sub">Institución: {{ curso.id_inst.nom_inst }}</div>
+    </div>
+    <div class="enroll-stats">
+      <div class="stat-box"><span class="stat-label">Total matriculados</span><span class="stat-value">{{ total }}</span></div>
+      <div class="stat-box"><span class="stat-label">Grado</span><span class="stat-value">{{ curso.grd_cur }}</span></div>
+      <div class="stat-box"><span class="stat-label">Institución</span><span class="stat-value" style="font-size:.8rem">{{ curso.id_inst.nom_inst|default:'-' }}</span></div>
+    </div>
+    {% if matriculas and matriculas.count %}
+      <div class="enroll-table-wrap">
+        <table class="enroll-table">
+          <thead>
+            <tr><th>Estudiante</th><th>Email</th><th>Documento</th><th>Fecha</th></tr>
+          </thead>
+          <tbody>
+          {% for m in matriculas %}
+            <tr>
+              <td><div class="stud-name">{{ m.id_est.id_usu.nom_usu }} {{ m.id_est.id_usu.ape_usu }}</div></td>
+              <td><div class="stud-email">{{ m.id_est.id_usu.ema_usu|default:'-' }}</div></td>
+              <td><span class="doc-badge">{{ m.id_est.num_doc_est|default:'-' }}</span></td>
+              <td><span class="date-cell">{{ m.fch_reg_mat|date:'Y-m-d' }}</span></td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
     {% else %}
-      <a class="btn btn-outline" href="{% url 'adminpanel:curso_list' %}">Volver a cursos</a>
+      <div class="empty-box">No hay estudiantes matriculados en este curso.</div>
     {% endif %}
-  </p>
+    <div class="back-bar">
+    {% if curso.id_inst %}
+      <a class="back-btn" href="{% url 'adminpanel:institucion_curso_list' curso.id_inst.pk %}">Volver a cursos</a>
+    {% else %}
+      <a class="back-btn" href="{% url 'adminpanel:curso_list' %}">Volver a cursos</a>
+    {% endif %}
+    </div>
+  </div>
 {% endblock %}
