@@ -8,6 +8,8 @@ services:
       pip install -r requirements.txt
       python manage.py collectstatic --noinput
       python manage.py migrate --noinput
+      # Crear/actualizar admin si hay variables DJANGO_ADMIN_*
+      python manage.py ensure_admin
     startCommand: gunicorn matrischol_project.wsgi:application
     envVars:
       - key: SECRET_KEY
@@ -16,3 +18,12 @@ services:
         value: matrischol_project.settings
       - key: PYTHON_VERSION
         value: 3.12.7
+      # Opcionales: define estos en el dashboard para crear el admin automáticamente
+      - key: DJANGO_ADMIN_EMAIL
+        value: ""
+      - key: DJANGO_ADMIN_PASSWORD
+        value: ""
+      - key: DJANGO_ADMIN_FIRST_NAME
+        value: "Admin"
+      - key: DJANGO_ADMIN_LAST_NAME
+        value: "User"
