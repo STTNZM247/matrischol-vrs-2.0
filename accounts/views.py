@@ -34,6 +34,9 @@ def register_view(request):
                 num_doc_acu=num_doc,
                 tel_acu=tel,
                 dir_acu=dir_acu,
+                lat_acu=form.cleaned_data.get('dir_lat'),
+                lon_acu=form.cleaned_data.get('dir_lon'),
+                acc_acu=form.cleaned_data.get('dir_acc'),
                 id_usu=registro,
                 cedula_img=cedula,
                 foto_perfil=foto,
@@ -44,6 +47,189 @@ def register_view(request):
     else:
         form = RegistroForm()
     return render(request, 'accounts/register.html', {'form': form})
+
+
+def address_suggest(request):
+    """Endpoint simple para autocompletar direcciones usando Nominatim.
+
+    GET params:
+    - q: texto a buscar
+    - country: código de país ISO2 (default CO)
+    - limit: número de sugerencias (default 5)
+    """
+    q = (request.GET.get('q') or '').strip()
+    # Si no hay q pero sí lat/lon, devolver sugerencias "cercanas"
+    lat_param = request.GET.get('lat')
+    lon_param = request.GET.get('lon')
+    # Normalizar query (bajar a minúsculas y quitar espacios duplicados)
+    q_norm = ' '.join(q.lower().split())
+    if not q_norm and lat_param and lon_param:
+        try:
+            import requests
+        except Exception:
+            return JsonResponse({'results': []})
+        try:
+            latf = float(lat_param)
+            lonf = float(lon_param)
+        except Exception:
+            return JsonResponse({'results': []})
+        # Obtener algunas vías cercanas usando tokens comunes (minimizar llamadas)
+        tokens = ['calle', 'carrera']
+        resultados = []
+        headers = {'User-Agent': 'matrischol/1.0 (admin@matrischol.local)'}
+        delta = 0.15
+        left = lonf - delta
+        right = lonf + delta
+        top = latf + delta
+        bottom = latf - delta
+        for tk in tokens:
+            if len(resultados) >= 5:
+                break
+            params_tok = {
+                'q': tk,
+                'format': 'jsonv2',
+                'addressdetails': 1,
+                'limit': 5,
+                'viewbox': f"{left},{top},{right},{bottom}",
+                'bounded': 1,
+                'countrycodes': (request.GET.get('country') or 'CO').strip().lower(),
+            }
+            try:
+                rtk = requests.get('https://nominatim.openstreetmap.org/search', params=params_tok, headers=headers, timeout=4.0)
+                rtk.raise_for_status()
+                data_tok = rtk.json() or []
+            except Exception:
+                data_tok = []
+            for it in data_tok:
+                if len(resultados) >= 5:
+                    break
+                label = it.get('display_name')
+                try:
+                    latv = float(it.get('lat')) if it.get('lat') else None
+                    lonv = float(it.get('lon')) if it.get('lon') else None
+                except Exception:
+                    latv = None; lonv = None
+                if label and latv is not None and lonv is not None and label not in [r['label'] for r in resultados]:
+                    resultados.append({'label': label, 'lat': latv, 'lon': lonv})
+        return JsonResponse({'results': resultados})
+    if not q_norm:
+        return JsonResponse({'results': []})
+    country = (request.GET.get('country') or 'CO').strip() or 'CO'
+    # Opcional: limitar por lat/lon del usuario (bounding box) para resultados más relevantes
+    # lat/lon ya calculados arriba si q vacío; aquí sólo para búsquedas con texto
+    lat_param = request.GET.get('lat')
+    lon_param = request.GET.get('lon')
+    try:
+        limit = int(request.GET.get('limit') or '5')
+    except Exception:
+        limit = 5
+    limit = max(1, min(limit, 10))
+
+    try:
+        import requests  # importar dentro para no romper en falta de dependencia
+    except Exception:
+        return JsonResponse({'results': []})
+
+    url = 'https://nominatim.openstreetmap.org/search'
+    params = {
+        'q': q_norm,
+        'format': 'jsonv2',
+        'addressdetails': 1,
+        'limit': limit,
+        'countrycodes': country.lower(),
+        'accept-language': 'es',
+    }
+    if lat_param and lon_param:
+        try:
+            latf = float(lat_param)
+            lonf = float(lon_param)
+            delta = 0.15  # ~15km aprox
+            left = lonf - delta
+            right = lonf + delta
+            top = latf + delta
+            bottom = latf - delta
+            params['viewbox'] = f"{left},{top},{right},{bottom}"
+            params['bounded'] = 1
+        except Exception:
+            pass
+    headers = {
+        'User-Agent': 'matrischol/1.0 (admin@matrischol.local)'
+    }
+    def perform_search(local_params):
+        try:
+            r = requests.get(url, params=local_params, headers=headers, timeout=4.5)
+            r.raise_for_status()
+            return r.json() or []
+        except Exception:
+            return []
+
+    data = perform_search(params)
+    # Fallback 1: si vacío y query >=3 quitar filtro de país
+    if not data and len(q_norm) >= 3:
+        params_no_country = dict(params)
+        params_no_country.pop('countrycodes', None)
+        data = perform_search(params_no_country)
+    # Fallback 2: separar tokens y buscar individualmente (merge)
+    if not data and len(q_norm) >= 3:
+        tokens = [t for t in q_norm.split(' ') if t]
+        merged = []
+        for tk in tokens:
+            p_tok = dict(params)
+            p_tok['q'] = tk
+            chunk = perform_search(p_tok)
+            for it in chunk:
+                if it not in merged:
+                    merged.append(it)
+            if len(merged) >= limit:
+                break
+        data = merged[:limit]
+
+    results = []
+    for it in data:
+        try:
+            label = it.get('display_name')
+            lat = float(it.get('lat')) if it.get('lat') else None
+            lon = float(it.get('lon')) if it.get('lon') else None
+            if not label or lat is None or lon is None:
+                continue
+            results.append({'label': label, 'lat': lat, 'lon': lon})
+        except Exception:
+            continue
+    return JsonResponse({'results': results})
+
+
+def address_reverse(request):
+    """Reverse geocoding: lat/lon -> dirección normalizada."""
+    try:
+        import requests
+    except Exception:
+        return JsonResponse({'ok': False, 'address': None})
+    lat = request.GET.get('lat')
+    lon = request.GET.get('lon')
+    if not lat or not lon:
+        return JsonResponse({'ok': False, 'address': None})
+    try:
+        latf = float(lat)
+        lonf = float(lon)
+    except Exception:
+        return JsonResponse({'ok': False, 'address': None})
+    url = 'https://nominatim.openstreetmap.org/reverse'
+    params = {
+        'lat': latf,
+        'lon': lonf,
+        'format': 'jsonv2',
+        'zoom': 20,  # mayor detalle para reverse
+        'accept-language': 'es',
+    }
+    headers = {'User-Agent': 'matrischol/1.0 (admin@matrischol.local)'}
+    try:
+        r = requests.get(url, params=params, headers=headers, timeout=4.5)
+        r.raise_for_status()
+        data = r.json() or {}
+        display = data.get('display_name')
+        return JsonResponse({'ok': bool(display), 'address': display})
+    except Exception:
+        return JsonResponse({'ok': False, 'address': None})
 
 
 def login_view(request):

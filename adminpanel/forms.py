@@ -173,6 +173,16 @@ class AdministrativoForm(forms.ModelForm):
             'foto_perfil': 'Foto de perfil',
         }
 
+    def clean_dir_adm(self):
+        val = self.cleaned_data.get('dir_adm')
+        if val:
+            from utils.geo import validate_and_normalize_address
+            res = validate_and_normalize_address(val, country='CO')
+            if res.get('ok') and res.get('normalized'):
+                return res['normalized']
+            raise forms.ValidationError('Dirección no válida o no encontrada. Intenta ser más específico (ej. calle, número, ciudad).')
+        return val
+
 
 class BulkCursoForm(forms.Form):
     MODE_CHOICES = (
@@ -254,6 +264,20 @@ class AdminRegistroCreateForm(forms.ModelForm):
         if rol_name == 'acudiente':
             if not cleaned.get('acu_num_doc'):
                 raise forms.ValidationError('Para rol acudiente, el número de documento es obligatorio')
+        # Normalizar direcciones si fueron proporcionadas (no obligatorio)
+        from utils.geo import validate_and_normalize_address
+        if cleaned.get('dir_adm'):
+            res = validate_and_normalize_address(cleaned['dir_adm'], country='CO')
+            if res.get('ok') and res.get('normalized'):
+                cleaned['dir_adm'] = res['normalized']
+            else:
+                raise forms.ValidationError('No pudimos validar la dirección del administrativo. Revisa la dirección.')
+        if cleaned.get('acu_dir'):
+            res2 = validate_and_normalize_address(cleaned['acu_dir'], country='CO')
+            if res2.get('ok') and res2.get('normalized'):
+                cleaned['acu_dir'] = res2['normalized']
+            else:
+                raise forms.ValidationError('No pudimos validar la dirección del acudiente. Revisa la dirección.')
         return cleaned
 
     def save(self, commit=True, files=None):

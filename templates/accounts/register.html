@@ -2,10 +2,10 @@
 {% load static %}
 {% block title %}Registro{% endblock %}
 {% block content %}
-    <section class="hero">
-        <div class="cuadro cuadro-login">
+    <section class="hero" style="padding:24px 0;">
+        <div class="cuadro cuadro-login" style="max-width:760px; margin:0 auto; background:#fff; border:1px solid #e6e6e6; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.06); padding:24px;">
             <h2>Registrarme</h2>
-            <form action="" method="POST" enctype="multipart/form-data" autocomplete="off" id="register-form">
+            <form action="" method="POST" enctype="multipart/form-data" autocomplete="off" id="register-form" style="display:grid; gap:16px;">
                 {% csrf_token %}
                 {% if form.non_field_errors %}
                     <div class="form-errors">
@@ -21,34 +21,47 @@
                         {% endfor %}
                     </div>
                 {% endif %}
-                <div>
+                <style>
+                    .field-group{ display:grid; gap:6px; }
+                    .field-group label{ font-weight:600; color:#222; }
+                    .field-group input[type="text"],
+                    .field-group input[type="email"],
+                    .field-group input[type="password"],
+                    .field-group input[type="file"],
+                    .field-group select{ padding:10px 12px; border:1px solid #dcdcdc; border-radius:10px; background:#fff; outline:none; transition:border-color .2s, box-shadow .2s; }
+                    .field-group input:focus, .field-group select:focus{ border-color:#1e88e5; box-shadow:0 0 0 3px rgba(30,136,229,.15); }
+                    .password-field{position:relative}
+                    .password-field input{width:100%; box-sizing:border-box; padding-right:44px}
+                    .password-field i{position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:1.25rem; color:#333}
+                    .field-error{color:#b00020; font-size:0.9rem}
+                    .login-links a{ color:#1e88e5; text-decoration:none; }
+                    .login-links a:hover{ text-decoration:underline; }
+                    button[type="submit"]{ background:#1e88e5; color:#fff; border:none; padding:10px 16px; border-radius:10px; font-weight:600; cursor:pointer; transition:transform .05s ease, box-shadow .2s; }
+                    button[type="submit"]:hover{ box-shadow:0 6px 14px rgba(30,136,229,.25); }
+                    button[type="submit"]:active{ transform:scale(0.98); }
+                </style>
+                <div class="field-group">
                     <label>Nombre</label>
                     {{ form.nom_usu }}
                     {% if form.nom_usu.errors %}
                         <div class="field-error">{{ form.nom_usu.errors|striptags }}</div>
                     {% endif %}
                 </div>
-                <div>
+                <div class="field-group">
                     <label>Apellido</label>
                     {{ form.ape_usu }}
                     {% if form.ape_usu.errors %}
                         <div class="field-error">{{ form.ape_usu.errors|striptags }}</div>
                     {% endif %}
                 </div>
-                <div>
+                <div class="field-group">
                     <label>Correo</label>
                     {{ form.ema_usu }}
                     {% if form.ema_usu.errors %}
                         <div class="field-error">{{ form.ema_usu.errors|striptags }}</div>
                     {% endif %}
                 </div>
-                <style>
-                    .password-field{position:relative}
-                    .password-field input{width:100%; box-sizing:border-box; padding-right:44px}
-                    .password-field i{position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:1.25rem; color:#333}
-                    .field-error{color:#b00020; font-size:0.9rem}
-                </style>
-                <div>
+                <div class="field-group">
                     <label>Contraseña</label>
                     <div class="password-field">
                         {{ form.con_usu }}
@@ -58,7 +71,7 @@
                         <div class="field-error">{{ form.con_usu.errors }}</div>
                     {% endif %}
                 </div>
-                <div>
+                <div class="field-group">
                     <label>Confirmar contraseña</label>
                     <div class="password-field">
                         {{ form.con_usu_confirm }}
@@ -70,29 +83,36 @@
                 </div>
                 <hr>
                 <h3>Datos del acudiente</h3>
-                <div>
+                <div class="field-group">
                     <label>Número de documento</label>
                     {{ form.num_doc_acu }}
                     {% if form.num_doc_acu.errors %}
                         <div class="field-error">{{ form.num_doc_acu.errors|striptags }}</div>
                     {% endif %}
                 </div>
-                <div>
+                <div class="field-group">
                     <label>Teléfono</label>
                     {{ form.tel_acu }}
                 </div>
-                <div>
+                <div class="field-group">
                     <label>Dirección</label>
                     {{ form.dir_acu }}
+                    <input type="hidden" name="dir_lat" id="id_dir_lat">
+                    <input type="hidden" name="dir_lon" id="id_dir_lon">
+                    <input type="hidden" name="dir_acc" id="id_dir_acc">
+                    <button type="button" id="btn-geoloc" style="margin-top:6px; padding:8px 12px; font-size:0.85rem; border:1px solid #cfd8dc; background:#f5f7fb; border-radius:10px; cursor:pointer">📍 Usar mi ubicación</button>
+                    <div id="dir_acu_suggest" class="suggest-box" style="display:none"></div>
+                    <div id="address-map" style="height: 260px; margin-top: 8px; border-radius:12px; overflow:hidden; border:1px solid #e0e0e0;"></div>
+                    <div id="accuracy-info" style="margin-top:6px; font-size:0.75rem; color:#444; display:none"></div>
                 </div>
-                <div>
+                <div class="field-group">
                     <label>Foto de la cédula</label>
                     {{ form.cedula_img }}
                     {% if form.cedula_img.errors %}
                         <div class="field-error">{{ form.cedula_img.errors|striptags }}</div>
                     {% endif %}
                 </div>
-                <div>
+                <div class="field-group">
                     <label>Foto de perfil (opcional)</label>
                     {{ form.foto_perfil }}
                 </div>
@@ -105,6 +125,314 @@
         </div>
     </section>
     <script>
+        // --- Autocompletado de dirección + mapa Leaflet ---
+        (function(){
+            const input = document.getElementById('id_dir_acu');
+            if(!input){ return; }
+            const box = document.getElementById('dir_acu_suggest');
+            const geobtn = document.getElementById('btn-geoloc');
+            let userLat = null, userLon = null;
+            let timer = null;
+            let lastQuery = '';
+            let map = null;
+            let marker = null;
+            let geoWatchId = null;
+            let bestAcc = Infinity;
+            function ensureStyles(){
+                const styleId = 'suggest-styles';
+                if(document.getElementById(styleId)) return;
+                const st = document.createElement('style');
+                st.id = styleId;
+                st.textContent = `
+                .suggest-box{ position:relative; z-index: 10; }
+                .suggest-box .list{ position:absolute; left:0; right:0; max-height:220px; overflow:auto; background:#fff; border:1px solid #e0e0e0; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,.08); margin-top:4px; }
+                .suggest-box .item{ padding:8px 12px; cursor:pointer; font-size:.95rem; line-height:1.2; }
+                .suggest-box .item:hover{ background:#f5f7fb; }
+                .suggest-box .empty{ padding:8px 12px; font-size:.85rem; color:#666; }
+                `;
+                document.head.appendChild(st);
+            }
+            ensureStyles();
+            function debounceFetch(){
+                window.clearTimeout(timer);
+                timer = window.setTimeout(doFetch, 300);
+            }
+            async function doFetch(){
+                const q = (input.value || '').trim();
+                if(q.length < 2){ hideSuggest(); return; }
+                if(q === lastQuery){ return; }
+                lastQuery = q;
+                showLoading();
+                try{
+                    const url = new URL(window.location.origin + '{% url "accounts:address_suggest" %}');
+                    url.searchParams.set('q', q);
+                    url.searchParams.set('country', 'CO');
+                     url.searchParams.set('limit', '8');
+                    if(userLat !== null && userLon !== null){
+                        url.searchParams.set('lat', userLat);
+                        url.searchParams.set('lon', userLon);
+                    }
+                    const res = await fetch(url.toString(), { method: 'GET', headers: { 'Accept': 'application/json' } });
+                    if(!res.ok){ showEmpty(); return; }
+                    const data = await res.json();
+                    renderSuggest(data.results || []);
+                 }catch(e){ console.error('Suggest fetch error', e); showEmpty(); }
+            }
+            function showLoading(){
+                box.style.display = 'block';
+                box.innerHTML = '<div class="list"><div class="item" style="opacity:.7">Buscando...</div></div>';
+            }
+            function showEmpty(){
+                box.style.display = 'block';
+                box.innerHTML = '<div class="list"><div class="empty">Sin resultados</div></div>';
+            }
+            function renderSuggest(items){
+                if(!items.length){ showEmpty(); return; }
+                box.style.display = 'block';
+                let html = '<div class="list">';
+                items.forEach((it)=>{
+                    const esc = (it.label || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                    html += `<div class=\"item\" data-lat=\"${it.lat}\" data-lon=\"${it.lon}\" data-label=\"${esc}\">${esc}</div>`;
+                });
+                html += '</div>';
+                box.innerHTML = html;
+                box.querySelectorAll('.item').forEach(el=>{
+                    el.addEventListener('click', ()=>{
+                        const lat = parseFloat(el.getAttribute('data-lat'));
+                        const lon = parseFloat(el.getAttribute('data-lon'));
+                        const label = el.getAttribute('data-label');
+                        input.value = label;
+                        document.getElementById('id_dir_lat').value = lat;
+                        document.getElementById('id_dir_lon').value = lon;
+                        hideSuggest();
+                        showMap(lat, lon, label);
+                    });
+                });
+            }
+            function hideSuggest(){
+                box.style.display = 'none';
+                box.innerHTML = '';
+            }
+            function ensureLeaflet(cb){
+                if(window.L){ cb(); return; }
+                const cssId = 'leaflet-css';
+                if(!document.getElementById(cssId)){
+                    const lcss = document.createElement('link');
+                    lcss.id = cssId;
+                    lcss.rel = 'stylesheet';
+                    lcss.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+                    lcss.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+                    lcss.crossOrigin = '';
+                    document.head.appendChild(lcss);
+                }
+                const jsId = 'leaflet-js';
+                if(document.getElementById(jsId)){
+                    document.getElementById(jsId).addEventListener('load', ()=>cb());
+                    return;
+                }
+                const s = document.createElement('script');
+                s.id = jsId;
+                s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                s.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+                s.crossOrigin = '';
+                s.onload = ()=>cb();
+                document.head.appendChild(s);
+            }
+            function accToZoom(acc){
+                if(!isFinite(acc) || acc <= 0) return 17;
+                if(acc <= 20) return 18;
+                if(acc <= 60) return 17;
+                if(acc <= 120) return 16;
+                if(acc <= 300) return 15;
+                return 13;
+            }
+            function clampAccForCircle(acc){
+                if(!isFinite(acc) || acc <= 0) return 0;
+                if(acc > 300) return 0; // no dibujar círculos gigantes
+                if(acc < 15) return 15; // mínimo visible
+                return acc;
+            }
+
+            function showMap(lat, lon, label){
+                const mapEl = document.getElementById('address-map');
+                ensureLeaflet(()=>{
+                    const accValRaw = parseFloat(document.getElementById('id_dir_acc').value || '0');
+                    const accVal = isNaN(accValRaw) ? 0 : accValRaw;
+                    const zoom = accToZoom(accVal);
+                    if(!map){
+                        map = L.map(mapEl).setView([lat, lon], zoom);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19,
+                            attribution: '&copy; OpenStreetMap contributors'
+                        }).addTo(map);
+                        // Permitir refinar la ubicación haciendo click en el mapa
+                        map.on('click', (e)=>{
+                            const { lat:clat, lng:clon } = e.latlng;
+                            setPoint(clat, clon, 'Ubicación ajustada');
+                            // al ajustar manualmente asumimos buena precisión
+                            document.getElementById('id_dir_acc').value = 10;
+                            renderAccuracy();
+                            reverseFill(clat, clon);
+                        });
+                    } else {
+                        map.setView([lat, lon], zoom);
+                    }
+                    if(marker){ marker.remove(); }
+                    marker = L.marker([lat, lon], { draggable: true }).addTo(map);
+                    marker.on('dragend', ()=>{
+                        const p = marker.getLatLng();
+                        setPoint(p.lat, p.lng, 'Ubicación ajustada');
+                        document.getElementById('id_dir_acc').value = 10;
+                        renderAccuracy();
+                        reverseFill(p.lat, p.lng);
+                    });
+                    if(label){ marker.bindPopup(label).openPopup(); }
+                    // dibujar círculo de precisión si existe
+                    const drawRadius = clampAccForCircle(accVal);
+                    if(window._accCircle){ window._accCircle.remove(); window._accCircle = null; }
+                    if(drawRadius > 0){
+                        window._accCircle = L.circle([lat, lon], {radius: drawRadius, color:'#1e88e5', fillColor:'#90caf9', fillOpacity:0.18}).addTo(map);
+                    }
+                    setTimeout(()=>{ map.invalidateSize(); }, 100);
+                });
+            }
+
+            function setPoint(lat, lon, label){
+                userLat = lat; userLon = lon;
+                document.getElementById('id_dir_lat').value = lat;
+                document.getElementById('id_dir_lon').value = lon;
+                showMap(lat, lon, label);
+                if((input.value||'').trim().length >= 1){ debounceFetch(); } else { fetchNearby(); }
+            }
+            function fetchNearby(){
+                if(userLat === null || userLon === null){ return; }
+                const url = new URL(window.location.origin + '{% url "accounts:address_suggest" %}');
+                url.searchParams.set('country', 'CO');
+                url.searchParams.set('lat', userLat);
+                url.searchParams.set('lon', userLon);
+                fetch(url.toString(), {headers:{'Accept':'application/json'}})
+                    .then(r => r.ok ? r.json() : {results:[]})
+                    .then(d => { renderSuggest(d.results || []); })
+                    .catch(()=>{});
+            }
+                geobtn.addEventListener('click', ()=>{
+                if(!navigator.geolocation){
+                    geobtn.textContent = 'Geolocalización no soportada';
+                    return;
+                }
+                // Toggle: si ya está activo, detener
+                if(geobtn.dataset.active === '1'){
+                    if(geoWatchId !== null){ navigator.geolocation.clearWatch(geoWatchId); geoWatchId = null; }
+                    geobtn.dataset.active = '';
+                    geobtn.textContent = '📍 Usar mi ubicación';
+                    geobtn.style.background = '#f5f7fb';
+                    geobtn.disabled = false;
+                    return;
+                }
+
+                geobtn.dataset.active = '1';
+                geobtn.disabled = false; // permitimos parar
+                geobtn.textContent = 'Buscando precisión...';
+                geobtn.style.background = '#fff8e1';
+                bestAcc = Infinity;
+                let stopTimer = null;
+
+                function handleFix(pos){
+                    const { latitude, longitude, accuracy } = pos.coords;
+                    // conservar el mejor fix
+                    if(accuracy < bestAcc){
+                        bestAcc = accuracy;
+                        document.getElementById('id_dir_acc').value = Math.round(accuracy);
+                        setPoint(latitude, longitude, 'Tu ubicación');
+                        input.value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+                        renderAccuracy();
+                        reverseFill(latitude, longitude);
+                    }
+                    // si logramos muy buena precisión, paramos (<= 20m)
+                    if(bestAcc <= 20){
+                        if(geoWatchId !== null){ navigator.geolocation.clearWatch(geoWatchId); geoWatchId = null; }
+                        geobtn.dataset.active = '';
+                        geobtn.textContent = `Ubicación establecida (≈ ${Math.round(bestAcc)} m)`;
+                        geobtn.style.background = '#e0ffe0';
+                    } else {
+                        geobtn.textContent = `Mejorando precisión (≈ ${Math.round(accuracy)} m)...`;
+                    }
+                }
+
+                function handleError(){
+                    // Fallback simple a una lectura única
+                    navigator.geolocation.getCurrentPosition((pos)=>{
+                        handleFix(pos);
+                        geobtn.dataset.active = '';
+                        geobtn.textContent = `Ubicación establecida (≈ ${Math.round(pos.coords.accuracy)} m)`;
+                        geobtn.style.background = '#e0ffe0';
+                    }, ()=>{
+                        geobtn.dataset.active = '';
+                        geobtn.textContent = 'Permiso denegado';
+                        geobtn.style.background = '#ffe0e0';
+                    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+                }
+
+                try{
+                    geoWatchId = navigator.geolocation.watchPosition(handleFix, handleError, {
+                        enableHighAccuracy: true,
+                        timeout: 20000,
+                        maximumAge: 0
+                    });
+                    // cortar después de 15s si no mejora suficiente
+                    stopTimer = setTimeout(()=>{
+                        if(geoWatchId !== null){ navigator.geolocation.clearWatch(geoWatchId); geoWatchId = null; }
+                        geobtn.dataset.active = '';
+                        if(isFinite(bestAcc)){
+                            geobtn.textContent = `Ubicación establecida (≈ ${Math.round(bestAcc)} m)`;
+                            geobtn.style.background = '#e0ffe0';
+                        } else {
+                            geobtn.textContent = 'No se pudo obtener ubicación';
+                            geobtn.style.background = '#ffe0e0';
+                        }
+                    }, 15000);
+                }catch(e){ handleError(); }
+            });
+            showMap(4.7110, -74.0721, 'Bogotá referencia');
+            function reverseFill(lat, lon){
+                try{
+                    const url = new URL(window.location.origin + '{% url "accounts:address_reverse" %}');
+                    url.searchParams.set('lat', lat);
+                    url.searchParams.set('lon', lon);
+                    fetch(url.toString(), {headers:{'Accept':'application/json'}})
+                        .then(r=> r.ok ? r.json() : {ok:false})
+                        .then(d=>{
+                            if(d.ok && d.address){
+                                // si la precisión es baja, no sobreescribir completamente
+                                const accVal = parseInt(document.getElementById('id_dir_acc').value||'0',10);
+                                if(!isNaN(accVal) && accVal>100){
+                                    input.value = `Cerca de: ${d.address}`;
+                                } else {
+                                    input.value = d.address;
+                                }
+                            }
+                        }).catch(()=>{});
+                }catch(e){/* silencioso */}
+            }
+            function renderAccuracy(){
+                const accEl = document.getElementById('accuracy-info');
+                const accVal = document.getElementById('id_dir_acc').value;
+                if(!accVal){ accEl.style.display='none'; return; }
+                const m = parseInt(accVal,10);
+                if(isNaN(m)){ accEl.style.display='none'; return; }
+                let msg = `Precisión estimada: ${m} m`;
+                if(m > 100){ msg += ' (baja precisión, intenta acercarte a una ventana o activar GPS)'; }
+                else if(m > 50){ msg += ' (moderada)'; }
+                else { msg += ' (buena)'; }
+                accEl.textContent = msg;
+                accEl.style.display='block';
+            }
+            input.addEventListener('input', debounceFetch);
+            document.addEventListener('click', (ev)=>{
+                if(!box.contains(ev.target) && ev.target !== input){ hideSuggest(); }
+            });
+        })();
+
         function togglePassword(){
             const passwordInput = document.getElementById('password');
             const eyeIcon = document.getElementById('eye-icon');
@@ -133,27 +461,19 @@
                 eyeIcon.classList.add('fa-eye');
             }
         }
-        // client-side validation: show inline errors instead of alerts
         document.getElementById('register-form').addEventListener('submit', function(e){
             const pwd = document.getElementById('password');
             const pwdc = document.getElementById('password_confirm');
             const clientErrors = [];
             const errContainerId = 'client-errors';
-            // remove previous client errors
             let prev = document.getElementById(errContainerId);
             if(prev) prev.remove();
             if(!pwd) return;
             const val = pwd.value || '';
             const special = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+/;
-            if(val.length < 8){
-                clientErrors.push('La contraseña debe tener al menos 8 caracteres');
-            }
-            if(!special.test(val)){
-                clientErrors.push('La contraseña debe incluir al menos un carácter especial (ej. !@#$%)');
-            }
-            if(pwdc && val !== pwdc.value){
-                clientErrors.push('Las contraseñas no coinciden');
-            }
+            if(val.length < 8){ clientErrors.push('La contraseña debe tener al menos 8 caracteres'); }
+            if(!special.test(val)){ clientErrors.push('La contraseña debe incluir al menos un carácter especial (ej. !@#$%)'); }
+            if(pwdc && val !== pwdc.value){ clientErrors.push('Las contraseñas no coinciden'); }
             if(clientErrors.length){
                 e.preventDefault();
                 const container = document.createElement('div');
@@ -167,7 +487,6 @@
                 });
                 const form = document.getElementById('register-form');
                 form.insertBefore(container, form.firstChild);
-                // scroll to top of form so user sees errors
                 form.scrollIntoView({behavior: 'smooth'});
                 return false;
             }

@@ -2,6 +2,7 @@ from django import forms
 from .models import Registro
 from django.forms import ClearableFileInput
 import re
+from utils.geo import validate_and_normalize_address
 
 
 class RegistroForm(forms.ModelForm):
@@ -13,6 +14,9 @@ class RegistroForm(forms.ModelForm):
     dir_acu = forms.CharField(max_length=100, required=False, label='Dirección')
     cedula_img = forms.ImageField(required=True, widget=ClearableFileInput, label='Foto de la cédula')
     foto_perfil = forms.ImageField(required=False, widget=ClearableFileInput, label='Foto de perfil')
+    dir_lat = forms.FloatField(required=False, widget=forms.HiddenInput())
+    dir_lon = forms.FloatField(required=False, widget=forms.HiddenInput())
+    dir_acc = forms.IntegerField(required=False, widget=forms.HiddenInput())
 
     class Meta:
         model = Registro
@@ -36,6 +40,21 @@ class RegistroForm(forms.ModelForm):
                 raise forms.ValidationError('La contraseña debe tener al menos 8 caracteres')
             if not re.search(r"[!@#$%^&*()_+\-=[\]{};':\"\\|,.<>/?]+", a):
                 raise forms.ValidationError('La contraseña debe incluir al menos un carácter especial (ej. !@#$%)')
+        # Validación opcional de dirección del acudiente si fue proporcionada
+        dir_acu = cleaned.get('dir_acu')
+        if dir_acu:
+            # Si ya tenemos lat/lon asumimos que provienen de geocodificación directa
+            if cleaned.get('dir_lat') and cleaned.get('dir_lon'):
+                # Normalizar texto vía validator para asegurar consistencia
+                res = validate_and_normalize_address(dir_acu, country='CO')
+                if res.get('ok') and res.get('normalized'):
+                    cleaned['dir_acu'] = res['normalized']
+            else:
+                res = validate_and_normalize_address(dir_acu, country='CO')
+                if res.get('ok') and res.get('normalized'):
+                    cleaned['dir_acu'] = res['normalized']
+                else:
+                    raise forms.ValidationError('No pudimos validar la dirección proporcionada. Verifica y vuelve a intentar.')
         return cleaned
 
 
