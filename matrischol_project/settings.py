@@ -163,10 +163,15 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False') == 'True'
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'no-reply@example.com')
+EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', '10'))
 
 # Evitar configuración inválida (TLS y SSL a la vez)
 if EMAIL_USE_TLS and EMAIL_USE_SSL:
     raise ValueError('Config: No puedes habilitar TLS y SSL simultáneamente. Ajusta variables de entorno.')
+
+# Failover simple: si se forzó SMTP pero no hay host, vuelve a consola
+if EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend' and not EMAIL_HOST:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Respeto a cabeceras de proxy (Render) y cookies seguras en producción
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
