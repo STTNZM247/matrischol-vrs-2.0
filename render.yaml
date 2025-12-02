@@ -7,12 +7,12 @@ services:
     buildCommand: |
       pip install -r requirements.txt
       python manage.py collectstatic --noinput
-      python manage.py migrate --noinput
-      # Asegurar roles base
-      python manage.py ensure_roles
-      # Crear/actualizar admin si hay variables DJANGO_ADMIN_*
-      python manage.py ensure_admin
-    startCommand: gunicorn matrischol_project.wsgi:application
+    startCommand: >-
+      bash -lc
+      "python manage.py migrate --noinput &&
+      python manage.py ensure_roles &&
+      python manage.py ensure_admin &&
+      gunicorn matrischol_project.wsgi:application"
     envVars:
       - key: SECRET_KEY
         generateValue: true
