@@ -1,12 +1,9 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
-
-
-load_dotenv()  # carga variables de entorno desde .env si existe
 
 try:
-    from dotenv import load_dotenv  # opcional, facilita cargar archivo .env
+    from dotenv import load_dotenv  # python-dotenv
+    load_dotenv()  # carga variables de entorno desde .env si existe
 except ImportError:
     load_dotenv = None
 
@@ -35,12 +32,15 @@ else:
         except Exception:
             pass
 
-SECRET_KEY = os.environ.get("SECRET_KEY", default='sasasassdsasasa')
+SECRET_KEY = os.environ.get("SECRET_KEY", 'change-me-in-prod')
 
-DEBUG = 'RENDER' not in os.environ
+# Permite forzar DEBUG vía variable; en Render se apaga por defecto.
+if 'RENDER' in os.environ:
+    DEBUG = os.getenv("DEBUG", "False") == "True"
+else:
+    DEBUG = os.getenv("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
@@ -94,22 +94,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'matrischol_project.wsgi.application'
 
-# Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': str(BASE_DIR / 'db.sqlite3'),
-    },
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DB", "matrischol_oces"),
-        "USER": os.getenv("POSTGRES_USER", "matrischol_oces_user"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "123456789"),
-        "HOST": os.getenv("POSTGRES_HOST", "localhost"),
-        "PORT": os.getenv("POSTGRES_PORT", "5432"),
-        "CONN_MAX_AGE": 300,
+ # Database: soporta DATABASE_URL (Render) y fallback local SQLite.
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL:
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=300)
     }
-}
+else:
+    # Fallback local: usa SQLite por simplicidad
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': str(BASE_DIR / 'db.sqlite3'),
+        }
+    }
 
 
 # Password validation (kept default)
@@ -121,7 +120,7 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 USE_TZ = True
 
