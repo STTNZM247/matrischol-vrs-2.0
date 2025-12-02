@@ -130,6 +130,9 @@ STATICFILES_DIRS = [
 
 # WhiteNoise: servir estáticos comprimidos y con manifest en producción
 STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
