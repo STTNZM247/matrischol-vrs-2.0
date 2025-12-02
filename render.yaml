@@ -22,9 +22,9 @@ services:
         value: 3.12.7
       # Opcionales: define estos en el dashboard para crear el admin automáticamente
       - key: DJANGO_ADMIN_EMAIL
-        value: ""
+        value: "matrischol.app@gmail.com"
       - key: DJANGO_ADMIN_PASSWORD
-        value: ""
+        value: "matrischol2025"
       - key: DJANGO_ADMIN_FIRST_NAME
         value: "Admin"
       - key: DJANGO_ADMIN_LAST_NAME

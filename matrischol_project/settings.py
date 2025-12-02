@@ -1,5 +1,10 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+
+load_dotenv()  # carga variables de entorno desde .env si existe
+
 try:
     from dotenv import load_dotenv  # opcional, facilita cargar archivo .env
 except ImportError:
@@ -94,18 +99,18 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': str(BASE_DIR / 'db.sqlite3'),
+    },
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_DB", "matrischol_oces"),
+        "USER": os.getenv("POSTGRES_USER", "matrischol_oces_user"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "123456789"),
+        "HOST": os.getenv("POSTGRES_HOST", "localhost"),
+        "PORT": os.getenv("POSTGRES_PORT", "5432"),
+        "CONN_MAX_AGE": 300,
     }
 }
 
-# Si está definida DATABASE_URL (Render Postgres), usarla
-try:
-    import dj_database_url  # type: ignore
-except Exception:
-    dj_database_url = None
-
-db_url = os.getenv('DATABASE_URL')
-if db_url and dj_database_url:
-    DATABASES['default'] = dj_database_url.parse(db_url, conn_max_age=600, ssl_require=True)
 
 # Password validation (kept default)
 AUTH_PASSWORD_VALIDATORS = []
