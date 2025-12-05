@@ -44,6 +44,15 @@ def register_view(request):
             request.session['registro_id'] = registro.id_usu
             messages.success(request, 'Registro creado correctamente')
             return redirect(reverse('accounts:dashboard'))
+        else:
+            # Log de diagnóstico cuando el formulario no es válido
+            try:
+                if getattr(settings, 'DEBUG', False):
+                    import json
+                    errs = {k: [str(e) for e in v] for k, v in (form.errors or {}).items()}
+                    print('[accounts.register] Form invalid errors:', json.dumps(errs, ensure_ascii=False))
+            except Exception:
+                pass
     else:
         form = RegistroForm()
     return render(request, 'accounts/register.html', {'form': form})
@@ -398,6 +407,34 @@ def dashboard_view(request):
         'administrativo': administrativo,
         'instituciones': instituciones,
     })
+
+
+def health_db(request):
+    """Endpoint simple para verificar conexión y estado de BD.
+    Devuelve motor de BD y conteos básicos.
+    """
+    from django.db import connection
+    engine = settings.DATABASES['default']['ENGINE']
+    info = {
+        'engine': engine,
+        'ok': True,
+        'counts': {}
+    }
+    try:
+        info['counts']['Registro'] = Registro.objects.count()
+        info['counts']['Rol'] = Rol.objects.count()
+        info['counts']['Acudiente'] = Acudiente.objects.count()
+    except Exception as e:
+        info['ok'] = False
+        info['error'] = str(e)
+    try:
+        with connection.cursor() as cur:
+            cur.execute('SELECT 1')
+            _ = cur.fetchone()
+    except Exception as e:
+        info['ok'] = False
+        info['error'] = str(e)
+    return JsonResponse(info)
 
 
 def panel_home(request):

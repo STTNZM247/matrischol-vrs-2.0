@@ -24,4 +24,5 @@ urlpatterns = [
     path('panel/estudiante/', views.panel_estudiante, name='panel_estudiante'),
     path('panel/administrativo/', views.panel_administrativo, name='panel_administrativo'),
     path('panel/admin/', views.panel_admin, name='panel_admin'),
+    path('health/db/', views.health_db, name='health_db'),
 ]
