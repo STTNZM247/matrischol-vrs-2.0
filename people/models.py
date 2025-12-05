@@ -5,7 +5,7 @@ class Acudiente(models.Model):
     id_acu = models.AutoField(primary_key=True, db_column='id_acu')
     num_doc_acu = models.CharField(max_length=20, db_column='num_doc_acu')
     tel_acu = models.CharField(max_length=20, null=True, blank=True, db_column='tel_acu')
-    dir_acu = models.CharField(max_length=100, null=True, blank=True, db_column='dir_acu')
+    dir_acu = models.CharField(max_length=200, null=True, blank=True, db_column='dir_acu')
     lat_acu = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, db_column='lat_acu')
     lon_acu = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, db_column='lon_acu')
     acc_acu = models.IntegerField(null=True, blank=True, db_column='acc_acu', help_text='Precisión (m) de la geolocalización capturada')
