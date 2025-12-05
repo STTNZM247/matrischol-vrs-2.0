@@ -31,7 +31,7 @@ class Administrativo(models.Model):
     id_adm = models.AutoField(primary_key=True, db_column='id_adm')
     num_doc_adm = models.CharField(max_length=20, db_column='num_doc_adm')
     tel_adm = models.CharField(max_length=20, null=True, blank=True, db_column='tel_adm')
-    dir_adm = models.CharField(max_length=100, null=True, blank=True, db_column='dir_adm')
+    dir_adm = models.CharField(max_length=300, null=True, blank=True, db_column='dir_adm')
     tip_carg_adm = models.CharField(max_length=50, null=True, blank=True, db_column='tip_carg_adm')
     cedula_img = models.ImageField(upload_to='administrativos/cedulas/', null=True, blank=True, db_column='cedula_img')
     foto_perfil = models.ImageField(upload_to='administrativos/fotos/', null=True, blank=True, db_column='foto_perfil')

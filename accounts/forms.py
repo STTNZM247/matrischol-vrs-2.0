@@ -11,7 +11,7 @@ class RegistroForm(forms.ModelForm):
     # Acudiente extra fields
     num_doc_acu = forms.CharField(max_length=20, required=True, label='Número de documento')
     tel_acu = forms.CharField(max_length=20, required=False, label='Teléfono')
-    dir_acu = forms.CharField(max_length=100, required=False, label='Dirección')
+    dir_acu = forms.CharField(max_length=300, required=False, label='Dirección')
     cedula_img = forms.ImageField(required=True, widget=ClearableFileInput, label='Foto de la cédula')
     foto_perfil = forms.ImageField(required=False, widget=ClearableFileInput, label='Foto de perfil')
     dir_lat = forms.FloatField(required=False, widget=forms.HiddenInput())
