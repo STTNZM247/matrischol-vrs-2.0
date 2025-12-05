@@ -1,4 +1,6 @@
 import os
+import dj_database_url
+
 from pathlib import Path
 
 try:
@@ -32,23 +34,12 @@ else:
         except Exception:
             pass
 
-SECRET_KEY = os.environ.get("SECRET_KEY", 'change-me-in-prod')
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # Permite forzar DEBUG vía variable; en Render se apaga por defecto.
-if 'RENDER' in os.environ:
-    DEBUG = os.getenv("DEBUG", "False") == "True"
-else:
-    DEBUG = os.getenv("DEBUG", "True") == "True"
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-CSRF_TRUSTED_ORIGINS = []
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
-# Fallback general para Render si no expone RENDER_EXTERNAL_HOSTNAME
-ALLOWED_HOSTS.append('.onrender.com')
-CSRF_TRUSTED_ORIGINS.append('https://*.onrender.com')
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -97,22 +88,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'matrischol_project.wsgi.application'
 
- # Database: soporta DATABASE_URL (Render) y fallback local SQLite.
-DATABASE_URL = os.getenv("DATABASE_URL")
-if DATABASE_URL:
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=300)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-else:
-    # Fallback local: usa SQLite por simplicidad
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': str(BASE_DIR / 'db.sqlite3'),
-        }
-    }
+}
 
+DATABASES['default'] = dj_database_url.parse("postgresql://matrischol_oces_user:dLWddns0uM7Q5WwbxdthCyWRNBWtmMud@dpg-d4n2n5ili9vc73f9df70-a.oregon-postgres.render.com/matrischol_oces")
+
+# 
 
 # Password validation (kept default)
 AUTH_PASSWORD_VALIDATORS = []
