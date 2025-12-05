@@ -47,10 +47,19 @@ def register_view(request):
         else:
             # Log de diagnóstico cuando el formulario no es válido
             try:
+                import json
+                errs = {k: [str(e) for e in v] for k, v in (form.errors or {}).items()}
                 if getattr(settings, 'DEBUG', False):
-                    import json
-                    errs = {k: [str(e) for e in v] for k, v in (form.errors or {}).items()}
                     print('[accounts.register] Form invalid errors:', json.dumps(errs, ensure_ascii=False))
+                # Exponer errores al usuario mediante mensajes para facilitar diagnóstico
+                non_field = errs.get('__all__') or []
+                for msg in non_field:
+                    messages.error(request, msg)
+                for field, flist in errs.items():
+                    if field == '__all__':
+                        continue
+                    for emsg in flist:
+                        messages.error(request, f"{field}: {emsg}")
             except Exception:
                 pass
     else:
