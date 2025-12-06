@@ -29,8 +29,20 @@ def send_email(subject: str, to_email: str, template_html: str, context: dict, t
         # Fallback básico quitando tags simples
         text_content = html_content.replace('<br>', '\n').replace('<br/>', '\n').replace('</p>', '\n').replace('<p>', '').replace('<strong>', '').replace('</strong>', '')
 
-    email = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [to_email])
-    email.attach_alternative(html_content, 'text/html')
+    # Envío por SendGrid API
+    import os
+    from sendgrid import SendGridAPIClient
+    from sendgrid.helpers.mail import Mail
+
+    sg_api_key = os.getenv("EMAIL_HOST_PASSWORD") or getattr(settings, "EMAIL_HOST_PASSWORD", None)
+    from_email = settings.DEFAULT_FROM_EMAIL
+    message = Mail(
+        from_email=from_email,
+        to_emails=to_email,
+        subject=subject,
+        plain_text_content=text_content,
+        html_content=html_content
+    )
 
     log = EmailLog(
         destinatario=to_email,
@@ -40,13 +52,14 @@ def send_email(subject: str, to_email: str, template_html: str, context: dict, t
         id_usu=user,
     )
     try:
-        email.send(fail_silently=False)
-        log.exito = True
+        sg = SendGridAPIClient(sg_api_key)
+        response = sg.send(message)
+        log.exito = response.status_code in [200, 202]
+        log.error = None if log.exito else f"SendGrid error: {response.status_code} {response.body}"
     except Exception as e:
         log.exito = False
         log.error = str(e)
-    finally:
-        log.save()
+    log.save()
     return log
 
 
