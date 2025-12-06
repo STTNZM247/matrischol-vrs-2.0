@@ -29,7 +29,7 @@ def send_email(subject: str, to_email: str, template_html: str, context: dict, t
         # Fallback básico quitando tags simples
         text_content = html_content.replace('<br>', '\n').replace('<br/>', '\n').replace('</p>', '\n').replace('<p>', '').replace('<strong>', '').replace('</strong>', '')
 
-    # Envío por SendGrid API
+    # Envío por SendGrid API SIEMPRE
     import os
     from sendgrid import SendGridAPIClient
     from sendgrid.helpers.mail import Mail
