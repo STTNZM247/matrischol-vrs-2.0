@@ -15,7 +15,6 @@ def send_email(subject: str, to_email: str, template_html: str, context: dict, t
     :param tipo: Clasificación (password_change, notification, etc.)
     :param user: Registro relacionado (opcional)
     """
-        print("[SEND_EMAIL] Iniciando envío de correo...")
     # Agregar datos comunes (logo, fecha actual) antes de renderizar
     if 'now' not in context:
         context['now'] = timezone.now()
@@ -36,9 +35,7 @@ def send_email(subject: str, to_email: str, template_html: str, context: dict, t
     from sendgrid.helpers.mail import Mail
 
     sg_api_key = os.getenv("EMAIL_HOST_PASSWORD") or getattr(settings, "EMAIL_HOST_PASSWORD", None)
-        print(f"[SEND_EMAIL] API Key: {sg_api_key}")
     from_email = settings.DEFAULT_FROM_EMAIL
-        print(f"[SEND_EMAIL] From: {from_email} | To: {to_email}")
     message = Mail(
         from_email=from_email,
         to_emails=to_email,
@@ -46,7 +43,6 @@ def send_email(subject: str, to_email: str, template_html: str, context: dict, t
         plain_text_content=text_content,
         html_content=html_content
     )
-        print(f"[SEND_EMAIL] Mensaje creado: {message}")
 
     log = EmailLog(
         destinatario=to_email,
@@ -57,24 +53,19 @@ def send_email(subject: str, to_email: str, template_html: str, context: dict, t
     )
     # Validar API Key antes de enviar
     if not sg_api_key or not sg_api_key.startswith("SG."):
-            print("[SEND_EMAIL] ERROR: API Key de SendGrid no configurada o inválida.")
         log.exito = False
         log.error = "API Key de SendGrid no configurada o inválida."
         log.save()
         return log
     try:
-            print("[SEND_EMAIL] Intentando enviar correo por SendGrid...")
         sg = SendGridAPIClient(sg_api_key)
         response = sg.send(message)
-            print(f"[SEND_EMAIL] Respuesta SendGrid: status={response.status_code}, body={response.body}")
         log.exito = response.status_code in [200, 202]
         log.error = None if log.exito else f"SendGrid error: {response.status_code} {response.body}"
     except Exception as e:
-            print(f"[SEND_EMAIL] ERROR al enviar: {str(e)}")
         log.exito = False
         log.error = str(e)
     log.save()
-        print(f"[SEND_EMAIL] Log guardado: exito={log.exito}, error={log.error}")
     return log
 
 
