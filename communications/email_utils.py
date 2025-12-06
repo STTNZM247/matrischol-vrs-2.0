@@ -51,6 +51,12 @@ def send_email(subject: str, to_email: str, template_html: str, context: dict, t
         tipo=tipo,
         id_usu=user,
     )
+    # Validar API Key antes de enviar
+    if not sg_api_key or not sg_api_key.startswith("SG."):
+        log.exito = False
+        log.error = "API Key de SendGrid no configurada o inválida."
+        log.save()
+        return log
     try:
         sg = SendGridAPIClient(sg_api_key)
         response = sg.send(message)
