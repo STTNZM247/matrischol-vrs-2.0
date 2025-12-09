@@ -132,9 +132,14 @@ STORAGES = {
     },
 }
 
+
 # Media (uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# =====================
+# SITE_URL para enlaces en correos y frontend
+SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
 
 # =====================
 # Email configuration
