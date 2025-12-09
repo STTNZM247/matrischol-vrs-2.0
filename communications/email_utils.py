@@ -29,12 +29,12 @@ def send_email(subject: str, to_email: str, template_html: str, context: dict, t
         # Fallback básico quitando tags simples
         text_content = html_content.replace('<br>', '\n').replace('<br/>', '\n').replace('</p>', '\n').replace('<p>', '').replace('<strong>', '').replace('</strong>', '')
 
-    # Envío por SendGrid API SIEMPRE
+    # Envío por SendGrid API usando SENDGRID_API_KEY
     import os
     from sendgrid import SendGridAPIClient
     from sendgrid.helpers.mail import Mail
 
-    sg_api_key = os.getenv("EMAIL_HOST_PASSWORD") or getattr(settings, "EMAIL_HOST_PASSWORD", None)
+    sg_api_key = os.getenv("SENDGRID_API_KEY")
     from_email = settings.DEFAULT_FROM_EMAIL
     message = Mail(
         from_email=from_email,
@@ -54,7 +54,7 @@ def send_email(subject: str, to_email: str, template_html: str, context: dict, t
     # Validar API Key antes de enviar
     if not sg_api_key or not sg_api_key.startswith("SG."):
         log.exito = False
-        log.error = "API Key de SendGrid no configurada o inválida."
+        log.error = "API Key de SendGrid no configurada o inválida. (SENDGRID_API_KEY)"
         log.save()
         return log
     try:
