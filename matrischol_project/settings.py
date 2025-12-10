@@ -137,14 +137,10 @@ STORAGES = {
 
 # Media (uploads)
 MEDIA_URL = '/media/'
-# Usar Cloudinary en producción, carpeta local en desarrollo
-if DEBUG:
-    MEDIA_ROOT = BASE_DIR / 'media'
-else:
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    CLOUDINARY_STORAGE = {
-        'CLOUDINARY_URL': os.getenv('CLOUDINARY_URL'),
-    }
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+CLOUDINARY_STORAGE = {
+    'CLOUDINARY_URL': os.getenv('CLOUDINARY_URL'),
+}
 
 # =====================
 # SITE_URL para enlaces en correos y frontend
